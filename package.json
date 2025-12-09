@@ -2,7 +2,7 @@
   "name": "@eliware/mcp-server",
   "type": "module",
   "version": "1.1.0",
-  "description": "A Node.js mcp-server.",
+  "description": "A Node.js server for the Model Context Protocol (MCP) with dynamic tool loading, HTTP API, and authentication.",
   "main": "index.cjs",
   "module": "index.mjs",
   "types": "index.d.ts",
@@ -27,10 +27,16 @@
     "type": "git",
     "url": "git+https://github.com/eliware/mcp-server.git"
   },
-    "keywords": [
-        "mcp-server",
-        "nodejs"
-    ],
+  "keywords": [
+    "mcp-server",
+    "model context protocol",
+    "nodejs",
+    "ai tools",
+    "http api",
+    "express",
+    "dynamic tools",
+    "automation"
+  ],
   "author": "Eli Sterling, eliware.org <eli@eliware.org>",
   "license": "MIT",
   "bugs": {
@@ -38,7 +44,8 @@
   },
   "homepage": "https://github.com/eliware/mcp-server#readme",
   "devDependencies": {
-    "jest": "^30.0.4"
+    "jest": "^30.0.4",
+    "supertest": "^7.1.3"
   },
   "jest": {
     "testEnvironment": "node",
@@ -49,6 +56,8 @@
     ]
   },
   "dependencies": {
-    "@eliware/common": "^1.1.1"
+    "@modelcontextprotocol/sdk": "^1.15.1",
+    "@eliware/common": "^1.0.17",
+    "express": "^5.1.0"
   }
 }
