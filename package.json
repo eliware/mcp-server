@@ -1,63 +1,63 @@
 {
-  "name": "@eliware/mcp-server",
-  "type": "module",
-  "version": "1.1.0",
-  "description": "A Node.js server for the Model Context Protocol (MCP) with dynamic tool loading, HTTP API, and authentication.",
-  "main": "index.cjs",
-  "module": "index.mjs",
-  "types": "index.d.ts",
-  "files": [
-    "index.mjs",
-    "index.cjs",
-    "index.d.ts",
-    "README.md",
-    "LICENSE"
-  ],
-  "exports": {
-    ".": {
-      "import": "./index.mjs",
-      "require": "./index.cjs",
-      "types": "./index.d.ts"
+    "name": "@eliware/mcp-server",
+    "type": "module",
+    "version": "1.1.1",
+    "description": "A Node.js server for the Model Context Protocol (MCP) with dynamic tool loading, HTTP API, and authentication.",
+    "main": "index.cjs",
+    "module": "index.mjs",
+    "types": "index.d.ts",
+    "files": [
+        "index.mjs",
+        "index.cjs",
+        "index.d.ts",
+        "README.md",
+        "LICENSE"
+    ],
+    "exports": {
+        ".": {
+            "import": "./index.mjs",
+            "require": "./index.cjs",
+            "types": "./index.d.ts"
+        }
+    },
+    "scripts": {
+        "test": "npx --node-options=\"--experimental-vm-modules --no-warnings\" jest --detectOpenHandles --silent"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/eliware/mcp-server.git"
+    },
+    "keywords": [
+        "mcp-server",
+        "model context protocol",
+        "nodejs",
+        "ai tools",
+        "http api",
+        "express",
+        "dynamic tools",
+        "automation"
+    ],
+    "author": "Eli Sterling, eliware.org <eli@eliware.org>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/eliware/mcp-server/issues"
+    },
+    "homepage": "https://github.com/eliware/mcp-server#readme",
+    "devDependencies": {
+        "jest": "^30.0.4",
+        "supertest": "^7.1.3"
+    },
+    "jest": {
+        "testEnvironment": "node",
+        "testMatch": [
+            "**/?(*.)+(spec|test).[jt]s?(x)",
+            "**/?(*.)+(spec|test).mjs",
+            "**/?(*.)+(spec|test).cjs"
+        ]
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.15.1",
+        "@eliware/common": "^1.0.17",
+        "express": "^5.1.0"
     }
-  },
-  "scripts": {
-    "test": "npx --node-options=\"--experimental-vm-modules --no-warnings\" jest --detectOpenHandles --silent"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/eliware/mcp-server.git"
-  },
-  "keywords": [
-    "mcp-server",
-    "model context protocol",
-    "nodejs",
-    "ai tools",
-    "http api",
-    "express",
-    "dynamic tools",
-    "automation"
-  ],
-  "author": "Eli Sterling, eliware.org <eli@eliware.org>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/eliware/mcp-server/issues"
-  },
-  "homepage": "https://github.com/eliware/mcp-server#readme",
-  "devDependencies": {
-    "jest": "^30.0.4",
-    "supertest": "^7.1.3"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/?(*.)+(spec|test).[jt]s?(x)",
-      "**/?(*.)+(spec|test).mjs",
-      "**/?(*.)+(spec|test).cjs"
-    ]
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.15.1",
-    "@eliware/common": "^1.0.17",
-    "express": "^5.1.0"
-  }
 }
