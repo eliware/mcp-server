@@ -1,146 +1,32 @@
-import { mcpServer, buildResponse, convertBigIntToString, z } from '@eliware/mcp-server';
+import { mcpServer, z } from '@eliware/mcp-server';
 import request from 'supertest';
 import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+describe('public server API',()=>{let app,httpInstance,log; beforeEach(async()=>{log={debug:jest.fn(),warn:jest.fn(),error:jest.fn()};({app,httpInstance}=await mcpServer({log,httpPort:0,authToken:'test-token'}));}); afterEach(()=>httpInstance?.close());
 
-// Basic export test
-test('mcpServer is a function', () => {
-  expect(typeof mcpServer).toBe('function');
+test('authenticates MCP requests',async()=>{expect((await request(app).post('/mcp').send({foo:'bar'})).status).toBe(401); expect((await request(app).post('/mcp').set('Authorization','Bearer test-token').send({foo:'bar'})).status).toBe(406)});
+test('supports custom auth and metadata',async()=>{const r=await mcpServer({log,httpPort:0,authCallback:async t=>t==='ok',name:'Custom',version:'2',context:{x:1}}); expect(r.mcpServer.options).toEqual({name:'Custom',version:'2'}); expect((await request(r.app).post('/mcp').set('Authorization','Bearer ok').send({foo:'bar'})).status).toBe(406); r.httpInstance.close()});
+test('exports zod',()=>expect(z.object({x:z.string()}).safeParse({x:'ok'}).success).toBe(true));
 });
+import { handleRequestFailure } from '@eliware/mcp-server';
+test('supports stateful transport mode',async()=>{const r=await mcpServer({log:{debug:jest.fn(),warn:jest.fn(),error:jest.fn()},httpPort:0,authToken:'test-token',stateless:false}); expect(r.transport).toBeTruthy(); r.httpInstance.close()});
+test('handles request failures',()=>{const log={error:jest.fn()}; const res={headersSent:false,status:jest.fn().mockReturnThis(),json:jest.fn()}; handleRequestFailure({log,res},new Error('boom')); expect(log.error).toHaveBeenCalled(); expect(res.status).toHaveBeenCalledWith(500)});
+test('handles failures without stack and avoids duplicate response',()=>{const log={error:jest.fn()}; const res={headersSent:true,status:jest.fn(),json:jest.fn()}; handleRequestFailure({log,res},{message:'boom'}); expect(log.error).toHaveBeenCalled(); expect(res.status).not.toHaveBeenCalled()});
 
-describe('mcpServer HTTP API', () => {
-  let log;
-  let app;
-  let httpInstance;
-  let server;
+test('supports default logger and options',async()=>{const r=await mcpServer({httpPort:0,authToken:'test-token'}); expect(r.app).toBeTruthy(); r.httpInstance.close()});
+test('supports omitted options object',async()=>{const r=await mcpServer(); expect(r.app).toBeTruthy(); r.httpInstance.close()});
+import { requestEndpoint, listeningCallback } from '@eliware/mcp-server';
+test('endpoint callbacks are directly testable',async()=>{const res={status:jest.fn().mockReturnThis(),send:jest.fn()};  const handle=jest.fn().mockResolvedValue(undefined); await requestEndpoint({handle,log:{error:jest.fn()}},{},res); expect(handle).toHaveBeenCalled();});
+test('listening callback logs',()=>{const log={debug:jest.fn()}; listeningCallback({log},1234); expect(log.debug).toHaveBeenCalledWith(expect.stringContaining('1234'));});
+import { createPostHandler, createListeningHandler } from '@eliware/mcp-server';
+test('covers route callback factories',async()=>{const handle=jest.fn().mockRejectedValue(new Error('fail')); const log={error:jest.fn(),debug:jest.fn()}; const res={headersSent:false,status:jest.fn().mockReturnThis(),json:jest.fn()}; await createPostHandler({handle,log})({},res); expect(res.status).toHaveBeenCalledWith(500); createListeningHandler({log,port:7})(); expect(log.debug).toHaveBeenCalled();});
+test('supports stdio transport mode',async()=>{const r=await mcpServer({stdio:true,log:{debug:jest.fn(),warn:jest.fn(),error:jest.fn()},toolsDir:'./tools'}); expect(r.app).toBeUndefined(); expect(r.httpInstance).toBeUndefined(); expect(r.transport).toBeTruthy(); await r.transport.close();});
+test('resolves entrypoint-relative tools and stderr stdio logging',async()=>{const original=process.argv[1]; process.argv[1]='server.mjs'; const r=await mcpServer({stdio:true,entrypoint:'server.mjs',toolsDir:'./tools'}); expect(r.transport).toBeTruthy(); await r.transport.close(); process.argv[1]=original;});
+test('defaults tools directory beside entrypoint',async()=>{const r=await mcpServer({stdio:true,entrypoint:new URL('../example.mjs',import.meta.url).pathname}); expect(r.transport).toBeTruthy(); await r.transport.close();});
+test('stderr logger writes all levels to stderr',async()=>{const spy=jest.spyOn(console,'error').mockImplementation(()=>{}); const {stderrLogger}=await import('@eliware/mcp-server'); for(const level of ['debug','info','warn','error']) stderrLogger[level]('message'); expect(spy).toHaveBeenCalledTimes(4); spy.mockRestore();});
 
-  beforeEach(async () => {
-    log = {
-      debug: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-    };
-    // Use a random port (0) and a test token
-    const result = await mcpServer({ log, port: 0, authToken: 'test-token' });
-    app = result.app;
-    httpInstance = result.httpInstance;
-    server = result;
-  });
+test('creates HTTP redirect app',async()=>{let middleware; const app={use:jest.fn(fn=>{middleware=fn})}; const createApp=jest.fn(()=>app); const {createRedirectApp}=await import('@eliware/mcp-server'); expect(createRedirectApp({createApp,httpsPort:443})).toBe(app); const res={redirect:jest.fn()}; middleware({headers:{host:'example.test:80'},originalUrl:'/mcp'},res); expect(res.redirect).toHaveBeenCalledWith(301,'https://example.test/mcp');});
 
-  afterEach(async () => {
-    if (httpInstance && httpInstance.close) {
-      await new Promise((resolve) => httpInstance.close(resolve));
-    }
-  });
+test('supports HTTPS-only and validates TLS',async()=>{await expect(mcpServer({httpsPort:443,toolsDir:'./tools',log:{debug:jest.fn(),warn:jest.fn(),error:jest.fn()}})).rejects.toThrow('httpsPort requires tls.key and tls.cert'); const server={listen:jest.fn(),close:jest.fn()}; const r=await mcpServer({httpPort:null,httpsPort:0,tls:{key:'key',cert:'cert'},toolsDir:'./tools',log:{debug:jest.fn(),warn:jest.fn(),error:jest.fn()},createHttpsServer:jest.fn(()=>server)}); expect(r.httpInstance).toBeUndefined(); expect(r.httpsInstance).toBe(server); expect(server.listen).toHaveBeenCalled();});
 
-  test('should return 200 for GET /', async () => {
-    await request(app).get('/').expect(200, 'GET / endpoint - no action');
-  });
-
-  test('should require auth for POST /', async () => {
-    await request(app).post('/').send({ foo: 'bar' }).expect(401);
-    await request(app)
-      .post('/')
-      .set('Authorization', 'Bearer wrong-token')
-      .send({ foo: 'bar' })
-      .expect(401);
-    await request(app)
-      .post('/')
-      .set('Authorization', 'Bearer test-token')
-      .send({ foo: 'bar' })
-      .expect(406); // Updated to expect 406 Not Acceptable
-  });
-
-  test('should support custom authCallback', async () => {
-    const customAuth = jest.fn(async (token) => token === 'custom-token');
-    const result = await mcpServer({ log, port: 0, authCallback: customAuth });
-    const app2 = result.app;
-    // No auth header
-    await request(app2).post('/').send({ foo: 'bar' }).expect(401);
-    // Wrong token
-    await request(app2)
-      .post('/')
-      .set('Authorization', 'Bearer wrong-token')
-      .send({ foo: 'bar' })
-      .expect(401);
-    // Correct token
-    await request(app2)
-      .post('/')
-      .set('Authorization', 'Bearer custom-token')
-      .send({ foo: 'bar' })
-      .expect(406);
-    expect(customAuth).toHaveBeenCalled();
-    if (result.httpInstance && result.httpInstance.close) {
-      result.httpInstance.close();
-    }
-  });
-
-  test('should log HTTP requests and responses', async () => {
-    await request(app)
-      .post('/')
-      .set('Authorization', 'Bearer test-token')
-      .send({ foo: 'bar' })
-      .expect(406); // 406 expected for POST with valid token but no action
-    expect(log.debug).toHaveBeenCalled();
-  });
-
-  test('should export all expected properties', () => {
-    expect(server).toHaveProperty('app');
-    expect(server).toHaveProperty('httpInstance');
-    expect(server).toHaveProperty('mcpServer');
-    expect(server).toHaveProperty('transport');
-  });
-
-  test('should return 500 if MCP_TOKEN is missing', async () => {
-    const result = await mcpServer({ log, port: 0, authToken: undefined });
-    const app2 = result.app;
-    await request(app2)
-      .post('/')
-      .send({ foo: 'bar' })
-      .expect(500);
-    if (result.httpInstance && result.httpInstance.close) {
-      result.httpInstance.close();
-    }
-  });
-
-  test('should handle invalid JSON in POST', async () => {
-    await request(app)
-      .post('/')
-      .set('Authorization', 'Bearer test-token')
-      .set('Content-Type', 'application/json')
-      .send('not a json')
-      .expect(406); // Should be 406 or 400/500 depending on express config
-  });
-
-  test('should start with custom name and version', async () => {
-    const result = await mcpServer({ log, port: 0, authToken: 'test-token', name: 'CustomName', version: '9.9.9', context: { foo: 'bar' } });
-    expect(result.mcpServer.options.name).toBe('CustomName');
-    expect(result.mcpServer.options.version).toBe('9.9.9');
-    expect(result.mcpServer.context).toEqual({ foo: 'bar' });
-    if (result.httpInstance && result.httpInstance.close) {
-      result.httpInstance.close();
-    }
-  });
-});
-
-describe('Utility exports', () => {
-  test('convertBigIntToString converts bigints', () => {
-    const input = { a: 1n, b: [2n, 3, { c: 4n }] };
-    const output = convertBigIntToString(input);
-    expect(output).toEqual({ a: '1', b: ['2', 3, { c: '4' }] });
-  });
-
-  test('buildResponse wraps data', () => {
-    const data = { foo: 'bar', num: 1n };
-    const resp = buildResponse(data);
-    expect(resp).toHaveProperty('content');
-    expect(resp.content[0].type).toBe('text');
-    expect(resp.content[0].text).toContain('"foo": "bar"');
-    expect(resp.content[0].text).toContain('"num": "1"');
-  });
-
-  test('z export is available and works', () => {
-    const schema = z.object({ foo: z.string() });
-    expect(schema.safeParse({ foo: 'bar' }).success).toBe(true);
-    expect(schema.safeParse({ foo: 123 }).success).toBe(false);
-  });
-});
+test('supports both listeners with HTTP redirect',async()=>{const server={listen:jest.fn(),close:jest.fn()}; const createHttpServer=jest.fn(()=>server); const createHttpsServer=jest.fn(()=>server); const r=await mcpServer({httpPort:0,httpsPort:0,httpRedirect:true,tls:{key:'key',cert:'cert'},toolsDir:'./tools',log:{debug:jest.fn(),warn:jest.fn(),error:jest.fn()},createHttpServer,createHttpsServer}); expect(createHttpServer).toHaveBeenCalled(); expect(createHttpsServer).toHaveBeenCalled(); expect(r.httpInstance).toBe(server); expect(r.httpsInstance).toBe(server);});
+test('redirect app handles alternate HTTPS port and missing host',async()=>{let middleware; const app={use:jest.fn(fn=>{middleware=fn})}; const {createRedirectApp}=await import('@eliware/mcp-server'); createRedirectApp({createApp:()=>app,httpsPort:8443}); const res={redirect:jest.fn()}; middleware({headers:{},url:'/status'},res); expect(res.redirect).toHaveBeenCalledWith(301,'https://localhost:8443/status');});

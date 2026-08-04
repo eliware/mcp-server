@@ -1,20 +1,28 @@
-// Example usage for ESM (example.mjs)
+// server.mjs
+// 1. Install @eliware/mcp-server.
+// 2. Put tool files in ./tools/.
+// 3. Start this file.
+// That is the whole server.
+
 import { mcpServer } from '@eliware/mcp-server';
 
-(async () => {
-  const { app, httpInstance } = await mcpServer({
-    // log, // Optional: pass your own logger instance
-    // port: 1234, // You can change the port as needed
-    // authToken: 'your-secret-token', // You can still use this for static token auth
-    // toolsDir: './tools', // Path to your tools directory
-    // name: 'Example MCP Server', // Set your server name
-    // version: '1.0.0', // Set your server version
-    // // Example: custom async auth callback
-    // authCallback: async (token) => {
-    //  // Replace with your own logic, e.g. check token in DB or against a list
-    //  return token === 'your-secret-token';
-    // },
-    // context: { db, redis } // Optional objects to pass to tools (db, redis, etc.)
-  });
-  console.log('MCP Server started!');
-})();
+await mcpServer({
+  stdio: process.argv.includes('--stdio'),
+  httpPort: process.env.MCP_HTTP_PORT ? Number(process.env.MCP_HTTP_PORT) : 1234,
+  authToken: process.env.MCP_TOKEN,
+
+  // Every value here is available to each tool as an injected property.
+  context: {
+    appName: 'my-mcp-server',
+    db: createDatabaseClient(),
+  },
+});
+
+function createDatabaseClient() {
+  return {
+    async query(sql, values = []) {
+      // Replace with your real database client.
+      return { sql, values };
+    },
+  };
+}

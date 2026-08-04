@@ -1,228 +1,172 @@
-# [![eliware.org](https://eliware.org/logos/brand.png)](https://discord.gg/M6aTR9eTwN)
+# @eliware/mcp-server
 
-## @eliware/mcp-server [![npm version](https://img.shields.io/npm/v/@eliware/mcp-server.svg)](https://www.npmjs.com/package/@eliware/mcp-server)[![license](https://img.shields.io/github/license/eliware/mcp-server.svg)](LICENSE)[![build status](https://github.com/eliware/mcp-server/actions/workflows/nodejs.yml/badge.svg)](https://github.com/eliware/mcp-server/actions)
-
-> A Node.js server for the Model Context Protocol (MCP) with dynamic tool loading, HTTP API, and authentication. Easily extendable with custom tools for AI and automation workflows. Supports both CommonJS and ESM.
-
----
-
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [ESM Example](#esm-example)
-  - [CommonJS Example](#commonjs-example)
-  - [Custom Tool Example (ESM)](#custom-tool-example-esm)
-  - [Custom Tool Example (CommonJS)](#custom-tool-example-commonjs)
-- [API](#api)
-- [TypeScript](#typescript)
-- [License](#license)
+A minimal, pure-ESM MCP server for Node.js. Drop `.mjs` tools into `tools/`, start one entrypoint, and the library discovers and registers them automatically.
 
 ## Features
 
-- Model Context Protocol (MCP) server implementation for Node.js
-- Dynamic tool loading from a directory (`tools/`)
-  - **Loads `.mjs` files in ESM mode, `.cjs` files in CommonJS mode**
-- HTTP API with authentication (Bearer token or custom async callback)
-- Express-based, easy to extend
-- Utility helpers for tool responses and BigInt-safe serialization
-- TypeScript type definitions included
-- Supports both CommonJS and ESM usage
+- Stateless Streamable HTTP by default.
+- Optional stdio transport for local MCP clients.
+- Optional stateful transport mode.
+- Automatic `.mjs` tool discovery.
+- Zod input schemas.
+- Bearer-token or custom async authentication.
+- Injectable application context for databases and services.
+- BigInt-safe `buildResponse()` helper.
+- Express HTTP integration.
+- HTTP, HTTPS, or both, with optional HTTP-to-HTTPS redirects.
+- TypeScript declarations.
 
-## Installation
+## Install
 
 ```bash
 npm install @eliware/mcp-server
 ```
 
-## Usage
-
-### ESM Example
+## Minimal server
 
 ```js
-// Example for ESM (module JS) usage
+// server.mjs
 import { mcpServer } from '@eliware/mcp-server';
 
-(async () => {
-  const { app, httpInstance } = await mcpServer({
-    // port: 1234, // You can change the port as needed
-    // authToken: 'your-secret-token', // You can still use this for static token auth
-    // toolsDir: './tools', // Path to your tools directory
-    // name: 'Example MCP Server', // Set your server name
-    // version: '1.0.0', // Set your server version
-    // // Example: custom async auth callback
-    // authCallback: async (token) => {
-    //  // Replace with your own logic, e.g. check token in DB or against a list
-    //  return token === 'your-secret-token';
-    // },
-    // context: { example: 'context' } // Optional context to pass to tools _extra (db, redis, etc.)
-  });
-  console.log('MCP Server started!');
-})();
+await mcpServer({
+  authToken: process.env.MCP_TOKEN,
+});
 ```
 
-### CommonJS Example
+Put tools in `./tools/`. The MCP endpoint is `/mcp` only. There is no root or legacy compatibility endpoint.
+
+See `example.mjs` for a complete entrypoint example. Put application tools in a `tools/` folder beside that entrypoint.
+
+## Local stdio mode
+
+For local clients that launch the server as a child process:
 
 ```js
-// Example for CommonJS usage
-const { mcpServer } = require('@eliware/mcp-server');
-
-(async () => {
-  const { app, httpInstance } = await mcpServer({
-    // port: 1234, // You can change the port as needed
-    // authToken: 'your-secret-token', // You can still use this for static token auth
-    // toolsDir: './tools', // Path to your tools directory
-    // name: 'Example MCP Server', // Set your server name
-    // version: '1.0.0', // Set your server version
-    // // Example: custom async auth callback
-    // authCallback: async (token) => {
-    //  // Replace with your own logic, e.g. check token in DB or against a list
-    //  return token === 'your-secret-token';
-    // },
-    // context: { example: 'context' } // Optional context to pass to tools _extra (db, redis, etc.)
-  });
-  console.log('MCP Server started!');
-})();
+await mcpServer({ stdio: true });
 ```
 
-> **Note:**
->
-> - In ESM mode, tools must be `.mjs` files and use the ESM export signature.
-> - In CommonJS mode, tools must be `.cjs` files and use the CommonJS export signature.
+stdio uses stdin/stdout for MCP JSON-RPC. Do not write logs to stdout; use stderr instead. HTTP remains the default for remote deployments.
 
-### Custom Tool Example (ESM)
+## Tool template
 
-To add your own tool for ESM, create a file in the `tools/` directory (e.g., `tools/echo.mjs`):
+Create `tools/hello.mjs`:
 
 ```js
 import { z, buildResponse } from '@eliware/mcp-server';
 
-export default async function ({ mcpServer, toolName, log }) {
+export default async function registerHello({ mcpServer, toolName, log, db }) {
   mcpServer.tool(
     toolName,
-    "Echo Tool",
-    { echoText: z.string() },
-    async (_args, _extra) => {
-      log.debug(`${toolName} Request`, { _args });
-      const response = {
-        message: "echo-reply",
-        data: {
-          text: _args.echoText
-        }
-      };
-      log.debug(`${toolName} Response`, { response });
-      return buildResponse(response);
-    }
+    'Say hello.',
+    { name: z.string().min(1) },
+    async ({ name }) => {
+      log.debug(`${toolName} request`, { name });
+      // `db` and other values come from mcpServer({ context: { db } }).
+      void db;
+      return buildResponse({ message: `Hello, ${name}!` });
+    },
   );
 }
 ```
 
-### Custom Tool Example (CommonJS)
+Tool requirements:
 
-To add your own tool for CommonJS, create a file in the `tools/` directory (e.g., `tools/echo.cjs`):
+1. File ends in `.mjs`.
+2. File exports one default async registration function.
+3. The function receives `{ mcpServer, toolName, log, ...context }`.
+4. Call `mcpServer.tool(name, description, inputSchema, handler)`.
+5. Define handler inputs with Zod (`z.string()`, `z.number()`, `z.object()`, etc.).
+6. Return an MCP result, normally using `buildResponse(value)`.
+
+## Injected context
 
 ```js
-const { z, buildResponse } = require('@eliware/mcp-server');
-
-module.exports = async function ({ mcpServer, toolName, log }) {
-  mcpServer.tool(
-    toolName,
-    "Echo Tool",
-    { echoText: z.string() },
-    async (_args, _extra) => {
-      log.debug(`${toolName} Request`, { _args });
-      const response = {
-        message: "echo-reply",
-        data: {
-          text: _args.echoText
-        }
-      };
-      log.debug(`${toolName} Response`, { response });
-      return buildResponse(response);
-    }
-  );
-};
+await mcpServer({
+  context: { db, config, services },
+});
 ```
 
-## API
+Every tool receives those values as properties of its registration argument.
 
-### `async mcpServer(options): Promise<{ app, httpInstance, mcpServer, transport }>```
+## Configuration
 
-Starts the MCP + HTTP server. Options:
+`mcpServer(options)` supports:
 
-- `log` (optional): Logger instance (default: @eliware/log)
-- `toolsDir` (optional): Path to tools directory (default: `./tools` relative to the entry file)
-- `port` (optional): Port for HTTP server (default: 1234 or `process.env.MCP_PORT`)
-- `authToken` (optional): Bearer token for authentication (default: `process.env.MCP_TOKEN`)
-- `authCallback` (optional): Custom async callback for authentication. Receives `(token)` and returns `true`/`false` or a Promise.
-- `name` (optional): Name for the MCP server
-- `version` (optional): Version for the MCP server
-- `context` (optional): Context object to attach to the MCP server and pass to tools (e.g. database, redis, etc.)
+- `authToken`: static bearer token; defaults to `MCP_TOKEN`.
+- `authCallback(token)`: custom async authentication.
+- `toolsDir`: custom tool directory. Defaults to `<entrypoint-directory>/tools/`; when no entrypoint is available, uses the bundled `tools/` directory.
+- `httpPort`: HTTP listener port; set `null`/`false` to disable HTTP.
+- `httpsPort`: HTTPS listener port. Requires TLS key/certificate material or file paths.
+- `tls`: Node HTTPS TLS options (`key`, `cert`, optional `ca`) or file paths (`keyFile`, `certFile`, `caFile`). If omitted, `TLS_KEY_FILE`, `TLS_CERT_FILE`, and `TLS_CA_FILE` are used.
+- `httpRedirect`: when true, HTTP redirects to HTTPS instead of serving MCP.
+- `context`: values injected into every tool.
+- `stateless`: defaults to `true`; creates a fresh server/transport per request.
+- `endpointPath`: defaults to `/mcp`; use one explicit endpoint path per deployment.
+- `enableJsonResponse`: defaults to `true`.
+- `allowedOrigins`: optional CORS allowlist.
+- `entrypoint`: entrypoint path used to resolve the default sibling `tools/` directory.
 
-Returns an object with:
+## API helpers
 
-- `app`: Express application instance
-- `httpInstance`: HTTP server instance
-- `mcpServer`: MCP server instance
-- `transport`: HTTP transport instance
-
-### `convertBigIntToString(value)`
-
-Recursively converts all BigInt values in an object to strings.
-
-### `buildResponse(data)`
-
-Wraps a plain JS object into the standard tool response payload.
-
-### `z`
-
-Re-exports [zod](https://github.com/colinhacks/zod) for schema validation.
+- `buildResponse(value)`: returns `{ content: [{ type: 'text', text }] }`.
+- `convertBigIntToString(value)`: recursively converts BigInts to strings.
+- `z`: re-exported Zod namespace.
 
 ## TypeScript
 
-Type definitions are included:
+Type declarations are included in `index.d.ts`.
 
-```ts
-export interface McpServerOptions {
-  log?: any;
-  toolsDir?: string;
-  port?: number | string;
-  authToken?: string;
-  authCallback?: (token?: string) => boolean | Promise<boolean>;
-  name?: string;
-  version?: string;
-  context?: any;
-}
+## Development
 
-export interface McpServerResult {
-  app: import('express').Application;
-  httpInstance: import('http').Server;
-  mcpServer: any;
-  transport: any;
-}
-
-export function mcpServer(options?: McpServerOptions): Promise<McpServerResult>;
-export function convertBigIntToString(value: any): any;
-export function buildResponse(data: any): { content: { type: 'text'; text: string }[] };
-export { z };
+```bash
+npm install
+npm run lint
+npm test
 ```
-
-## Support
-
-For help, questions, or to chat with the author and community, visit:
-
-[![Discord](https://eliware.org/logos/discord_96.png)](https://discord.gg/M6aTR9eTwN)[![eliware.org](https://eliware.org/logos/eliware_96.png)](https://discord.gg/M6aTR9eTwN)
-
-**[eliware.org on Discord](https://discord.gg/M6aTR9eTwN)**
 
 ## License
 
-[MIT © 2025 Eli Sterling, eliware.org](LICENSE)
+MIT © Eli Sterling, eliware.org
 
-## Links
+## HTTPS
 
-- [Home Page](https://eliware.org)
-- [GitHub](https://github.com/eliware/mcp-server)
-- [npm](https://www.npmjs.com/package/@eliware/mcp-server)
-- [Discord](https://discord.gg/M6aTR9eTwN)
+HTTPS only:
+
+```js
+await mcpServer({
+  httpPort: null,
+  httpsPort: 443,
+  tls: { key: process.env.TLS_KEY, cert: process.env.TLS_CERT },
+});
+```
+
+Both listeners, redirecting HTTP to HTTPS:
+
+```js
+await mcpServer({
+  httpPort: 80,
+  httpsPort: 443,
+  httpRedirect: true,
+  tls: { key: process.env.TLS_KEY, cert: process.env.TLS_CERT },
+});
+```
+
+Set `httpRedirect: false` to serve MCP over both listeners. The returned result exposes `httpInstance` and `httpsInstance`.
+
+## Containers
+
+Local HTTP test:
+
+```bash
+cp .env.example .env
+# set MCP_TOKEN in .env
+docker compose up --build
+```
+
+HTTPS automatically loads TLS files from `tls.keyFile`/`certFile`/`caFile`, or `TLS_KEY_FILE`/`TLS_CERT_FILE`/`TLS_CA_FILE`; mount certificates read-only and never commit them. `docker-compose.tls.yml` exposes ports 80 and 443 for that deployment pattern.
+
+The container uses `container.mjs` so the local package source resolves correctly. Local stdio remains a process mode, not a Docker network service:
+
+```bash
+docker run --rm -i -e MCP_TOKEN=test ghcr.io/eliware/mcp-server node example.mjs --stdio
+```
