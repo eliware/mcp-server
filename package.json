@@ -8,12 +8,11 @@
     "files": [
         "index.mjs",
         "index.d.ts",
-        "example.mjs",
         "container.mjs",
         "README.md",
         "LICENSE",
-        "src/",
-        "tools/"
+        "examples/",
+        "src/"
     ],
     "exports": {
         ".": {

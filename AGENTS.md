@@ -10,9 +10,9 @@ It auto-discovers `.mjs` tools from a tools directory.
 - `index.mjs`: public package entrypoint.
 - `index.d.ts`: TypeScript declarations.
 - `src/`: small, independently testable implementation modules.
-- `tools/`: bundled example tools.
+- `examples/tools/`: bundled example tools.
 - `tests/`: one test file per tested source module/tool.
-- `example.mjs`: minimal server entrypoint example.
+- `examples/basic.mjs`: minimal server entrypoint example.
 
 ## Tool contract
 

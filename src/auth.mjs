@@ -86,7 +86,7 @@ export function requireBearer(extra = {}) {
 }
 
 
-export function createOAuthIntrospector({ issuer, resource, introspectionEndpoint, clientId, clientSecret, fetchFn = fetch } = {}) {
+export function createOAuthIntrospector({ resource, introspectionEndpoint, clientId, clientSecret, fetchFn = fetch } = {}) {
   return async token => {
     const headers = { 'content-type': 'application/x-www-form-urlencoded' };
     if (clientId && clientSecret) headers.authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;

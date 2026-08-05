@@ -1,5 +1,4 @@
 import { buildServer } from '../../src/tools.mjs';
-import { path } from '@eliware/path';
 import { test, expect, jest } from '@jest/globals';
 
 const log = { debug: jest.fn(), warn: jest.fn(), error: jest.fn() };
