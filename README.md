@@ -1,6 +1,6 @@
 # @eliware/mcp-server
 
-A minimal, pure-ESM MCP server for Node.js. Drop `.mjs` tools into `tools/`, start one entrypoint, and the library discovers and registers them automatically.
+A minimal, pure-ESM MCP server for Node.js. Drop `.mjs` tools into an entrypoint-adjacent `tools/` directory, start one entrypoint, and the library discovers and registers them automatically.
 
 ## Features
 
@@ -35,7 +35,7 @@ await mcpServer({
 
 Put tools in `./tools/`. The MCP endpoint is `/mcp` only. There is no root or legacy compatibility endpoint.
 
-See `example.mjs` for a complete entrypoint example. Put application tools in a `tools/` folder beside that entrypoint.
+See `examples/basic.mjs` for a complete entrypoint example. Put application tools in a `tools/` folder beside that entrypoint.
 
 ## Local stdio mode
 
@@ -49,7 +49,7 @@ stdio uses stdin/stdout for MCP JSON-RPC. Do not write logs to stdout; use stder
 
 ## Tool template
 
-Create `tools/hello.mjs`:
+Create `tools/hello.mjs` beside your entrypoint:
 
 ```js
 import { z, buildResponse } from '@eliware/mcp-server';
@@ -92,8 +92,8 @@ Every tool receives those values as properties of its registration argument.
 
 `mcpServer(options)` supports:
 
-- `auth`: `{ mode: 'none' | 'static' | 'bearer-passthrough', token? }`.
-- `toolsDir`: custom tool directory. Defaults to `<entrypoint-directory>/tools/`; when no entrypoint is available, uses the bundled `tools/` directory.
+- `auth`: `{ mode: 'none' | 'static' | 'bearer-passthrough' | 'oauth2', ... }`.
+- `toolsDir`: custom tool directory. Defaults to `<entrypoint-directory>/tools/`; when no entrypoint is available, uses the bundled `examples/tools/` directory.
 - `httpPort`: HTTP listener port; set `null`/`false` to disable HTTP.
 - `httpsPort`: HTTPS listener port. Requires TLS key/certificate material or file paths.
 - `tls`: Node HTTPS TLS options (`key`, `cert`, optional `ca`) or file paths (`keyFile`, `certFile`, `caFile`). If omitted, `TLS_KEY_FILE`, `TLS_CERT_FILE`, and `TLS_CA_FILE` are used.
@@ -167,7 +167,7 @@ HTTPS automatically loads TLS files from `tls.keyFile`/`certFile`/`caFile`, or `
 The container uses `container.mjs` so the local package source resolves correctly. Local stdio remains a process mode, not a Docker network service:
 
 ```bash
-docker run --rm -i -e MCP_TOKEN=test ghcr.io/eliware/mcp-server node example.mjs --stdio
+docker run --rm -i -e MCP_TOKEN=test ghcr.io/eliware/mcp-server node examples/basic.mjs --stdio
 ```
 
 ## Authentication modes
@@ -190,7 +190,7 @@ Bearer passthrough validates that a bearer exists and exposes it to tools throug
 auth: { mode: 'bearer-passthrough' }
 ```
 
-OAuth2 will use the same request-scoped auth context in a later adapter. Tools should use `requireAuth(extra)` or `requireBearer(extra)` rather than reading raw request headers.
+OAuth2 uses the same request-scoped auth context as the other modes. Tools should use `requireAuth(extra)` or `requireBearer(extra)` rather than reading raw request headers.
 
 
 OAuth2 resource-server mode validates introspection results and injects sanitized request identity plus scopes into tool metadata:
@@ -205,7 +205,7 @@ auth: {
 }
 ```
 
-The introspection function is application-provided so the library does not hard-code an identity provider or persistence system. Static and dynamic OAuth client registration will be added as a separate client-side adapter.
+The introspection function is application-provided so the library does not hard-code an identity provider or persistence system. Static and dynamic OAuth client registration are available through the client-side helpers below.
 
 
 ## OAuth client registration

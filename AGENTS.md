@@ -44,7 +44,7 @@ npm test
 - Keep authentication and context injection explicit.
 - Do not log bearer tokens or application secrets.
 - Maintain TypeScript declarations when public APIs change.
-- Keep README and `example.mjs` aligned with the public API.
+- Keep README and `examples/` aligned with the public API.
 
 ## Testing rules
 
