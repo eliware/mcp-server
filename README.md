@@ -9,7 +9,7 @@ A minimal, pure-ESM MCP server for Node.js. Drop `.mjs` tools into `tools/`, sta
 - Optional stateful transport mode.
 - Automatic `.mjs` tool discovery.
 - Zod input schemas.
-- Bearer-token or custom async authentication.
+- None, static bearer, bearer passthrough, and OAuth2 authentication modes.
 - Injectable application context for databases and services.
 - BigInt-safe `buildResponse()` helper.
 - Express HTTP integration.
@@ -29,7 +29,7 @@ npm install @eliware/mcp-server
 import { mcpServer } from '@eliware/mcp-server';
 
 await mcpServer({
-  authToken: process.env.MCP_TOKEN,
+  auth: { mode: 'static', token: process.env.MCP_TOKEN },
 });
 ```
 
@@ -92,8 +92,7 @@ Every tool receives those values as properties of its registration argument.
 
 `mcpServer(options)` supports:
 
-- `authToken`: static bearer token; defaults to `MCP_TOKEN`.
-- `authCallback(token)`: custom async authentication.
+- `auth`: `{ mode: 'none' | 'static' | 'bearer-passthrough', token? }`.
 - `toolsDir`: custom tool directory. Defaults to `<entrypoint-directory>/tools/`; when no entrypoint is available, uses the bundled `tools/` directory.
 - `httpPort`: HTTP listener port; set `null`/`false` to disable HTTP.
 - `httpsPort`: HTTPS listener port. Requires TLS key/certificate material or file paths.
@@ -170,3 +169,82 @@ The container uses `container.mjs` so the local package source resolves correctl
 ```bash
 docker run --rm -i -e MCP_TOKEN=test ghcr.io/eliware/mcp-server node example.mjs --stdio
 ```
+
+## Authentication modes
+
+Unauthenticated:
+
+```js
+auth: { mode: 'none' }
+```
+
+Static token:
+
+```js
+auth: { mode: 'static', token: process.env.MCP_TOKEN }
+```
+
+Bearer passthrough validates that a bearer exists and exposes it to tools through request metadata for backend API calls:
+
+```js
+auth: { mode: 'bearer-passthrough' }
+```
+
+OAuth2 will use the same request-scoped auth context in a later adapter. Tools should use `requireAuth(extra)` or `requireBearer(extra)` rather than reading raw request headers.
+
+
+OAuth2 resource-server mode validates introspection results and injects sanitized request identity plus scopes into tool metadata:
+
+```js
+auth: {
+  mode: 'oauth2',
+  issuer: 'https://auth.example',
+  resource: 'https://app.example/mcp',
+  scopes: ['app:read'],
+  introspect: token => introspectToken(token),
+}
+```
+
+The introspection function is application-provided so the library does not hard-code an identity provider or persistence system. Static and dynamic OAuth client registration will be added as a separate client-side adapter.
+
+
+## OAuth client registration
+
+The package exports provider discovery and dynamic registration helpers. Applications choose static credentials or persist dynamically registered credentials through an injected store; the library does not require a database.
+
+```js
+const provider = await discoverOAuthProvider({ issuer });
+const client = await registerOAuthClient({
+  registrationEndpoint: provider.registration_endpoint,
+  metadata: { client_name: 'my-app', redirect_uris: ['https://app.example/callback'] },
+});
+```
+
+Use `createClientStore({ load, save, remove })` with MySQL, Kubernetes secrets, or another durable store.
+
+
+OAuth2 mode also publishes protected-resource metadata at:
+
+- `/.well-known/oauth-protected-resource`
+- `/.well-known/oauth-protected-resource/mcp`
+
+Unauthorized OAuth2 responses include `WWW-Authenticate` resource metadata and required scopes.
+
+
+Dynamic client registration is resolved once and cached through the injected client store. Static registration bypasses registration and returns configured credentials. The store must be durable when running multiple replicas.
+
+
+For app-side OAuth login, `createOAuthClient()` combines provider discovery and static/dynamic client resolution, then provides PKCE authorization URL creation and authorization-code exchange. Applications remain responsible for state/verifier persistence and user sessions.
+
+
+Auth helper exports:
+
+- `requireScope(extra, scope)` — throws a 403-style error when absent.
+- `hasScope(extra, scope)` — boolean scope check.
+- `getUser(extra)` — sanitized request identity.
+- `getAccessToken(extra)` — explicit backend passthrough accessor.
+
+OAuth2 may use the generic introspection adapter with `auth.introspection.endpoint` and optional client credentials, or an injected `auth.introspect` function.
+
+
+PKCE helpers provide S256 verifier/challenge generation and one-time state consumption. Applications should persist PKCE records through a durable store and delete them after callback validation.

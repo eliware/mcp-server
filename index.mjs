@@ -7,13 +7,18 @@ import { path } from '@eliware/path';
 import { z } from 'zod';
 import { loadPackageMeta } from './src/meta.mjs';
 import { buildServer } from './src/tools.mjs';
-import { createAuthMiddleware } from './src/auth.mjs';
+import { createAuthMiddleware, createOAuthIntrospector } from './src/auth.mjs';
 import { configureHttp } from './src/http.mjs';
 import { createTransport } from './src/transport.mjs';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { createRequestHandler } from './src/handler.mjs';
 import { loadTlsOptions } from './src/tls.mjs';
+import { mountOAuthResourceMetadata } from './src/oauth.mjs';
 export { buildResponse, convertBigIntToString } from './src/response.mjs';
+export { discoverOAuthProvider, registerOAuthClient, createClientStore } from './src/oauth.mjs';
+export { resolveOAuthClient } from './src/client.mjs';
+export { createOAuthClient } from './src/oauth-client.mjs';
+export { createPkceState, createPkceStore, consumePkceState } from './src/pkce.mjs';
 
 export const stderrLogger = Object.fromEntries(['debug', 'info', 'warn', 'error'].map(level => [level, (...args) => console.error(...args)]));
 
@@ -54,12 +59,12 @@ export async function mcpServer(options = {}) {
   const defaults = {
     log: logger, entrypoint: defaultEntrypoint,
     tls: undefined, httpRedirect: false,
-    authToken: process.env.MCP_TOKEN, context: {}, stateless: true,
+    auth: { mode: 'none' }, context: {}, stateless: true,
     endpointPath: '/mcp', enableJsonResponse: true, allowedOrigins: [], stdio: false,
     createApp: express, createHttpServer: http.createServer, createHttpsServer: https.createServer,
   };
   const {
-    log, entrypoint, authToken, authCallback, name, version, context,
+    log, entrypoint, auth, name, version, context,
     stateless, stdio, endpointPath, enableJsonResponse, allowedOrigins, createApp, createHttpServer, createHttpsServer,
     httpPort, httpsPort, tls, httpRedirect
   } = { ...defaults, ...options };
@@ -76,7 +81,9 @@ export async function mcpServer(options = {}) {
   const endpointPaths = [endpointPath];
   const app = createApp();
   configureHttp({ app, allowedOrigins });
-  app.use(createAuthMiddleware({ authToken, authCallback, endpointPaths }));
+  if (auth?.mode === 'oauth2') mountOAuthResourceMetadata(app, auth);
+  const runtimeAuth = auth?.mode === 'oauth2' && !auth.introspect && auth.introspection ? { ...auth, introspect: createOAuthIntrospector({ issuer: auth.issuer, resource: auth.resource, ...auth.introspection }) } : auth;
+  app.use(createAuthMiddleware({ auth: runtimeAuth, endpointPaths }));
   let initialTransport;
   if (!stateless) {
     initialTransport = createTransport(serverOptions);

@@ -4,7 +4,7 @@ export function createRequestHandler({ stateless, initialServer, initialTranspor
     const transport = stateless ? createTransport(options) : initialTransport;
     if (stateless) await server.connect(transport);
     if (req.body?.params && typeof req.body.params === 'object') {
-      req.body.params._meta = { ...req.body.params._meta, bearerToken: req.mcpBearerToken };
+      req.body.params._meta = { ...req.body.params._meta, mcpAuth: req.mcpAuth };
     }
     try {
       await transport.handleRequest(req, res, req.body);

@@ -1,4 +1,4 @@
-import echo from '../../tools/echo.mjs';
+import echo from '../../examples/tools/echo.mjs';
 import { test, expect, jest } from '@jest/globals';
 
 test('echo tool returns the input and logs lifecycle', async () => {

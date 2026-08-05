@@ -10,7 +10,7 @@ test('handles stateless request and injects bearer token', async () => {
   const createTransport = jest.fn().mockReturnValue(transport);
   const req = { body: { params: {} }, mcpBearerToken: 'token' };
   await createRequestHandler({ stateless: true, buildServer, createTransport, options: { x: 1 } })(req, response());
-  expect(req.body.params._meta).toEqual({ bearerToken: 'token' });
+  expect(req.body.params._meta).toEqual({ mcpAuth: undefined });
   expect(server.connect).toHaveBeenCalledWith(transport);
   expect(transport.handleRequest).toHaveBeenCalledWith(req, expect.anything(), req.body);
   expect(transport.close).toHaveBeenCalled();

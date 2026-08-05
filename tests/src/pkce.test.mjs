@@ -1,0 +1,11 @@
+import { jest, test, expect } from '@jest/globals';
+import { consumePkceState, createPkceState, createPkceStore } from '../../src/pkce.mjs';
+test('creates S256 PKCE state',()=>{const p=createPkceState({randomBytes:size=>Buffer.alloc(size,1)}); expect(p.method).toBe('S256'); expect(p.verifier).toBeTruthy(); expect(p.challenge).toBeTruthy();});
+test('consumes and deletes valid state',async()=>{const store={load:jest.fn().mockResolvedValue({verifier:'v'}),remove:jest.fn()}; expect(await consumePkceState({store,state:'s',expectedState:'s'})).toEqual({verifier:'v'}); expect(store.remove).toHaveBeenCalledWith('s');});
+test('rejects invalid or expired state',async()=>{const store={load:jest.fn().mockResolvedValue(null),remove:jest.fn()}; await expect(consumePkceState({store,state:'a',expectedState:'b'})).rejects.toThrow('Invalid'); await expect(consumePkceState({store,state:'a',expectedState:'a'})).rejects.toThrow('expired');});
+test('creates PKCE store',()=>{const save=jest.fn(),load=jest.fn(); expect(createPkceStore({save,load}).remove).toBeDefined(); expect(()=>createPkceStore({})).toThrow();});
+test('covers default PKCE generation and custom store removal',()=>{const p=createPkceState(); expect(p.verifier).toBeTruthy(); const remove=jest.fn(); expect(createPkceStore({save:jest.fn(),load:jest.fn(),remove}).remove).toBe(remove);});
+test('default PKCE store removal is callable',async()=>{const store=createPkceStore({save:jest.fn(),load:jest.fn().mockResolvedValue({verifier:'v'})}); await expect(consumePkceState({store,state:'s',expectedState:'s'})).resolves.toEqual({verifier:'v'});});
+test('rejects omitted or empty PKCE state',async()=>{const store={load:jest.fn(),remove:jest.fn()}; await expect(consumePkceState()).rejects.toThrow('Invalid'); await expect(consumePkceState({store,state:'',expectedState:'s'})).rejects.toThrow('Invalid'); await expect(consumePkceState({store,state:'s',expectedState:''})).rejects.toThrow('Invalid');});
+test('rejects record without verifier',async()=>{const store={load:jest.fn().mockResolvedValue({}),remove:jest.fn()}; await expect(consumePkceState({store,state:'s',expectedState:'s'})).rejects.toThrow('expired');});
+test('rejects omitted store configuration',()=>{expect(()=>createPkceStore()).toThrow('PKCE store');});
