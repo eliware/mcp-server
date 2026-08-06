@@ -122,6 +122,35 @@ await mcpServer({
 
 Both options are optional; without them, `mcpServer` creates and configures its own app.
 
+A complete REST-plus-MCP example is available in [`examples/express/server.mjs`](examples/express/server.mjs):
+
+```js
+import express from 'express';
+import { mcpServer } from '@eliware/mcp-server';
+
+const app = express();
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+await mcpServer({
+  app,
+  httpPort: 1234,
+  endpointPath: '/mcp',
+  auth: { mode: 'static', token: process.env.MCP_TOKEN },
+});
+```
+
+The resulting application serves both `/health` and `/mcp` from the same HTTP listener.
+Use `configureApp` when routes or middleware should be installed as part of server setup:
+
+```js
+await mcpServer({
+  app,
+  configureApp: configuredApp => {
+    configuredApp.use('/api', apiRoutes);
+  },
+});
+```
+
 ## API helpers
 
 - `buildResponse(value)`: returns `{ content: [{ type: 'text', text }] }`.

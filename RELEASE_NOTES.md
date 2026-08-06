@@ -1,5 +1,23 @@
 # Release Notes
 
+## 1.1.4 — August 6, 2026
+
+This release improves embedding the MCP server into existing Express applications.
+
+### Added
+
+- Support for supplying an existing Express application via `app`.
+- Added `configureApp` for registering application middleware and routes during setup.
+- Added an Express REST-plus-MCP example in `examples/express/server.mjs`.
+- Documented unified REST and MCP listener usage.
+- Updated TypeScript declarations and integration tests.
+
+### Verification
+
+- Jest: 116 tests passed.
+- Coverage: 100% statements, branches, functions, and lines.
+- Oxlint: 0 warnings/errors.
+
 ## 1.1.3 — Current changes
 
 This release hardens OAuth2 authentication and improves Docker examples and test coverage.
