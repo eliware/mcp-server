@@ -6,10 +6,18 @@ test('none mode allows requests',async()=>expect((await request(await appFor({mo
 test('static mode validates token',async()=>{expect((await request(await appFor({mode:'static',token:'x'})).post('/mcp').set('Authorization','Bearer x')).status).toBe(200); expect((await request(await appFor({mode:'static',token:'x'})).post('/mcp')).status).toBe(401)});
 test('passthrough exposes bearer',async()=>expect((await request(await appFor({mode:'bearer-passthrough'})).post('/mcp').set('Authorization','Bearer x')).body.auth.accessToken).toBe('x'));
 test('passthrough rejects missing bearer',async()=>expect((await request(await appFor({mode:'bearer-passthrough'})).post('/mcp')).status).toBe(401));
+test('normalizes OAuth2 required scopes and legacy alias', () => {
+  const introspect = async () => ({});
+  expect(normalizeAuth({ mode: 'oauth2', issuer: 'iss', resource: 'res', introspect, requiredScopes: ['read'], subjectClaim: 'sub' })).toMatchObject({ requiredScopes: ['read'], subjectClaim: 'sub' });
+  expect(normalizeAuth({ mode: 'oauth2', issuer: 'iss', resource: 'res', introspect, scopes: ['read'] }).requiredScopes).toEqual(['read']);
+  expect(() => normalizeAuth({ mode: 'oauth2', issuer: 'iss', resource: 'res', introspect, requiredScopes: [''] })).toThrow('requiredScopes');
+});
+
 test('normalizes and rejects invalid configs',()=>{expect(normalizeAuth()).toEqual({mode:'none'}); expect(normalizeAuth('none')).toEqual({mode:'none'}); expect(()=>normalizeAuth({mode:'bad'})).toThrow(); expect(()=>normalizeAuth({mode:'static'})).toThrow();});
 test('auth helpers expose request credentials',()=>{const extra={mcpAuth:{mode:'bearer-passthrough',accessToken:'x'}}; expect(requireAuth(extra)).toEqual(extra.mcpAuth); expect(requireBearer(extra)).toBe('x'); expect(()=>requireAuth({mcpAuth:{mode:'none'}})).toThrow(); expect(()=>requireBearer({mcpAuth:{mode:'static'}})).toThrow();});
 test('handles authentication middleware failures',async()=>{const middleware=createAuthMiddleware({auth:{mode:'static',token:'x'},endpointPaths:['/mcp']}); const res={status:()=>res,json:jest.fn()}; const next=jest.fn(); await middleware({method:'POST',path:'/mcp',get:()=>{throw new Error('boom')}},res,next); expect(res.json).toHaveBeenCalledWith(expect.objectContaining({error:'Authentication failed'}));});
 test('oauth2 validates introspection and injects identity',async()=>{const info={active:true,iss:'https://auth',resource:'https://app/mcp',sub:'user-1',client_id:'client',scope:'read write',exp:Math.floor(Date.now()/1000)+60,token_type:'Bearer'}; const response=await request(await appFor({mode:'oauth2',issuer:'https://auth',resource:'https://app/mcp',scopes:['read'],introspect:async token=>{expect(token).toBe('x'); return info;}})).post('/mcp').set('Authorization','Bearer x'); expect(response.body.auth).toMatchObject({mode:'oauth2',subject:'user-1',scopes:['read','write']});});
+test('oauth2 exposes only safe introspection claims',async()=>{const info={active:true,iss:'iss',resource:'res',sub:'u',scope:'read',secret:'do-not-expose',access_token:'do-not-expose'}; const response=await request(await appFor({mode:'oauth2',issuer:'iss',resource:'res',introspect:async()=>info})).post('/mcp').set('Authorization','Bearer t'); expect(response.body.auth.claims).toEqual({active:true,iss:'iss',resource:'res',sub:'u',scope:'read'});});
 test('oauth2 rejects invalid tokens and config',async()=>{expect((await request(await appFor({mode:'oauth2',issuer:'https://auth',resource:'https://app/mcp',introspect:async()=>({active:false})})).post('/mcp').set('Authorization','Bearer x')).status).toBe(401); expect(()=>normalizeAuth({mode:'oauth2'})).toThrow();});
 test('supports user and scope helpers',async()=>{const {hasScope,requireScope,getUser,getAccessToken}=await import('../../src/auth.mjs'); const extra={mcpAuth:{mode:'oauth2',subject:'u',clientId:'c',issuer:'i',scopes:['read'],accessToken:'tok'}}; expect(hasScope(extra,'read')).toBe(true); expect(hasScope(extra,'write')).toBe(false); expect(getUser(extra)).toEqual({subject:'u',clientId:'c',issuer:'i',scopes:['read']}); expect(getAccessToken(extra)).toBe('tok'); requireScope(extra,'read'); expect(()=>requireScope(extra,'write')).toThrow();});
 test('creates OAuth introspector',async()=>{const fetchFn=jest.fn().mockResolvedValue({ok:true,json:async()=>({active:true})}); const {createOAuthIntrospector}=await import('../../src/auth.mjs'); expect(await createOAuthIntrospector({issuer:'https://auth/',resource:'r',introspectionEndpoint:'https://auth/introspect',clientId:'c',clientSecret:'s',fetchFn})('t')).toEqual({active:true}); expect(fetchFn.mock.calls[0][1].headers.authorization).toMatch(/^Basic /);});
@@ -29,10 +37,25 @@ test('static auth rejects malformed and mismatched tokens', async () => {
   expect((await request(app).post('/mcp').set('Authorization', 'Bearer secret extra')).status).toBe(401);
 });
 
+test('oauth2 supports an exact matching audience array', async () => {
+  const config = { mode: 'oauth2', issuer: 'iss', resource: 'res', introspect: jest.fn().mockResolvedValue({ active: true, iss: 'iss', aud: ['other', 'res'] }) };
+  expect((await request(await appFor(config)).post('/mcp').set('Authorization', 'Bearer t')).status).toBe(200);
+});
+
+test('oauth2 rejects an audience array without the exact resource', async () => {
+  const config = { mode: 'oauth2', issuer: 'iss', resource: 'res', introspect: jest.fn().mockResolvedValue({ active: true, iss: 'iss', aud: ['other'] }) };
+  expect((await request(await appFor(config)).post('/mcp').set('Authorization', 'Bearer t')).status).toBe(401);
+});
+
 test('oauth2 challenges missing bearer and supports audience', async () => {
   const config = { mode: 'oauth2', issuer: 'iss', resource: 'res', introspect: jest.fn().mockResolvedValue({ active: true, iss: 'iss', aud: 'res' }) };
   expect((await request(await appFor(config)).post('/mcp')).status).toBe(401);
   expect((await request(await appFor(config)).post('/mcp').set('Authorization', 'Bearer t')).status).toBe(200);
+});
+
+test('oauth2 rejects tokens missing required scopes', async () => {
+  const config = { mode: 'oauth2', issuer: 'iss', resource: 'res', requiredScopes: ['write'], introspect: jest.fn().mockResolvedValue({ active: true, iss: 'iss', resource: 'res', scope: 'read' }) };
+  expect((await request(await appFor(config)).post('/mcp').set('Authorization', 'Bearer t')).status).toBe(401);
 });
 
 test('oauth2 rejects each invalid claim', async () => {
@@ -70,6 +93,16 @@ test('covers auth defaults and fallback fields', async () => {
   const { getUser, requireAuth } = await import('../../src/auth.mjs');
   expect(() => requireAuth()).toThrow();
   expect(getUser({ mcpAuth: { mode: 'static' } })).toEqual({ subject: undefined, clientId: undefined, issuer: undefined, scopes: [] });
+});
+
+test('oauth2 supports a configurable subject claim', async () => {
+  const info = { active: true, iss: 'iss', resource: 'res', username: 'custom-user' };
+  const response = await request(await appFor({ mode: 'oauth2', issuer: 'iss', resource: 'res', subjectClaim: 'username', introspect: async () => info })).post('/mcp').set('Authorization', 'Bearer t');
+  expect(response.body.auth.subject).toBe('custom-user');
+});
+
+test('oauth2 rejects an invalid subject claim configuration', () => {
+  expect(() => normalizeAuth({ mode: 'oauth2', issuer: 'iss', resource: 'res', subjectClaim: ' ' , introspect: async () => ({}) })).toThrow('subjectClaim');
 });
 
 test('oauth2 covers optional claims and user_id', async () => {

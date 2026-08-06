@@ -4,20 +4,40 @@ import { setOAuthChallenge } from './oauth.mjs';
 const MODES = new Set(['none', 'static', 'bearer-passthrough', 'oauth2']);
 
 export function normalizeAuth(auth = { mode: 'none' }) {
-  const config = typeof auth === 'string' ? { mode: auth } : auth;
-  const mode = config?.mode || 'none';
+  const config = typeof auth === 'string' ? { mode: auth } : (auth || {});
+  const mode = config.mode || 'none';
   if (!MODES.has(mode)) throw new Error(`Unsupported auth mode: ${mode}`);
   if (mode === 'static' && !config.token) throw new Error('static auth requires auth.token');
   if (mode === 'oauth2' && (!config.issuer || !config.resource || typeof config.introspect !== 'function')) {
     throw new Error('oauth2 auth requires issuer, resource, and introspect(token)');
   }
-  return { ...config, mode };
+  if (mode !== 'oauth2') return { ...config, mode };
+  const requiredScopes = config.requiredScopes ?? config.scopes ?? [];
+  if (!Array.isArray(requiredScopes) || requiredScopes.some(scope => typeof scope !== 'string' || !scope.trim())) {
+    throw new Error('oauth2 auth requiredScopes must be an array of non-empty strings');
+  }
+  const subjectClaim = config.subjectClaim || 'sub';
+  if (typeof subjectClaim !== 'string' || !subjectClaim.trim()) {
+    throw new Error('oauth2 auth subjectClaim must be a non-empty string');
+  }
+  return { ...config, mode, requiredScopes: [...requiredScopes], subjectClaim };
+}
+
+function matchesResource(info, resource) {
+  if (info?.resource === resource) return true;
+  return Array.isArray(info?.aud) ? info.aud.includes(resource) : info?.aud === resource;
 }
 
 function validStaticToken(actual, expected) {
   if (!actual || !expected) return false;
   const a = Buffer.from(actual); const b = Buffer.from(expected);
   return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+const SAFE_CLAIMS = ['active', 'iss', 'resource', 'aud', 'exp', 'token_type', 'sub', 'user_id', 'client_id', 'scope'];
+
+function sanitizeClaims(info) {
+  return Object.fromEntries(SAFE_CLAIMS.filter(key => info?.[key] !== undefined).map(key => [key, info[key]]));
 }
 
 function bearer(req) {
@@ -42,9 +62,9 @@ export function createAuthMiddleware({ auth = { mode: 'none' }, endpointPaths })
         if (!accessToken) { setOAuthChallenge(res, { resource: config.resource }); return res.status(401).json({ error: 'Bearer token required' }); }
         const info = await config.introspect(accessToken);
         const scopes = String(info?.scope || '').split(/\s+/).filter(Boolean);
-        const valid = info?.active && info.iss === config.issuer && (info.resource === config.resource || info.aud === config.resource) && (!info.exp || Number(info.exp) > Math.floor(Date.now() / 1000)) && (!info.token_type || String(info.token_type).toLowerCase() === 'bearer') && (config.scopes || []).every(scope => scopes.includes(scope));
+        const valid = info?.active && info.iss === config.issuer && matchesResource(info, config.resource) && (!info.exp || Number(info.exp) > Math.floor(Date.now() / 1000)) && (!info.token_type || String(info.token_type).toLowerCase() === 'bearer') && config.requiredScopes.every(scope => scopes.includes(scope));
         if (!valid) return res.status(401).json({ error: 'Invalid OAuth2 token' });
-        req.mcpAuth = { mode: config.mode, subject: info.sub || info.user_id, clientId: info.client_id, issuer: info.iss, resource: config.resource, scopes, claims: info, accessToken };
+        req.mcpAuth = { mode: config.mode, subject: info[config.subjectClaim] || info.sub || info.user_id, clientId: info.client_id, issuer: info.iss, resource: config.resource, scopes, claims: sanitizeClaims(info), accessToken };
       } else {
         req.mcpAuth = { mode: config.mode, ...(accessToken ? { accessToken } : {}) };
       }

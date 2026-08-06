@@ -193,14 +193,14 @@ auth: { mode: 'bearer-passthrough' }
 OAuth2 uses the same request-scoped auth context as the other modes. Tools should use `requireAuth(extra)` or `requireBearer(extra)` rather than reading raw request headers.
 
 
-OAuth2 resource-server mode validates introspection results and injects sanitized request identity plus scopes into tool metadata:
+OAuth2 resource-server mode validates introspection results and injects sanitized request identity plus granted scopes into tool metadata. `requiredScopes` defines the minimum scopes a token must grant; the complete granted scope list remains available to tools:
 
 ```js
 auth: {
   mode: 'oauth2',
   issuer: 'https://auth.example',
   resource: 'https://app.example/mcp',
-  scopes: ['app:read'],
+  requiredScopes: ['app:read'],
   introspect: token => introspectToken(token),
 }
 ```
@@ -229,6 +229,8 @@ OAuth2 mode also publishes protected-resource metadata at:
 - `/.well-known/oauth-protected-resource/mcp`
 
 Unauthorized OAuth2 responses include `WWW-Authenticate` resource metadata and required scopes.
+
+For backward compatibility, `scopes` is accepted as an alias for `requiredScopes`, but new integrations should use `requiredScopes`.
 
 
 Dynamic client registration is resolved once and cached through the injected client store. Static registration bypasses registration and returns configured credentials. The store must be durable when running multiple replicas.
