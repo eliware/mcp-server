@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Application, Request, Response, NextFunction } from 'express';
 import type { Server as HttpServer } from 'node:http';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -29,10 +29,12 @@ export interface McpServerOptions {
   endpointPath?: string;
   enableJsonResponse?: boolean;
   allowedOrigins?: string[];
+  app?: Application;
+  configureApp?: (app: Application) => void | Promise<void>;
 }
 
 export interface McpServerResult {
-  app: unknown;
+  app: Application | undefined;
   httpInstance?: HttpServer;
   httpsInstance?: HttpServer;
   mcpServer: McpServer | undefined;

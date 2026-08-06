@@ -104,6 +104,23 @@ Every tool receives those values as properties of its registration argument.
 - `enableJsonResponse`: defaults to `true`.
 - `allowedOrigins`: optional CORS allowlist.
 - `entrypoint`: entrypoint path used to resolve the default sibling `tools/` directory.
+- `app`: optional caller-supplied Express application. When omitted, the server creates one as before.
+- `configureApp`: optional callback invoked with the application after built-in HTTP middleware is installed and before the MCP route.
+
+### Existing Express application
+
+Embed MCP in an existing Express app by supplying `app`. Use `configureApp` for application-specific middleware or routes:
+
+```js
+await mcpServer({
+  app,
+  configureApp: configuredApp => {
+    configuredApp.use(requestIdMiddleware);
+  },
+});
+```
+
+Both options are optional; without them, `mcpServer` creates and configures its own app.
 
 ## API helpers
 

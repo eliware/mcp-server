@@ -1,4 +1,5 @@
 import { mcpServer, z } from '@eliware/mcp-server';
+import express from 'express';
 import request from 'supertest';
 import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 describe('public server API',()=>{let app,httpInstance,log; beforeEach(async()=>{log={debug:jest.fn(),warn:jest.fn(),error:jest.fn()};({app,httpInstance}=await mcpServer({log,httpPort:0,auth:{mode:'static',token:'test-token'},toolsDir:new URL('../examples/tools/',import.meta.url).pathname}));}); afterEach(()=>httpInstance?.close());
@@ -35,3 +36,6 @@ test('covers OAuth2 metadata and runtime introspection config',async()=>{const r
 
 test('uses package tools fallback when toolsDir is empty',async()=>{const fs=await import('node:fs'); const toolsDir=new URL('../tools/',import.meta.url).pathname; fs.mkdirSync(toolsDir,{recursive:true}); try { const r=await mcpServer({toolsDir:'',entrypoint:undefined,httpPort:0,auth:{mode:'none'},log:{debug:jest.fn(),warn:jest.fn(),error:jest.fn()}}); expect(r.app).toBeTruthy(); r.httpInstance.close(); } finally { fs.rmSync(toolsDir,{recursive:true,force:true}); }});
 test('supports omitted mcpServer options',async()=>{const fs=await import('node:fs'); const toolsDir=new URL('../tools/',import.meta.url).pathname; fs.mkdirSync(toolsDir,{recursive:true}); try { const r=await mcpServer(); expect(r.app).toBeTruthy(); r.httpInstance.close(); } finally { fs.rmSync(toolsDir,{recursive:true,force:true}); }});
+
+
+test('uses a caller-supplied app and configures it before MCP routes',async()=>{const supplied=express(); const configureApp=jest.fn(app=>{app.get('/custom',(req,res)=>res.send('ok'));}); const r=await mcpServer({app:supplied,configureApp,httpPort:0,auth:{mode:'none'},toolsDir:new URL('../examples/tools/',import.meta.url).pathname,log:{debug:jest.fn(),warn:jest.fn(),error:jest.fn()}}); expect(r.app).toBe(supplied); expect(configureApp).toHaveBeenCalledWith(supplied); expect((await request(supplied).get('/custom')).text).toBe('ok'); r.httpInstance.close()});

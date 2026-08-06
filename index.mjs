@@ -62,10 +62,11 @@ export async function mcpServer(options = {}) {
     auth: { mode: 'none' }, context: {}, stateless: true,
     endpointPath: '/mcp', enableJsonResponse: true, allowedOrigins: [], stdio: false,
     createApp: express, createHttpServer: http.createServer, createHttpsServer: https.createServer,
+    app: undefined, configureApp: undefined,
   };
   const {
     log, entrypoint, auth, name, version, context,
-    stateless, stdio, endpointPath, enableJsonResponse, allowedOrigins, createApp, createHttpServer, createHttpsServer,
+    stateless, stdio, endpointPath, enableJsonResponse, allowedOrigins, app: suppliedApp, configureApp, createApp, createHttpServer, createHttpsServer,
     httpPort, httpsPort, tls, httpRedirect
   } = { ...defaults, ...options };
   const toolsDir = options.toolsDir || (entrypoint ? resolve(dirname(entrypoint), 'tools') : path(import.meta, 'tools'));
@@ -79,8 +80,9 @@ export async function mcpServer(options = {}) {
     return { app: undefined, httpInstance: undefined, mcpServer: initialServer, transport };
   }
   const endpointPaths = [endpointPath];
-  const app = createApp();
+  const app = suppliedApp || createApp();
   configureHttp({ app, allowedOrigins });
+  if (configureApp) await configureApp(app);
   if (auth?.mode === 'oauth2') mountOAuthResourceMetadata(app, auth);
   const runtimeAuth = auth?.mode === 'oauth2' && !auth.introspect && auth.introspection ? { ...auth, introspect: createOAuthIntrospector({ issuer: auth.issuer, resource: auth.resource, ...auth.introspection }) } : auth;
   app.use(createAuthMiddleware({ auth: runtimeAuth, endpointPaths }));
