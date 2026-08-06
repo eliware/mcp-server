@@ -1,5 +1,24 @@
 # Release Notes
 
+## 1.1.5 — August 6, 2026
+
+This release standardizes project automation and documentation without changing runtime behavior.
+
+### Changed
+
+- Updated GitHub Actions to use Node.js 26 and current checkout/setup actions.
+- Added lint execution to continuous integration.
+- Added the `npm run test:gaps` coverage-gap helper.
+- Added standardized Eliware branding, badges, support information, and project links to the README.
+- Added `.agentx*` and Jest result files to `.gitignore`.
+- Regenerated the npm lockfile.
+
+### Verification
+
+- Jest: 116 tests passed.
+- Coverage: 100% statements, branches, functions, and lines.
+- Oxlint: 0 warnings/errors.
+
 ## 1.1.4 — August 6, 2026
 
 This release improves embedding the MCP server into existing Express applications.
