@@ -17,6 +17,11 @@ A minimal, pure-ESM MCP server for Node.js. Drop `.mjs` tools into an entrypoint
 - HTTP, HTTPS, or both, with optional HTTP-to-HTTPS redirects.
 - TypeScript declarations.
 
+## Requirements
+
+- Node.js 26 or newer
+- An MCP client for live HTTP, HTTPS, or stdio operation
+
 ## Install
 
 ```bash
@@ -162,13 +167,25 @@ await mcpServer({
 
 Type declarations are included in `index.d.ts`.
 
+## Errors / Troubleshooting
+
+The server exposes only `/mcp` for MCP traffic. Use `stdio: true` for local process clients and do not write logs to stdout in stdio mode. Authentication, TLS, tool discovery, and OAuth failures should be handled through the configured logger without exposing tokens, credentials, private keys, or sensitive tool data. Always close the returned server resources during shutdown.
+
 ## Development
 
 ```bash
 npm install
 npm run lint
 npm test
+npm run test:gaps
+npm run lint
+npm run typecheck
+npm run pack
 ```
+
+## Security
+
+Keep `MCP_TOKEN`, OAuth credentials, TLS keys, certificates, and client secrets in environment variables or mounted secret files. Do not commit `.env` files or certificates. Use HTTPS and explicit authentication for remote deployments.
 
 ## License
 

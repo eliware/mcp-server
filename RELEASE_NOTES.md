@@ -1,5 +1,11 @@
 # Release Notes
 
+## 1.1.8 — 2026-08-07
+
+- Standardized validation scripts, TypeScript checking, CI, and package metadata.
+- Updated `@eliware/common` to 1.1.7.
+- Expanded requirements, troubleshooting, development, and security documentation.
+
 ## 1.1.7 — August 7, 2026
 
 - Updated `@eliware/common` to `^1.1.6`.
