@@ -1,5 +1,10 @@
 # Release Notes
 
+## 1.1.7 — August 7, 2026
+
+- Updated `@eliware/common` to `^1.1.6`.
+- Refreshed the npm lockfile.
+
 ## 1.1.6 — August 7, 2026
 
 This release updates the shared Eliware common dependency and adds manual CI execution.
