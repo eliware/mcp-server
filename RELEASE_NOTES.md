@@ -1,5 +1,21 @@
 # Release Notes
 
+## 1.1.6 — August 7, 2026
+
+This release updates the shared Eliware common dependency and adds manual CI execution.
+
+### Changed
+
+- Updated `@eliware/common` from `^1.1.4` to `^1.1.5`.
+- Regenerated the npm lockfile.
+- Added manual GitHub Actions workflow dispatch support.
+
+### Verification
+
+- Jest: 116 tests passed.
+- Coverage: 100% statements, branches, functions, and lines.
+- Oxlint: 0 warnings/errors.
+
 ## 1.1.5 — August 6, 2026
 
 This release standardizes project automation and documentation without changing runtime behavior.
