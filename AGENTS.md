@@ -68,3 +68,7 @@ Use the modern configuration API only:
 - No `port`, `MCP_PORT`, root endpoint, or legacy compatibility aliases.
 - TLS may use direct values or `keyFile`/`certFile`/`caFile`; environment file variables are supported.
 - Keep credentials outside source control and containers; use environment variables or mounted secret files.
+- Do not over-engineer simple tasks.
+- Do not guess when confused.
+- Do not make random, pointless changes.
+- Check your own work before saying you're done.
