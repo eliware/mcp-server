@@ -1,5 +1,10 @@
 # Release Notes
 
+## 1.1.10 — 2026-08-23
+
+- Make CI fail when lint reports warnings on supported platforms.
+
+## 1.1.9 — 2026-08-23
 ## 1.1.9 — 2026-08-23
 
 - Fixed Windows path handling for URL-derived entrypoints and tool directories.
