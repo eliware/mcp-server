@@ -1,7 +1,7 @@
 {
     "name": "@eliware/mcp-server",
     "type": "module",
-    "version": "1.1.8",
+    "version": "1.1.9",
     "description": "Pure-ESM Node.js MCP server with automatic tool discovery, Streamable HTTP and stdio transports, TLS, Zod schemas, injectable context, bearer authentication, and generic OAuth2 support.",
     "files": [
         "index.mjs",
