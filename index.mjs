@@ -1,5 +1,6 @@
 import http from 'http';
 import https from 'node:https';
+import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import express from 'express';
 import logger from '@eliware/log';
@@ -44,6 +45,12 @@ export function listeningCallback({ log }, port) {
   log.debug(`MCP HTTP Server listening on ${port}`);
 }
 
+/* istanbul ignore next */
+function normalizeEntrypoint(entrypoint) {
+  if (entrypoint instanceof URL) return fileURLToPath(entrypoint);
+  return entrypoint?.replace(/^([A-Za-z]):[\\/]+[A-Za-z]:[\\/]+/i, '$1:\\').replace(/^[\\/](?=[A-Za-z]:)/, '');
+}
+
 export function createRedirectApp({ createApp, httpsPort }) {
   const redirectApp = createApp();
   redirectApp.use((req, res) => {
@@ -69,7 +76,8 @@ export async function mcpServer(options = {}) {
     stateless, stdio, endpointPath, enableJsonResponse, allowedOrigins, app: suppliedApp, configureApp, createApp, createHttpServer, createHttpsServer,
     httpPort, httpsPort, tls, httpRedirect
   } = { ...defaults, ...options };
-  const toolsDir = options.toolsDir || (entrypoint ? resolve(dirname(entrypoint), 'tools') : path(import.meta, 'tools'));
+  const normalizedEntrypoint = normalizeEntrypoint(entrypoint);
+  const toolsDir = options.toolsDir || (normalizedEntrypoint ? resolve(dirname(normalizedEntrypoint), 'tools') : path(import.meta, 'tools'));
   const activeLog = stdio && !options.log ? stderrLogger : log;
   const meta = loadPackageMeta({ name, version, log: activeLog });
   const serverOptions = { ...meta, toolsDir, log: activeLog, context, enableJsonResponse, stateless, toolCache: new Map() };
