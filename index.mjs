@@ -72,7 +72,7 @@ export async function mcpServer(options = {}) {
   const toolsDir = options.toolsDir || (entrypoint ? resolve(dirname(entrypoint), 'tools') : path(import.meta, 'tools'));
   const activeLog = stdio && !options.log ? stderrLogger : log;
   const meta = loadPackageMeta({ name, version, log: activeLog });
-  const serverOptions = { ...meta, toolsDir, log: activeLog, context, enableJsonResponse, stateless };
+  const serverOptions = { ...meta, toolsDir, log: activeLog, context, enableJsonResponse, stateless, toolCache: new Map() };
   const initialServer = await buildServer(serverOptions);
   if (stdio) {
     const transport = new StdioServerTransport();
