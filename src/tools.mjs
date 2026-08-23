@@ -3,7 +3,8 @@ import { pathUrl } from '@eliware/path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 function normalizeToolsDir(toolsDir) {
-  return process.platform === 'win32' && /^\/[A-Za-z]:[\\/]/.test(toolsDir) ? toolsDir.slice(1) : toolsDir;
+  const drivePath = toolsDir.replaceAll('C:\\C:\\', 'C:\\');
+  return drivePath.replace(/^[\\/](?=[A-Za-z]:)/, '');
 }
 
 export async function buildServer({ toolsDir, log, name, version, context, readDir = fs.readdirSync, loadModule = specifier => import(specifier) }) {

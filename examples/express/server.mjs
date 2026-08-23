@@ -1,4 +1,5 @@
 import express from 'express';
+import packageMeta from '../../package.json' with { type: 'json' };
 import { mcpServer } from '@eliware/mcp-server';
 
 const app = express();
@@ -6,7 +7,7 @@ app.use(express.json());
 
 // Application routes can share the same listener as MCP.
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
-app.get('/api/version', (req, res) => res.json({ version: '1.0.0' }));
+app.get('/api/version', (req, res) => res.json({ version: packageMeta.version }));
 
 const { httpInstance } = await mcpServer({
   app,
