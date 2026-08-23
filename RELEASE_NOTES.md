@@ -1,5 +1,13 @@
 # Release Notes
 
+## 1.1.9 — 2026-08-23
+
+- Fixed Windows path handling for URL-derived entrypoints and tool directories.
+- Cached discovered tool files and imported modules during stateless requests.
+- Added Ubuntu and Windows CI with publish gating on both platforms.
+- Made package metadata and version reporting derive from `package.json`.
+- Added a cross-platform coverage-gap checker and refreshed dependencies.
+
 ## 1.1.8 — 2026-08-07
 
 - Standardized validation scripts, TypeScript checking, CI, and package metadata.
