@@ -1,6 +1,8 @@
 # [![eliware.org](https://eliware.org/logos/brand.png)](https://discord.gg/M6aTR9eTwN)
 # @eliware/mcp-server [![npm version](https://img.shields.io/npm/v/@eliware/mcp-server.svg)](https://www.npmjs.com/package/@eliware/mcp-server) [![license](https://img.shields.io/github/license/eliware/mcp-server.svg)](LICENSE) [![build status](https://github.com/eliware/mcp-server/actions/workflows/nodejs.yml/badge.svg)](https://github.com/eliware/mcp-server/actions)
 
+Documentation: [docs](docs/README.md) · [specifications](specs/README.md) · [examples](examples/README.md)
+
 A minimal, pure-ESM MCP server for Node.js. Drop `.mjs` tools into an entrypoint-adjacent `tools/` directory, start one entrypoint, and the library discovers and registers them automatically.
 
 ## Features
