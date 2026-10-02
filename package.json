@@ -72,5 +72,20 @@
         "@modelcontextprotocol/sdk": "^1.30.0",
         "express": "^5.1.0"
     },
-    "types": "index.d.ts"
+    "types": "index.d.ts",
+    "prettier": {
+      "printWidth": 100,
+      "tabWidth": 2,
+      "useTabs": false,
+      "semi": true,
+      "singleQuote": false,
+      "quoteProps": "as-needed",
+      "jsxSingleQuote": false,
+      "trailingComma": "all",
+      "bracketSpacing": true,
+      "bracketSameLine": false,
+      "arrowParens": "always",
+      "proseWrap": "preserve",
+      "endOfLine": "lf"
+    }
 }
