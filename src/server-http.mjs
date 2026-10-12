@@ -1,0 +1,34 @@
+export const stderrLogger = Object.fromEntries(
+  ["debug", "info", "warn", "error"].map((level) => [level, (...args) => console.error(...args)]),
+);
+
+export function handleRequestFailure({ log, res }, err) {
+  log.error("[MCP] Request failed:", err?.stack || err);
+  if (!res.headersSent) res.status(500).json({ error: "Internal MCP server error" });
+}
+
+export function requestEndpoint({ handle, log }, req, res) {
+  return handle(req, res).catch((err) => handleRequestFailure({ log, res }, err));
+}
+
+export function createPostHandler({ handle, log }) {
+  return (req, res) => requestEndpoint({ handle, log }, req, res);
+}
+
+export function createListeningHandler({ log, port }) {
+  return () => listeningCallback({ log }, port);
+}
+
+export function listeningCallback({ log }, port) {
+  log.debug(`MCP HTTP Server listening on ${port}`);
+}
+
+export function createRedirectApp({ createApp, httpsPort }) {
+  const redirectApp = createApp();
+  redirectApp.use((req, res) => {
+    const host = req.headers.host?.split(":")[0] || "localhost";
+    const portSuffix = httpsPort === 443 ? "" : `:${httpsPort}`;
+    res.redirect(301, `https://${host}${portSuffix}${req.originalUrl || req.url}`);
+  });
+  return redirectApp;
+}

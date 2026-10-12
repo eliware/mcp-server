@@ -1,6 +1,9 @@
 # Examples
 
-- [Basic example](basic.mjs)
-
-This directory contains runnable MCP server examples. Each example must
-document prerequisites, command, expected result, permissions, and cleanup.
+- [Basic server](basic.mjs)
+- [Container server](container.mjs)
+- [Express server](express/server.mjs)
+- [OAuth2 server](oauth2/server.mjs)
+- [Passthrough server](passthrough/server.mjs)
+- [Static token server](static/server.mjs)
+- [Echo tool](tools/echo.mjs)

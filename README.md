@@ -1,331 +1,157 @@
 # [![eliware.org](https://eliware.org/logos/brand.png)](https://discord.gg/M6aTR9eTwN)
-# @eliware/mcp-server [![npm version](https://img.shields.io/npm/v/@eliware/mcp-server.svg)](https://www.npmjs.com/package/@eliware/mcp-server) [![license](https://img.shields.io/github/license/eliware/mcp-server.svg)](LICENSE) [![build status](https://github.com/eliware/mcp-server/actions/workflows/nodejs.yml/badge.svg)](https://github.com/eliware/mcp-server/actions)
 
-Documentation: [docs](docs/README.md) · [specifications](specs/README.md) · [examples](examples/README.md)
+## @eliware/mcp-server [![npm](https://img.shields.io/npm/v/@eliware/mcp-server)](https://www.npmjs.com/package/@eliware/mcp-server) [![License](https://img.shields.io/github/license/eliware/mcp-server)](https://github.com/eliware/mcp-server/blob/main/LICENSE) [![CI](https://github.com/eliware/mcp-server/actions/workflows/ci.yaml/badge.svg)](https://github.com/eliware/mcp-server/actions/workflows/ci.yaml)
 
-A minimal, pure-ESM MCP server for Node.js. Drop `.mjs` tools into an entrypoint-adjacent `tools/` directory, start one entrypoint, and the library discovers and registers them automatically.
+Pure-ESM Node.js MCP server with automatic tool discovery, Streamable HTTP and stdio transports, TLS, Zod schemas, injectable context, bearer authentication, and generic OAuth2 support.
+
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Development](#development)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Security](#security)
+- [API](#api)
+- [Packaging](#packaging)
+- [Examples](#examples)
+- [Support](#support)
+- [Links](#links)
+- [License](#license)
 
 ## Features
 
-- Stateless Streamable HTTP by default.
-- Optional stdio transport for local MCP clients.
-- Optional stateful transport mode.
-- Automatic `.mjs` tool discovery.
-- Zod input schemas.
-- None, static bearer, bearer passthrough, and OAuth2 authentication modes.
-- Injectable application context for databases and services.
-- BigInt-safe `buildResponse()` helper.
-- Express HTTP integration.
-- HTTP, HTTPS, or both, with optional HTTP-to-HTTPS redirects.
-- TypeScript declarations.
+- Serve MCP with stateless Streamable HTTP by default.
+- Use stdio for local MCP clients.
+- Discover `.mjs` tool files beside the server entry point.
+- Define tool input schemas with Zod.
+- Select no authentication, static bearer tokens, bearer passthrough, or OAuth2 introspection.
+- Pass application context to each tool.
+- Serve HTTP, HTTPS, or both.
+- Embed the MCP endpoint in an Express application.
+- Return JSON-safe values with `buildResponse()`.
 
 ## Requirements
 
-- Node.js 26 or newer
-- An MCP client for live HTTP, HTTPS, or stdio operation
+- Use Node.js 26 or later.
+- Use an MCP client for HTTP, HTTPS, or stdio requests.
 
-## Install
+## Setup
 
-```bash
+Install the package:
+
+```sh
 npm install @eliware/mcp-server
 ```
 
-## Minimal server
+Import `mcpServer` and start the server:
 
 ```js
-// server.mjs
-import { mcpServer } from '@eliware/mcp-server';
+import { mcpServer } from "@eliware/mcp-server";
 
-await mcpServer({
-  auth: { mode: 'static', token: process.env.MCP_TOKEN },
-});
+await mcpServer({ auth: { mode: "static", token: process.env.MCP_TOKEN } });
 ```
 
-Put tools in `./tools/`. The MCP endpoint is `/mcp` only. There is no root or legacy compatibility endpoint.
+Place application tools in a `tools/` folder beside the entry point. The MCP endpoint is `/mcp`.
 
-See `examples/basic.mjs` for a complete entrypoint example. Put application tools in a `tools/` folder beside that entrypoint.
+## Usage
 
-## Local stdio mode
-
-For local clients that launch the server as a child process:
-
-```js
-await mcpServer({ stdio: true });
-```
-
-stdio uses stdin/stdout for MCP JSON-RPC. Do not write logs to stdout; use stderr instead. HTTP remains the default for remote deployments.
-
-## Tool template
-
-Create `tools/hello.mjs` beside your entrypoint:
+Each tool file must end in `.mjs`. Each file must export one default async registration function.
+The function receives `mcpServer`, `toolName`, `log`, and injected context values.
 
 ```js
-import { z, buildResponse } from '@eliware/mcp-server';
+import { buildResponse, z } from "@eliware/mcp-server";
 
-export default async function registerHello({ mcpServer, toolName, log, db }) {
-  mcpServer.tool(
-    toolName,
-    'Say hello.',
-    { name: z.string().min(1) },
-    async ({ name }) => {
-      log.debug(`${toolName} request`, { name });
-      // `db` and other values come from mcpServer({ context: { db } }).
-      void db;
-      return buildResponse({ message: `Hello, ${name}!` });
-    },
-  );
+export default async function registerHello({ mcpServer, toolName, log }) {
+  mcpServer.tool(toolName, "Say hello.", { name: z.string().min(1) }, async ({ name }) => {
+    log.debug(`${toolName} request`, { name });
+    return buildResponse({ message: `Hello, ${name}!` });
+  });
 }
 ```
 
-Tool requirements:
-
-1. File ends in `.mjs`.
-2. File exports one default async registration function.
-3. The function receives `{ mcpServer, toolName, log, ...context }`.
-4. Call `mcpServer.tool(name, description, inputSchema, handler)`.
-5. Define handler inputs with Zod (`z.string()`, `z.number()`, `z.object()`, etc.).
-6. Return an MCP result, normally using `buildResponse(value)`.
-
-## Injected context
+Pass database and service values through `context`. Each tool receives those values.
 
 ```js
-await mcpServer({
-  context: { db, config, services },
-});
+await mcpServer({ context: { db, services } });
 ```
 
-Every tool receives those values as properties of its registration argument.
+Set `stdio: true` to use local stdio transport. Do not write logs to stdout in this mode.
+Set `httpPort: null` or `httpPort: false` to disable HTTP. Set `httpsPort` to enable HTTPS.
+HTTPS requires a TLS key and certificate. Set `tls.key` and `tls.cert`, or set their file paths.
+Set `httpRedirect: true` to redirect HTTP requests to HTTPS.
+Use `app` to supply an Express app. Use `configureApp` to add middleware before the MCP route.
+Use `stateless: false` for stateful transport. The default is stateless transport.
+Use `endpointPath` to set the MCP route. The default is `/mcp`.
+Use `allowedOrigins` to set allowed CORS origins. Use `entrypoint` to set the tool folder base.
+Use `enableJsonResponse: false` to disable JSON responses.
 
-## Configuration
+The container example reads `MCP_HTTP_PORT` and `MCP_TOKEN`. TLS file paths use `TLS_KEY_FILE`,
+`TLS_CERT_FILE`, and optional `TLS_CA_FILE` when the caller enables HTTPS.
 
-`mcpServer(options)` supports:
-
-- `auth`: `{ mode: 'none' | 'static' | 'bearer-passthrough' | 'oauth2', ... }`.
-- `toolsDir`: custom tool directory. Defaults to `<entrypoint-directory>/tools/`; when no entrypoint is available, uses the bundled `examples/tools/` directory.
-- `httpPort`: HTTP listener port; set `null`/`false` to disable HTTP.
-- `httpsPort`: HTTPS listener port. Requires TLS key/certificate material or file paths.
-- `tls`: Node HTTPS TLS options (`key`, `cert`, optional `ca`) or file paths (`keyFile`, `certFile`, `caFile`). If omitted, `TLS_KEY_FILE`, `TLS_CERT_FILE`, and `TLS_CA_FILE` are used.
-- `httpRedirect`: when true, HTTP redirects to HTTPS instead of serving MCP.
-- `context`: values injected into every tool.
-- `stateless`: defaults to `true`; creates a fresh server/transport per request.
-- `endpointPath`: defaults to `/mcp`; use one explicit endpoint path per deployment.
-- `enableJsonResponse`: defaults to `true`.
-- `allowedOrigins`: optional CORS allowlist.
-- `entrypoint`: entrypoint path used to resolve the default sibling `tools/` directory.
-- `app`: optional caller-supplied Express application. When omitted, the server creates one as before.
-- `configureApp`: optional callback invoked with the application after built-in HTTP middleware is installed and before the MCP route.
-
-### Existing Express application
-
-Embed MCP in an existing Express app by supplying `app`. Use `configureApp` for application-specific middleware or routes:
-
-```js
-await mcpServer({
-  app,
-  configureApp: configuredApp => {
-    configuredApp.use(requestIdMiddleware);
-  },
-});
-```
-
-Both options are optional; without them, `mcpServer` creates and configures its own app.
-
-A complete REST-plus-MCP example is available in [`examples/express/server.mjs`](examples/express/server.mjs):
-
-```js
-import express from 'express';
-import { mcpServer } from '@eliware/mcp-server';
-
-const app = express();
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
-
-await mcpServer({
-  app,
-  httpPort: 1234,
-  endpointPath: '/mcp',
-  auth: { mode: 'static', token: process.env.MCP_TOKEN },
-});
-```
-
-The resulting application serves both `/health` and `/mcp` from the same HTTP listener.
-Use `configureApp` when routes or middleware should be installed as part of server setup:
-
-```js
-await mcpServer({
-  app,
-  configureApp: configuredApp => {
-    configuredApp.use('/api', apiRoutes);
-  },
-});
-```
-
-## API helpers
-
-- `buildResponse(value)`: returns `{ content: [{ type: 'text', text }] }`.
-- `convertBigIntToString(value)`: recursively converts BigInts to strings.
-- `z`: re-exported Zod namespace.
-
-## TypeScript
-
-Type declarations are included in `index.d.ts`.
-
-## Errors / Troubleshooting
-
-The server exposes only `/mcp` for MCP traffic. Use `stdio: true` for local process clients and do not write logs to stdout in stdio mode. Authentication, TLS, tool discovery, and OAuth failures should be handled through the configured logger without exposing tokens, credentials, private keys, or sensitive tool data. Always close the returned server resources during shutdown.
+Read [usage notes](docs/usage.md), [troubleshooting notes](docs/troubleshooting.md), and [specifications](specs/README.md).
+Read [release notes](RELEASE_NOTES.md) for version changes.
 
 ## Development
 
-```bash
-npm install
-npm run lint
-npm test
-npm run test:gaps
-npm run lint
-npm run typecheck
-npm run pack
-```
+Install dependencies with `npm ci`. Run `npm run format` to format files.
+Run `npm run typecheck` to check declarations.
+
+## Testing
+
+Run `npm test` for lint, format, audit, package, type, convention, and Jest checks.
+
+## Troubleshooting
+
+The server accepts MCP traffic at `/mcp`. Use `stdio: true` for local process clients.
+Write logs to stderr in stdio mode. Close server resources during shutdown.
 
 ## Security
 
-Keep `MCP_TOKEN`, OAuth credentials, TLS keys, certificates, and client secrets in environment variables or mounted secret files. Do not commit `.env` files or certificates. Use HTTPS and explicit authentication for remote deployments.
+Keep tokens, OAuth credentials, TLS keys, certificates, and client secrets in environment variables or mounted secret files.
+Use HTTPS and explicit authentication for remote deployments. Do not commit `.env` files or certificates.
 
-## License
+## API
 
-MIT © Eli Sterling, eliware.org
+`mcpServer(options)` starts the server and returns its app, server instances, MCP server, and transport.
+Set `auth` to `none`, `static`, `bearer-passthrough`, or `oauth2`. Static mode requires a token.
+OAuth2 mode requires an issuer, resource, and introspection function or endpoint settings.
+Set `toolsDir` to choose a tool folder. The default uses the entrypoint folder or bundled examples.
+Set `context` to pass values to each tool. Set `name` and `version` to override package metadata.
+`buildResponse(value)` returns an MCP text result.
+`convertBigIntToString(value)` converts BigInt values to strings.
+The package exports OAuth helpers, PKCE helpers, authentication helpers, and the Zod namespace.
+Read `src/index.d.ts` for option and result types.
 
-## HTTPS
+## Packaging
 
-HTTPS only:
+The package contains `src/`, `docs/`, `examples/`, `specs/`, and its public metadata files.
+Run `npm run pack` to check package contents. Do not publish without the Eliware release process.
 
-```js
-await mcpServer({
-  httpPort: null,
-  httpsPort: 443,
-  tls: { key: process.env.TLS_KEY, cert: process.env.TLS_CERT },
-});
-```
+## Examples
 
-Both listeners, redirecting HTTP to HTTPS:
-
-```js
-await mcpServer({
-  httpPort: 80,
-  httpsPort: 443,
-  httpRedirect: true,
-  tls: { key: process.env.TLS_KEY, cert: process.env.TLS_CERT },
-});
-```
-
-Set `httpRedirect: false` to serve MCP over both listeners. The returned result exposes `httpInstance` and `httpsInstance`.
-
-## Containers
-
-Local HTTP test:
-
-```bash
-cp .env.example .env
-# set MCP_TOKEN in .env
-docker compose up --build
-```
-
-HTTPS automatically loads TLS files from `tls.keyFile`/`certFile`/`caFile`, or `TLS_KEY_FILE`/`TLS_CERT_FILE`/`TLS_CA_FILE`; mount certificates read-only and never commit them. `docker-compose.tls.yml` exposes ports 80 and 443 for that deployment pattern.
-
-The container uses `container.mjs` so the local package source resolves correctly. Local stdio remains a process mode, not a Docker network service:
-
-```bash
-docker run --rm -i -e MCP_TOKEN=test ghcr.io/eliware/mcp-server node examples/basic.mjs --stdio
-```
-
-## Authentication modes
-
-Unauthenticated:
-
-```js
-auth: { mode: 'none' }
-```
-
-Static token:
-
-```js
-auth: { mode: 'static', token: process.env.MCP_TOKEN }
-```
-
-Bearer passthrough validates that a bearer exists and exposes it to tools through request metadata for backend API calls:
-
-```js
-auth: { mode: 'bearer-passthrough' }
-```
-
-OAuth2 uses the same request-scoped auth context as the other modes. Tools should use `requireAuth(extra)` or `requireBearer(extra)` rather than reading raw request headers.
-
-
-OAuth2 resource-server mode validates introspection results and injects sanitized request identity plus granted scopes into tool metadata. `requiredScopes` defines the minimum scopes a token must grant; the complete granted scope list remains available to tools:
-
-```js
-auth: {
-  mode: 'oauth2',
-  issuer: 'https://auth.example',
-  resource: 'https://app.example/mcp',
-  requiredScopes: ['app:read'],
-  introspect: token => introspectToken(token),
-}
-```
-
-The introspection function is application-provided so the library does not hard-code an identity provider or persistence system. Static and dynamic OAuth client registration are available through the client-side helpers below.
-
-
-## OAuth client registration
-
-The package exports provider discovery and dynamic registration helpers. Applications choose static credentials or persist dynamically registered credentials through an injected store; the library does not require a database.
-
-```js
-const provider = await discoverOAuthProvider({ issuer });
-const client = await registerOAuthClient({
-  registrationEndpoint: provider.registration_endpoint,
-  metadata: { client_name: 'my-app', redirect_uris: ['https://app.example/callback'] },
-});
-```
-
-Use `createClientStore({ load, save, remove })` with MySQL, Kubernetes secrets, or another durable store.
-
-
-OAuth2 mode also publishes protected-resource metadata at:
-
-- `/.well-known/oauth-protected-resource`
-- `/.well-known/oauth-protected-resource/mcp`
-
-Unauthorized OAuth2 responses include `WWW-Authenticate` resource metadata and required scopes.
-
-For backward compatibility, `scopes` is accepted as an alias for `requiredScopes`, but new integrations should use `requiredScopes`.
-
-
-Dynamic client registration is resolved once and cached through the injected client store. Static registration bypasses registration and returns configured credentials. The store must be durable when running multiple replicas.
-
-
-For app-side OAuth login, `createOAuthClient()` combines provider discovery and static/dynamic client resolution, then provides PKCE authorization URL creation and authorization-code exchange. Applications remain responsible for state/verifier persistence and user sessions.
-
-
-Auth helper exports:
-
-- `requireScope(extra, scope)` — throws a 403-style error when absent.
-- `hasScope(extra, scope)` — boolean scope check.
-- `getUser(extra)` — sanitized request identity.
-- `getAccessToken(extra)` — explicit backend passthrough accessor.
-
-OAuth2 may use the generic introspection adapter with `auth.introspection.endpoint` and optional client credentials, or an injected `auth.introspect` function.
-
-
-PKCE helpers provide S256 verifier/challenge generation and one-time state consumption. Applications should persist PKCE records through a durable store and delete them after callback validation.
+Read [examples/README.md](examples/README.md) for server and tool examples.
+Read [docs/README.md](docs/README.md) for documentation links.
 
 ## Support
 
-For help, questions, or community chat:
+For help, questions, or to chat with the author and community, visit:
 
-[eliware.org on Discord](https://discord.gg/M6aTR9eTwN)
+[![Discord](https://eliware.org/logos/discord_96.png)](https://discord.gg/M6aTR9eTwN)[![eliware.org](https://eliware.org/logos/eliware_96.png)](https://discord.gg/M6aTR9eTwN)
+
+**[eliware.org on Discord](https://discord.gg/M6aTR9eTwN)**
 
 ## Links
 
 - [Home Page](https://eliware.org)
-- [GitHub Repo](https://github.com/eliware/mcp-server)
 - [GitHub Org](https://github.com/eliware)
+- [GitHub Repo](https://github.com/eliware/mcp-server)
+- [Bug Reports](https://github.com/eliware/mcp-server/issues)
+- [npm](https://www.npmjs.com/package/@eliware/mcp-server)
 - [Discord](https://discord.gg/M6aTR9eTwN)
+
+## License
+
+[MIT © Eliware](LICENSE)

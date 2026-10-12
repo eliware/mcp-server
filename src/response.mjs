@@ -1,10 +1,15 @@
 export function convertBigIntToString(value) {
-  if (typeof value === 'bigint') return value.toString();
+  if (typeof value === "bigint") return value.toString();
   if (Array.isArray(value)) return value.map(convertBigIntToString);
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, convertBigIntToString(item)]));
+  if (value && typeof value === "object")
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, convertBigIntToString(item)]),
+    );
   return value;
 }
 
 export function buildResponse(data) {
-  return { content: [{ type: 'text', text: JSON.stringify(convertBigIntToString(data), null, 2) }] };
+  return {
+    content: [{ type: "text", text: JSON.stringify(convertBigIntToString(data), null, 2) }],
+  };
 }

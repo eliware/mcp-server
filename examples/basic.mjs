@@ -4,16 +4,16 @@
 // 3. Start this file.
 // That is the whole server.
 
-import { mcpServer } from '@eliware/mcp-server';
+import { mcpServer } from "@eliware/mcp-server";
 
 await mcpServer({
-  stdio: process.argv.includes('--stdio'),
+  stdio: process.argv.includes("--stdio"),
   httpPort: process.env.MCP_HTTP_PORT ? Number(process.env.MCP_HTTP_PORT) : 1234,
-  auth: { mode: 'static', token: process.env.MCP_TOKEN },
+  auth: { mode: "static", token: process.env.MCP_TOKEN },
 
   // Every value here is available to each tool as an injected property.
   context: {
-    appName: 'my-mcp-server',
+    appName: "my-mcp-server",
     db: createDatabaseClient(),
   },
 });
