@@ -1,3 +1,5 @@
+import { injectRequestAuthMetadata } from "./request-auth-metadata.mjs";
+
 export function createRequestHandler({
   stateless,
   initialServer,
@@ -10,9 +12,7 @@ export function createRequestHandler({
     const server = stateless ? await buildServer(options) : initialServer;
     const transport = stateless ? createTransport(options) : initialTransport;
     if (stateless) await server.connect(transport);
-    if (req.body?.params && typeof req.body.params === "object") {
-      req.body.params._meta = { ...req.body.params._meta, mcpAuth: req.mcpAuth };
-    }
+    injectRequestAuthMetadata(req.body?.params, req.mcpAuth);
     try {
       await transport.handleRequest(req, res, req.body);
     } finally {

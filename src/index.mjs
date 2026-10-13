@@ -4,13 +4,8 @@ export { getAccessToken, requireBearer } from "./auth-bearer-context.mjs";
 export { hasScope, requireScope } from "./auth-scope.mjs";
 export { normalizeAuth } from "./auth-config.mjs";
 export { createOAuthIntrospector } from "./auth-introspection.mjs";
-export {
-  handleRequestFailure,
-  requestEndpoint,
-  createPostHandler,
-  createListeningHandler,
-  listeningCallback,
-} from "./server-http.mjs";
+export { handleRequestFailure, requestEndpoint, createPostHandler } from "./server-http.mjs";
+export { createListeningHandler, listeningCallback } from "./server-listeners.mjs";
 export { stderrLogger } from "./logger.mjs";
 export { createRedirectApp } from "./redirect-app.mjs";
 export { buildResponse } from "./response.mjs";
@@ -18,7 +13,8 @@ export { convertBigIntToString } from "./bigint-conversion.mjs";
 export { discoverOAuthProvider } from "./oauth.mjs";
 export { registerOAuthClient } from "./oauth-registration.mjs";
 export { createClientStore } from "./client-store.mjs";
-export { setOAuthChallenge, mountOAuthResourceMetadata } from "./oauth-metadata.mjs";
+export { setOAuthChallenge } from "./oauth-metadata.mjs";
+export { mountOAuthResourceMetadata } from "./oauth-resource-metadata.mjs";
 export { resolveOAuthClient } from "./client.mjs";
 export { createOAuthClient } from "./oauth-client.mjs";
 export { createPkceState } from "./pkce.mjs";

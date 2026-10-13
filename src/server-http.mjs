@@ -10,11 +10,3 @@ export function requestEndpoint({ handle, log }, req, res) {
 export function createPostHandler({ handle, log }) {
   return (req, res) => requestEndpoint({ handle, log }, req, res);
 }
-
-export function createListeningHandler({ log, port }) {
-  return () => listeningCallback({ log }, port);
-}
-
-export function listeningCallback({ log }, port) {
-  log.debug(`MCP HTTP Server listening on ${port}`);
-}

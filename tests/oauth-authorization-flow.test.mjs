@@ -16,13 +16,13 @@ test("connects authorization URL creation to code exchange", async () => {
     fetchFn,
   });
   const auth = flow.authorizationUrl({ redirectUri: "https://app/cb", state: "state" });
-  await expect(
-    flow.exchangeCode({
-      code: "code",
-      redirectUri: "https://app/cb",
-      codeVerifier: auth.codeVerifier,
-    }),
-  ).resolves.toEqual({ access_token: "token" });
+  await flow.exchangeCode({
+    code: "code",
+    redirectUri: "https://app/cb",
+    codeVerifier: auth.codeVerifier,
+  });
+  const requestBody = new URLSearchParams(fetchFn.mock.calls[0][1].body);
+  expect(requestBody.get("code_verifier")).toBe(auth.codeVerifier);
 });
 
 test("creates a default authorization URL", () => {

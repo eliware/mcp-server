@@ -1,4 +1,4 @@
-import { jest, test, expect } from "@jest/globals";
+import { test, expect } from "@jest/globals";
 import express from "express";
 import request from "supertest";
 import { createAuthMiddleware } from "../src/auth-middleware.mjs";
@@ -10,32 +10,27 @@ function appFor(auth) {
   return app;
 }
 
-test("bypasses requests outside configured POST paths", async () => {
-  const next = jest.fn();
-  const middleware = createAuthMiddleware({ auth: "none", endpointPaths: ["/mcp"] });
-  await middleware({ method: "GET", path: "/mcp" }, {}, next);
-  await middleware({ method: "POST", path: "/other" }, {}, next);
-  expect(next).toHaveBeenCalledTimes(2);
+test("passes requests outside protected POST routes", async () => {
+  const app = express();
+  app.use(createAuthMiddleware({ auth: "none", endpointPaths: ["/mcp"] }));
+  app.get("/mcp", (_req, res) => res.sendStatus(204));
+  expect((await request(app).get("/mcp")).status).toBe(204);
+  expect((await request(app).post("/other")).status).toBe(404);
 });
 
 test("returns an error when middleware cannot read the request token", async () => {
-  const middleware = createAuthMiddleware({ auth: "none", endpointPaths: ["/mcp"] });
-  const res = { status: jest.fn(() => res), json: jest.fn() };
-  await middleware(
-    {
-      method: "POST",
-      path: "/mcp",
-      get: () => {
-        throw new Error("request error");
-      },
-    },
-    res,
-    jest.fn(),
-  );
-  expect(res.status).toHaveBeenCalledWith(500);
-  expect(res.json).toHaveBeenCalledWith(
-    expect.objectContaining({ error: "Authentication failed" }),
-  );
+  const app = express();
+  app.use((req, _res, next) => {
+    req.get = () => {
+      throw new Error("request error");
+    };
+    next();
+  });
+  app.use(createAuthMiddleware({ auth: "none", endpointPaths: ["/mcp"] }));
+  app.post("/mcp", (_req, res) => res.sendStatus(200));
+  const response = await request(app).post("/mcp");
+  expect(response.status).toBe(500);
+  expect(response.body).toMatchObject({ error: "Authentication failed" });
 });
 
 test("serves no-auth and bearer-passthrough requests through the Express app", async () => {

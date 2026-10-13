@@ -1,14 +1,8 @@
 import { jest, test, expect } from "@jest/globals";
-import {
-  createListeningHandler,
-  createPostHandler,
-  handleRequestFailure,
-  listeningCallback,
-  requestEndpoint,
-} from "../src/server-http.mjs";
+import { createPostHandler, handleRequestFailure, requestEndpoint } from "../src/server-http.mjs";
 
-test("server HTTP helpers log requests and callbacks", async () => {
-  const log = { debug: jest.fn(), error: jest.fn() };
+test("server HTTP helpers handle requests and errors", async () => {
+  const log = { error: jest.fn() };
   const res = { headersSent: false, status: jest.fn(() => res), json: jest.fn() };
   handleRequestFailure({ log, res }, new Error("bad"));
   expect(res.status).toHaveBeenCalledWith(500);
@@ -26,9 +20,6 @@ test("server HTTP helpers log requests and callbacks", async () => {
     ),
   ).resolves.toBeUndefined();
   createPostHandler({ handle: async () => "ok", log })({}, res);
-  createListeningHandler({ log, port: 1234 })();
-  listeningCallback({ log }, 1234);
-  expect(log.debug).toHaveBeenCalled();
 });
 
 test("does not send an HTTP response after headers are sent", () => {

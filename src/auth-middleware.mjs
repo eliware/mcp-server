@@ -2,11 +2,12 @@ import { bearer } from "./auth-bearer.mjs";
 import { resolveAuthRequest } from "./auth-request.mjs";
 import { normalizeAuth } from "./auth-config.mjs";
 import { authenticateOAuthRequest } from "./auth-oauth.mjs";
+import { isAuthRequest } from "./auth-route.mjs";
 
 export function createAuthMiddleware({ auth = { mode: "none" }, endpointPaths }) {
   const config = normalizeAuth(auth);
   return async (req, res, next) => {
-    if (req.method !== "POST" || !endpointPaths.includes(req.path)) return next();
+    if (!isAuthRequest(req, endpointPaths)) return next();
     try {
       const accessToken = bearer(req);
       if (config.mode === "oauth2") {
