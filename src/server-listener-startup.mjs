@@ -21,8 +21,8 @@ export function waitForListener(instance, port, onListening, onRuntimeError) {
         }
         settled = true;
         try {
-          onListening();
           started = true;
+          onListening();
           resolve();
         } catch (error) {
           instance.removeListener("error", onError);

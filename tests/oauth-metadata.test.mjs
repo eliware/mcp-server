@@ -18,3 +18,14 @@ test("sets the default OAuth challenge", () => {
   setOAuthChallenge(res);
   expect(res.set).toHaveBeenCalledWith("WWW-Authenticate", 'Bearer realm="mcp"');
 });
+
+test("escapes quotes and backslashes in challenge values", () => {
+  const res = { set: jest.fn() };
+  setOAuthChallenge(res, { resource: 'https://app/"quoted"\\path\r\nbad', scope: 'read"write' });
+  const header = res.set.mock.calls[0][1];
+  expect(header).toContain(
+    'resource_metadata="https://app/\\"quoted\\"\\\\path%0D%0Abad/.well-known/oauth-protected-resource/mcp"',
+  );
+  expect(header).toContain('scope="read\\"write"');
+  expect(header).not.toMatch(/[\r\n]/);
+});
