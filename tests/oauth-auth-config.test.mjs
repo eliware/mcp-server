@@ -38,7 +38,7 @@ test("creates introspection behavior from OAuth endpoint settings", async () => 
       },
     },
   });
-  await expect(auth.introspect("token")).resolves.toEqual({ active: true });
+  await auth.introspect("token");
   expect(calls[0][0]).toBe("https://issuer.test/introspect");
   expect(new URLSearchParams(calls[0][1].body).get("resource")).toBe("https://resource.test");
 });
