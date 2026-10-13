@@ -1,16 +1,16 @@
-import { setOAuthChallenge } from "./oauth-metadata.mjs";
-import { sanitizeClaims, validateOAuthToken } from "./auth-claims.mjs";
+import { sanitizeClaims } from "./auth-claims.mjs";
+import { validateOAuthToken } from "./auth-token-validation.mjs";
+import { sendOAuthAuthError } from "./auth-oauth-response.mjs";
 
 export async function authenticateOAuthRequest({ config, accessToken, req, res }) {
   if (!accessToken) {
-    setOAuthChallenge(res, { resource: config.resource });
-    res.status(401).json({ error: "Bearer token required" });
+    sendOAuthAuthError(res, { error: "Bearer token required", resource: config.resource });
     return false;
   }
   const info = await config.introspect(accessToken);
   const token = validateOAuthToken(info, config);
   if (!token) {
-    res.status(401).json({ error: "Invalid OAuth2 token" });
+    sendOAuthAuthError(res, { error: "Invalid OAuth2 token" });
     return false;
   }
   req.mcpAuth = {

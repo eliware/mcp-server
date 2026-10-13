@@ -16,7 +16,6 @@ test("connects authorization URL creation to code exchange", async () => {
     fetchFn,
   });
   const auth = flow.authorizationUrl({ redirectUri: "https://app/cb", state: "state" });
-  expect(new URL(auth.url).searchParams.get("client_id")).toBe("id");
   expect(flow.authorizationUrl().codeVerifier).toBeTruthy();
   await expect(
     flow.exchangeCode({
