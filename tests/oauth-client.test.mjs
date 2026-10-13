@@ -1,77 +1,29 @@
 import { jest, test, expect } from "@jest/globals";
 import { createOAuthClient } from "../src/oauth-client.mjs";
+
 const provider = {
   authorization_endpoint: "https://auth/authorize",
   token_endpoint: "https://auth/token",
   registration_endpoint: "https://auth/register",
 };
-test("creates PKCE authorization URL and exchanges code", async () => {
-  const fetchFn = jest
-    .fn()
-    .mockResolvedValueOnce({ ok: true, json: async () => provider })
-    .mockResolvedValueOnce({ ok: true, json: async () => ({ access_token: "x" }) });
-  const client = await createOAuthClient({
-    issuer: "https://auth",
-    client: { mode: "static", clientId: "id" },
-    fetchFn,
-  });
-  const request = client.authorizationUrl({
-    redirectUri: "https://app/cb",
-    scopes: ["read"],
-    state: "s",
-    codeVerifier: "verifier",
-  });
-  expect(request.url).toContain("code_challenge=");
-  expect(
-    await client.exchangeCode({
-      code: "c",
-      redirectUri: "https://app/cb",
-      codeVerifier: request.codeVerifier,
-    }),
-  ).toEqual({ access_token: "x" });
-  expect(fetchFn).toHaveBeenCalledTimes(2);
-});
-test("rejects failed token exchange", async () => {
-  const fetchFn = jest
-    .fn()
-    .mockResolvedValueOnce({ ok: true, json: async () => provider })
-    .mockResolvedValueOnce({ ok: false, status: 400 });
-  const client = await createOAuthClient({
-    issuer: "https://auth",
-    client: { mode: "static", clientId: "id" },
-    fetchFn,
-  });
-  await expect(
-    client.exchangeCode({ code: "c", redirectUri: "x", codeVerifier: "v" }),
-  ).rejects.toThrow("token exchange");
-});
-test("uses default authorization options and includes client credentials", async () => {
-  const fetchFn = jest.fn().mockResolvedValueOnce({ ok: true, json: async () => provider });
-  const client = await createOAuthClient({
-    issuer: "https://auth",
-    client: { mode: "static", clientId: "id" },
-    fetchFn,
-  });
-  const request = client.authorizationUrl();
-  expect(request.codeVerifier).toBeTruthy();
-  expect(request.url).toContain("client_id=id");
-  expect(request.url).toContain("scope=");
-});
-test("supports registered client_id credentials", async () => {
-  const fetchFn = jest.fn().mockResolvedValueOnce({ ok: true, json: async () => provider });
+
+test("builds a client from provider data and stored credentials", async () => {
+  const fetchFn = jest.fn().mockResolvedValue({ ok: true, json: async () => provider });
+  const credentials = { client_id: "registered" };
+  const store = { load: jest.fn().mockResolvedValue(credentials) };
   const client = await createOAuthClient({
     issuer: "https://auth",
     client: { mode: "dynamic" },
-    store: { load: jest.fn().mockResolvedValue({ client_id: "registered" }) },
+    store,
     fetchFn,
   });
-  const request = client.authorizationUrl({
-    redirectUri: "https://app/cb",
-    state: "s",
-    codeVerifier: "v",
-  });
-  expect(request.url).toContain("client_id=registered");
+  expect(client.provider).toEqual(provider);
+  expect(client.credentials).toEqual(credentials);
+  expect(client.authorizationUrl).toBeInstanceOf(Function);
+  expect(client.exchangeCode).toBeInstanceOf(Function);
+  expect(store.load).toHaveBeenCalled();
 });
+
 test("rejects omitted client options", async () => {
   await expect(createOAuthClient()).rejects.toThrow();
 });

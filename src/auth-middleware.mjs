@@ -1,4 +1,5 @@
-import { bearer, validStaticToken } from "./auth-token.mjs";
+import { bearer } from "./auth-bearer.mjs";
+import { validStaticToken } from "./auth-static-token.mjs";
 import { normalizeAuth } from "./auth-config.mjs";
 import { authenticateOAuthRequest } from "./auth-oauth.mjs";
 
