@@ -22,9 +22,11 @@ export function resolveRuntimeAuth(auth) {
     ? {
         ...auth,
         introspect: createOAuthIntrospector({
-          issuer: auth.issuer,
           resource: auth.resource,
-          ...auth.introspection,
+          introspectionEndpoint: auth.introspection.endpoint,
+          clientId: auth.introspection.clientId,
+          clientSecret: auth.introspection.clientSecret,
+          fetchFn: auth.introspection.fetchFn,
         }),
       }
     : auth;

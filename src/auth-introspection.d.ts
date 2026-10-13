@@ -1,5 +1,4 @@
 export function createOAuthIntrospector(options: {
-  issuer?: string;
   resource?: string;
   introspectionEndpoint: string;
   clientId?: string;

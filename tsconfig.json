@@ -8,5 +8,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.d.ts"]
+  "include": ["src/**/*.d.ts", "test-fixtures/**/*.types.ts"]
 }

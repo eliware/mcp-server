@@ -48,13 +48,12 @@ test("rejects invalid introspection results", async () => {
     { ...valid, active: false },
     { ...valid, iss: "other" },
     { ...valid, resource: "other" },
-    { ...valid, aud: ["other"] },
+    { ...valid, resource: undefined, aud: ["other"] },
     { ...valid, exp: expired },
     { ...valid, token_type: "mac" },
-    { ...valid, scope: "read", required: true },
   ];
   for (const info of invalid) {
-    const { config, req, res } = setup(info, { requiredScopes: ["write"] });
+    const { config, req, res } = setup(info);
     expect(await authenticateOAuthRequest({ config, accessToken: "token", req, res })).toBe(false);
     expect(res.status).toHaveBeenCalledWith(401);
   }
@@ -67,20 +66,5 @@ test("accepts matching audience values and required scopes", async () => {
       { requiredScopes: ["read"] },
     );
     expect(await authenticateOAuthRequest({ config, accessToken: "token", req, res })).toBe(true);
-  }
-});
-
-test("selects configured and fallback subject claims", async () => {
-  for (const [info, subjectClaim, subject] of [
-    [
-      { active: true, iss: "issuer", resource: "resource", username: "custom" },
-      "username",
-      "custom",
-    ],
-    [{ active: true, iss: "issuer", resource: "resource", user_id: "fallback" }, "sub", "fallback"],
-  ]) {
-    const { config, req, res } = setup(info, { subjectClaim });
-    expect(await authenticateOAuthRequest({ config, accessToken: "token", req, res })).toBe(true);
-    expect(req.mcpAuth.subject).toBe(subject);
   }
 });

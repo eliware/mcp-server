@@ -25,13 +25,22 @@ test("rejects invalid OAuth settings", () => {
 });
 
 test("creates introspection behavior from OAuth endpoint settings", async () => {
+  const calls = [];
   const auth = resolveRuntimeAuth({
     mode: "oauth2",
     issuer: "https://issuer.test",
     resource: "https://resource.test",
-    introspection: { endpoint: "https://issuer.test/introspect", fetchFn: async () => ({}) },
+    introspection: {
+      endpoint: "https://issuer.test/introspect",
+      fetchFn: async (...args) => {
+        calls.push(args);
+        return { ok: true, json: async () => ({ active: true }) };
+      },
+    },
   });
-  expect(typeof auth.introspect).toBe("function");
+  await expect(auth.introspect("token")).resolves.toEqual({ active: true });
+  expect(calls[0][0]).toBe("https://issuer.test/introspect");
+  expect(new URLSearchParams(calls[0][1].body).get("resource")).toBe("https://resource.test");
 });
 
 test("keeps supplied runtime auth values", () => {

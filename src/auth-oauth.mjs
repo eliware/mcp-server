@@ -1,4 +1,4 @@
-import { sanitizeClaims } from "./auth-claims.mjs";
+import { createOAuthAuthContext } from "./auth-context.mjs";
 import { validateOAuthToken } from "./auth-token-validation.mjs";
 import { sendOAuthAuthError } from "./auth-oauth-response.mjs";
 
@@ -13,15 +13,6 @@ export async function authenticateOAuthRequest({ config, accessToken, req, res }
     sendOAuthAuthError(res, { error: "Invalid OAuth2 token" });
     return false;
   }
-  req.mcpAuth = {
-    mode: config.mode,
-    subject: info[config.subjectClaim] || info.sub || info.user_id,
-    clientId: info.client_id,
-    issuer: info.iss,
-    resource: config.resource,
-    scopes: token.scopes,
-    claims: sanitizeClaims(info),
-    accessToken,
-  };
+  req.mcpAuth = createOAuthAuthContext({ config, info, accessToken, scopes: token.scopes });
   return true;
 }

@@ -6,8 +6,15 @@ export interface AuthConfig {
   issuer?: string;
   resource?: string;
   scopes?: string[];
+  requiredScopes?: string[];
+  subjectClaim?: string;
   introspect?: (token: string) => Promise<Record<string, unknown> | null>;
-  introspection?: { endpoint: string; clientId?: string; clientSecret?: string };
+  introspection?: {
+    endpoint: string;
+    clientId?: string;
+    clientSecret?: string;
+    fetchFn?: typeof fetch;
+  };
 }
 
 export function normalizeAuth(auth?: AuthMode | AuthConfig | null): AuthConfig;
