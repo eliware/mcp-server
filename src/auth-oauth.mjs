@@ -1,4 +1,4 @@
-import { createOAuthAuthContext } from "./auth-context.mjs";
+import { createOAuthAuthContext } from "./auth-oauth-context.mjs";
 import { validateOAuthToken } from "./auth-token-validation.mjs";
 import { sendOAuthAuthError } from "./auth-oauth-response.mjs";
 

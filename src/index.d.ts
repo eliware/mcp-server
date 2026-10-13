@@ -16,7 +16,8 @@ export {
 } from "./server-http.mjs";
 export { stderrLogger } from "./logger.mjs";
 export { createRedirectApp } from "./redirect-app.mjs";
-export { buildResponse, convertBigIntToString } from "./response.mjs";
+export { buildResponse } from "./response.mjs";
+export { convertBigIntToString } from "./bigint-conversion.mjs";
 export { discoverOAuthProvider } from "./oauth.mjs";
 export { registerOAuthClient } from "./oauth-registration.mjs";
 export { createClientStore } from "./client-store.mjs";
