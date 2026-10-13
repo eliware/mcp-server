@@ -1,16 +1,11 @@
 import { test, expect } from "@jest/globals";
 import { normalizeServerConfig } from "../src/server-config.mjs";
 
-test("normalizes config defaults and entrypoints", () => {
-  const config = normalizeServerConfig({
-    entrypoint: new URL("../examples/basic.mjs", import.meta.url),
-  });
-  expect(config.entrypoint).toContain("examples");
+test("normalizes server defaults and caller options", () => {
+  const config = normalizeServerConfig({ httpPort: 3000 });
   expect(config.stateless).toBe(true);
   expect(config.endpointPath).toBe("/mcp");
-  expect(normalizeServerConfig({ entrypoint: "/C:/app/server.mjs" }).entrypoint).toBe(
-    "C:/app/server.mjs",
-  );
+  expect(config.httpPort).toBe(3000);
 });
 
 test("uses an mjs process entrypoint as the default", () => {

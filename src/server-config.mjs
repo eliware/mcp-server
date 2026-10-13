@@ -1,15 +1,8 @@
 import http from "node:http";
 import https from "node:https";
-import { fileURLToPath } from "node:url";
 import express from "express";
 import { log as logger } from "@eliware/common";
-
-export function normalizeEntrypoint(entrypoint) {
-  if (entrypoint instanceof URL) return fileURLToPath(entrypoint);
-  return entrypoint
-    ?.replace(/^([A-Za-z]):[\\/]+[A-Za-z]:[\\/]+/i, "$1:\\")
-    .replace(/^[\\/](?=[A-Za-z]:)/, "");
-}
+import { normalizeEntrypoint } from "./entrypoint-path.mjs";
 
 export function normalizeServerConfig(options = {}) {
   const defaultEntrypoint = process.argv[1]?.endsWith(".mjs") ? process.argv[1] : undefined;
