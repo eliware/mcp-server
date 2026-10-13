@@ -18,6 +18,7 @@ Read `src/index.d.ts` for TypeScript types.
 
 HTTPS needs a key and a certificate. Set `tls.key` and `tls.cert` to values or file paths.
 Set `httpsHost` and `httpsPort` when you enable `httpRedirect`.
+Set `httpsPort` to an integer from 1 through 65535 when you enable `httpRedirect`.
 Set `tls.ca` or `tls.caFile` when the server needs a certificate authority file.
 You can set `TLS_KEY_FILE`, `TLS_CERT_FILE`, and `TLS_CA_FILE` as environment variables.
 

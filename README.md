@@ -65,7 +65,8 @@ Put one `.mjs` file for each tool in the `tools/` directory beside the server en
 Each file must export one default async function. The server calls this function at startup.
 
 ```js
-import { buildResponse, z } from "@eliware/mcp-server";
+import { z } from "@eliware/mcp-server";
+import { buildResponse } from "@eliware/mcp-server/utilities";
 
 export default async function registerHello({ mcpServer, toolName, log }) {
   mcpServer.tool(toolName, "Say hello.", { name: z.string().min(1) }, async ({ name }) => {
@@ -115,7 +116,7 @@ Read the [auth guide](docs/authentication.md) before you expose an endpoint.
 Set `auth` to `none`, `static`, `bearer-passthrough`, or `oauth2`.
 Set `toolsDir` to select a tool directory. The default uses the entry file directory or bundled examples.
 Set `context` to pass values to each tool. Set `name` and `version` to set MCP metadata.
-`buildResponse(value)` returns an MCP text result. `convertBigIntToString(value)` converts BigInt values.
+Import `buildResponse` and `convertBigIntToString` from `@eliware/mcp-server/utilities`.
 The package exports auth, OAuth, and PKCE helpers, plus the Zod namespace.
 Read `src/index.d.ts` for option and result types.
 

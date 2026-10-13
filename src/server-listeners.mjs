@@ -1,6 +1,7 @@
 import { loadTlsOptions } from "./tls.mjs";
 import { createRedirectApp } from "./redirect-app.mjs";
 import { createListeningHandler } from "./server-listener-logging.mjs";
+import { normalizeHttpsPort } from "./redirect-target.mjs";
 
 function waitForListener(instance, port, onListening) {
   let cancel;
@@ -57,6 +58,7 @@ export async function startListeners({ config, app, activeLog }) {
   if (httpRedirect && (!httpsHost || httpsPort === undefined)) {
     throw new Error("httpRedirect requires httpsHost and httpsPort");
   }
+  if (httpRedirect) normalizeHttpsPort(httpsPort);
   const loadedTls = loadTlsOptions({ tls });
   if (httpsPort !== undefined && (!loadedTls.key || !loadedTls.cert)) {
     throw new Error("httpsPort requires tls.key and tls.cert");

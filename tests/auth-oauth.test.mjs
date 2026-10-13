@@ -45,6 +45,7 @@ test("rejects inactive introspection results with an unauthorized response", asy
   await expect(authenticateOAuthRequest({ config, accessToken: "token", req, res })).resolves.toBe(
     false,
   );
+  expect(res.set).toHaveBeenCalledWith("WWW-Authenticate", expect.stringContaining("resource"));
   expect(res.status).toHaveBeenCalledWith(401);
   expect(res.json).toHaveBeenCalledWith({ error: "Invalid OAuth2 token" });
 });

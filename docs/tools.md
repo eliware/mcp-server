@@ -8,7 +8,8 @@ Each file must export one default async function. The file name becomes the tool
 Import `z` to define input fields. Import `buildResponse` to return JSON-safe data as MCP text:
 
 ```js
-import { buildResponse, z } from "@eliware/mcp-server";
+import { z } from "@eliware/mcp-server";
+import { buildResponse } from "@eliware/mcp-server/utilities";
 
 export default async function registerEcho({ mcpServer, toolName, log, service }) {
   mcpServer.tool(

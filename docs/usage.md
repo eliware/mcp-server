@@ -43,10 +43,14 @@ The HTTP server result contains `httpInstance` and may contain `httpsInstance`.
 Close each active server instance when the host process stops:
 
 ```js
-const result = await mcpServer({ httpPort: 1234 });
+const result = await mcpServer({ httpPort: 1234, httpsPort: 443 });
+const closeServers = () => {
+  result.httpInstance?.close();
+  result.httpsInstance?.close();
+};
 
-process.once("SIGTERM", () => result.httpInstance?.close());
-process.once("SIGINT", () => result.httpInstance?.close());
+process.once("SIGTERM", closeServers);
+process.once("SIGINT", closeServers);
 ```
 
 The stdio result contains a transport. Close it when the client session ends.

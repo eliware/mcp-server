@@ -25,3 +25,11 @@ test("rejects a missing or invalid redirect host", () => {
     "httpsHost must be a valid hostname",
   );
 });
+
+test("rejects an invalid HTTPS redirect port", () => {
+  for (const httpsPort of ["8443/path", 0, 65536]) {
+    expect(() =>
+      buildHttpsRedirectTarget({ httpsHost: "host", httpsPort, requestUrl: "/mcp" }),
+    ).toThrow("httpsPort must be an integer from 1 through 65535");
+  }
+});

@@ -16,7 +16,7 @@ export async function authenticateOAuthRequest({ config, accessToken, req, res }
   }
   const token = validateOAuthToken(info, config);
   if (!token) {
-    sendOAuthAuthError(res, { error: "Invalid OAuth2 token" });
+    sendOAuthAuthError(res, { error: "Invalid OAuth2 token", resource: config.resource });
     return false;
   }
   req.mcpAuth = createOAuthAuthContext({ config, info, accessToken, scopes: token.scopes });

@@ -8,6 +8,18 @@ export function buildHttpsRedirectTarget({ httpsHost, httpsPort, requestUrl }) {
   } catch {
     throw new Error("httpsHost must be a valid hostname");
   }
-  const portSuffix = String(httpsPort) === "443" ? "" : `:${httpsPort}`;
+  const port = normalizeHttpsPort(httpsPort);
+  const portSuffix = port === 443 ? "" : `:${port}`;
   return `https://${hostname}${portSuffix}${requestUrl}`;
+}
+
+export function normalizeHttpsPort(httpsPort) {
+  if (!/^\d+$/.test(String(httpsPort))) {
+    throw new Error("httpsPort must be an integer from 1 through 65535");
+  }
+  const port = Number(httpsPort);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error("httpsPort must be an integer from 1 through 65535");
+  }
+  return port;
 }
