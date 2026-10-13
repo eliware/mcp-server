@@ -5,7 +5,6 @@ import {
   handleRequestFailure,
   listeningCallback,
   requestEndpoint,
-  stderrLogger,
 } from "../src/server-http.mjs";
 
 test("server HTTP helpers log requests and callbacks", async () => {
@@ -30,7 +29,6 @@ test("server HTTP helpers log requests and callbacks", async () => {
   createListeningHandler({ log, port: 1234 })();
   listeningCallback({ log }, 1234);
   expect(log.debug).toHaveBeenCalled();
-  expect(stderrLogger.info).toBeInstanceOf(Function);
 });
 
 test("does not send an HTTP response after headers are sent", () => {
@@ -39,11 +37,4 @@ test("does not send an HTTP response after headers are sent", () => {
   handleRequestFailure({ log, res }, { message: "failed" });
   expect(log.error).toHaveBeenCalled();
   expect(res.status).not.toHaveBeenCalled();
-});
-
-test("writes every default logger level to stderr", () => {
-  const spy = jest.spyOn(console, "error").mockImplementation(() => {});
-  for (const level of ["debug", "info", "warn", "error"]) stderrLogger[level]("message");
-  expect(spy).toHaveBeenCalledTimes(4);
-  spy.mockRestore();
 });

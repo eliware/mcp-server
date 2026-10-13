@@ -1,10 +1,7 @@
 import crypto from "node:crypto";
+import { createCodeChallenge } from "./pkce-challenge.mjs";
 
 const encode = (value) => Buffer.from(value).toString("base64url");
-
-export function createCodeChallenge(verifier) {
-  return encode(crypto.createHash("sha256").update(verifier).digest());
-}
 
 export function createPkceState({ randomBytes = crypto.randomBytes } = {}) {
   const verifier = encode(randomBytes(32));

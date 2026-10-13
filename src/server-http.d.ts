@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import type { McpServerOptions } from "./server.mjs";
 
-export declare const stderrLogger: NonNullable<McpServerOptions["log"]>;
 export function handleRequestFailure(
   context: { log: NonNullable<McpServerOptions["log"]>; res: Response },
   error: unknown,

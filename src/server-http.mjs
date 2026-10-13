@@ -1,7 +1,3 @@
-export const stderrLogger = Object.fromEntries(
-  ["debug", "info", "warn", "error"].map((level) => [level, (...args) => console.error(...args)]),
-);
-
 export function handleRequestFailure({ log, res }, err) {
   log.error("[MCP] Request failed:", err?.stack || err);
   if (!res.headersSent) res.status(500).json({ error: "Internal MCP server error" });

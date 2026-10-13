@@ -1,5 +1,5 @@
 import { test, expect } from "@jest/globals";
-import { stderrLogger } from "../src/server-http.mjs";
+import { stderrLogger } from "../src/logger.mjs";
 import { resolveServerRuntime } from "../src/server-runtime.mjs";
 
 test("resolves the tool folder from an entrypoint or caller option", () => {

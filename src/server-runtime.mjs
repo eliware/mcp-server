@@ -1,6 +1,6 @@
 import { dirname, resolve } from "node:path";
 import { path } from "@eliware/common";
-import { stderrLogger } from "./server-http.mjs";
+import { stderrLogger } from "./logger.mjs";
 import { normalizeToolsDir } from "./tool-discovery.mjs";
 
 export function resolveServerRuntime({ config, options = {} }) {

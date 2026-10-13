@@ -1,4 +1,5 @@
-import { createPkceState, createCodeChallenge } from "./pkce.mjs";
+import { createPkceState } from "./pkce.mjs";
+import { createCodeChallenge } from "./pkce-challenge.mjs";
 
 export function createOAuthAuthorizationUrl({
   provider,

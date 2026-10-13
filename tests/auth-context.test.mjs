@@ -1,40 +1,21 @@
 import { test, expect } from "@jest/globals";
-import * as authContext from "../src/auth-context.mjs";
+import { getUser, requireAuth } from "../src/auth-context.mjs";
 
-test("auth context reads identity, scopes, and token", () => {
-  const data = {
-    mcpAuth: {
-      mode: "oauth2",
-      subject: "user",
-      clientId: "client",
-      scopes: ["read"],
-      accessToken: "token",
-    },
-  };
-  expect(authContext.requireAuth(data)).toBe(data.mcpAuth);
-  expect(authContext.hasScope(data, "read")).toBe(true);
-  expect(() => authContext.requireScope(data, "read")).not.toThrow();
-  expect(authContext.getUser(data).subject).toBe("user");
-  expect(authContext.getAccessToken(data)).toBe("token");
-  expect(authContext.requireBearer(data)).toBe("token");
+test("reads authenticated identity from the request context", () => {
+  const auth = { mode: "oauth2", subject: "user", clientId: "client", issuer: "issuer" };
+  expect(requireAuth({ mcpAuth: auth })).toBe(auth);
+  expect(requireAuth({ _meta: { mcpAuth: auth } })).toBe(auth);
+  expect(getUser({ mcpAuth: { ...auth, scopes: ["read"] } })).toEqual({
+    subject: "user",
+    clientId: "client",
+    issuer: "issuer",
+    scopes: ["read"],
+  });
+  expect(getUser({ mcpAuth: { mode: "static" } }).scopes).toEqual([]);
 });
 
-test("auth context rejects missing access", () => {
-  expect(authContext.getUser()).toBeNull();
-  expect(authContext.getAccessToken()).toBeNull();
-  expect(() => authContext.requireAuth()).toThrow("Authentication required");
-  expect(() => authContext.requireBearer({ mcpAuth: { mode: "static" } })).toThrow(
-    "Bearer token required",
-  );
-  expect(() => authContext.requireScope({}, "write")).toThrow("Missing scope: write");
-  expect(authContext.hasScope({ _meta: { mcpAuth: { scopes: ["read"] } } }, "read")).toBe(true);
-  expect(authContext.hasScope()).toBe(false);
-  expect(authContext.getUser({ mcpAuth: { mode: "static" } })).toEqual({
-    subject: undefined,
-    clientId: undefined,
-    issuer: undefined,
-    scopes: [],
-  });
-  expect(() => authContext.requireBearer()).toThrow("Authentication required");
-  expect(() => authContext.requireScope()).toThrow("Missing scope");
+test("returns no user and rejects missing authentication", () => {
+  expect(getUser()).toBeNull();
+  expect(getUser({ mcpAuth: { mode: "none" } })).toBeNull();
+  expect(() => requireAuth()).toThrow("Authentication required");
 });

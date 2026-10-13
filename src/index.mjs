@@ -1,22 +1,17 @@
 export { mcpServer } from "./server.mjs";
-export {
-  getAccessToken,
-  getUser,
-  hasScope,
-  requireAuth,
-  requireBearer,
-  requireScope,
-} from "./auth-context.mjs";
+export { getUser, requireAuth } from "./auth-context.mjs";
+export { getAccessToken, requireBearer } from "./auth-bearer-context.mjs";
+export { hasScope, requireScope } from "./auth-scope.mjs";
 export { normalizeAuth } from "./auth-config.mjs";
 export { createOAuthIntrospector } from "./auth-introspection.mjs";
 export {
-  stderrLogger,
   handleRequestFailure,
   requestEndpoint,
   createPostHandler,
   createListeningHandler,
   listeningCallback,
 } from "./server-http.mjs";
+export { stderrLogger } from "./logger.mjs";
 export { createRedirectApp } from "./redirect-app.mjs";
 export { buildResponse, convertBigIntToString } from "./response.mjs";
 export { discoverOAuthProvider } from "./oauth.mjs";

@@ -1,26 +1,23 @@
 import { jest, test, expect } from "@jest/globals";
 import { mountOAuthResourceMetadata, setOAuthChallenge } from "../src/oauth-metadata.mjs";
 
-test("mounts protected-resource metadata with configured scopes", () => {
-  const routes = {};
-  const app = { get: jest.fn((path, handler) => (routes[path] = handler)) };
+test("mounts both metadata routes with configured and default scopes", () => {
+  const routes = [];
+  const app = { get: jest.fn((path, handler) => routes.push({ path, handler })) };
   mountOAuthResourceMetadata(app, { resource: "resource", issuer: "issuer", scopes: ["read"] });
-  const res = { json: jest.fn() };
-  routes["/.well-known/oauth-protected-resource"]({}, res);
-  expect(res.json).toHaveBeenCalledWith({
+  mountOAuthResourceMetadata(app, { resource: "r", issuer: "i" });
+  const rootResponse = { json: jest.fn() };
+  routes[0].handler({}, rootResponse);
+  expect(routes[0].path).toBe("/.well-known/oauth-protected-resource");
+  expect(rootResponse.json).toHaveBeenCalledWith({
     resource: "resource",
     authorization_servers: ["issuer"],
     scopes_supported: ["read"],
   });
-});
-
-test("mounts both metadata routes with empty default scopes", () => {
-  const routes = {};
-  const app = { get: jest.fn((path, handler) => (routes[path] = handler)) };
-  mountOAuthResourceMetadata(app, { resource: "r", issuer: "i" });
-  const res = { json: jest.fn() };
-  routes["/.well-known/oauth-protected-resource/mcp"]({}, res);
-  expect(res.json).toHaveBeenCalledWith({
+  const mcpResponse = { json: jest.fn() };
+  routes[3].handler({}, mcpResponse);
+  expect(routes[3].path).toBe("/.well-known/oauth-protected-resource/mcp");
+  expect(mcpResponse.json).toHaveBeenCalledWith({
     resource: "r",
     authorization_servers: ["i"],
     scopes_supported: [],
