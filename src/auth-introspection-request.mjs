@@ -6,6 +6,6 @@ export function createOAuthIntrospectionRequest({ resource, clientId, clientSecr
   return {
     method: "POST",
     headers,
-    body: new URLSearchParams({ token, resource }),
+    body: new URLSearchParams({ token, ...(resource === undefined ? {} : { resource }) }),
   };
 }

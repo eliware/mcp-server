@@ -19,4 +19,5 @@ test("creates a form request with client authentication", () => {
 test("omits client authentication when credentials are incomplete", () => {
   const request = createOAuthIntrospectionRequest({ token: "access-token" });
   expect(request.headers.authorization).toBeUndefined();
+  expect(request.body.get("resource")).toBeNull();
 });
