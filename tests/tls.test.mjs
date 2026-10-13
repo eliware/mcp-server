@@ -26,16 +26,11 @@ describe("TLS config", () => {
       ca: Buffer.from("a"),
     });
   });
-
-  test("returns empty config when no files are configured", () => {
-    expect(loadTlsOptions({ env: {}, readFile: jest.fn() })).toEqual({});
-  });
 });
 
-test("accepts omitted options", () => {
-  expect(loadTlsOptions({ env: {}, readFile: jest.fn() })).toEqual({});
-});
-
-test("uses defaults when called without arguments", () => {
+test("uses empty defaults for omitted options and an empty environment", () => {
+  const readFile = jest.fn();
   expect(loadTlsOptions()).toEqual({});
+  expect(loadTlsOptions({ env: {}, readFile })).toEqual({});
+  expect(readFile).not.toHaveBeenCalled();
 });

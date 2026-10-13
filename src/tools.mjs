@@ -1,11 +1,6 @@
-import fs from "fs";
-import { pathUrl } from "@eliware/common";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-
-export function normalizeToolsDir(toolsDir) {
-  const drivePath = toolsDir.replaceAll("C:\\C:\\", "C:\\");
-  return drivePath.replace(/^[\\/](?=[A-Za-z]:)/, "");
-}
+import { discoverTools } from "./tool-discovery.mjs";
+import { registerTools } from "./tool-registration.mjs";
 
 export async function buildServer({
   toolsDir,
@@ -13,32 +8,22 @@ export async function buildServer({
   name,
   version,
   context,
-  readDir = fs.readdirSync,
-  loadModule = (specifier) => import(specifier),
+  readDir,
+  loadModule,
   toolCache = new Map(),
 }) {
   const server = new McpServer({ name, version }, { capabilities: { tools: {}, resources: {} } });
   server.options = { name, version };
   server.context = context;
-  const resolvedToolsDir = normalizeToolsDir(toolsDir);
-  let tools = toolCache.get(resolvedToolsDir);
-  if (!tools) {
-    tools = readDir(resolvedToolsDir)
-      .filter((file) => file.endsWith(".mjs"))
-      .map((file) => ({ file, toolName: file.replace(/\.mjs$/, "") }));
-    toolCache.set(resolvedToolsDir, tools);
-  }
-  for (const { file, toolName } of tools) {
-    try {
-      const mod = await (toolCache.get(pathUrl(resolvedToolsDir, file)) ||
-        loadModule(pathUrl(resolvedToolsDir, file)));
-      toolCache.set(pathUrl(resolvedToolsDir, file), mod);
-      if (typeof mod.default === "function")
-        await mod.default({ mcpServer: server, toolName, log, ...context });
-      else log.warn(`No default export function in ${file}`);
-    } catch (err) {
-      log.error(`Error registering MCP tool in ${file}:`, err?.stack || err);
-    }
-  }
+  const { resolvedToolsDir, tools } = discoverTools({ toolsDir, readDir, toolCache });
+  await registerTools({
+    server,
+    toolsDir: resolvedToolsDir,
+    tools,
+    toolCache,
+    log,
+    context,
+    loadModule,
+  });
   return server;
 }
