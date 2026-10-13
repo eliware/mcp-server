@@ -19,13 +19,8 @@ export {
 } from "./server-http.mjs";
 export { createRedirectApp } from "./redirect-app.mjs";
 export { buildResponse, convertBigIntToString } from "./response.mjs";
-export {
-  discoverOAuthProvider,
-  registerOAuthClient,
-  createClientStore,
-  setOAuthChallenge,
-  mountOAuthResourceMetadata,
-} from "./oauth.mjs";
+export { discoverOAuthProvider, registerOAuthClient, createClientStore } from "./oauth.mjs";
+export { setOAuthChallenge, mountOAuthResourceMetadata } from "./oauth-metadata.mjs";
 export { resolveOAuthClient } from "./client.mjs";
 export { createOAuthClient } from "./oauth-client.mjs";
 export { createPkceState, createPkceStore, consumePkceState } from "./pkce.mjs";

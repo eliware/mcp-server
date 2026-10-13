@@ -3,7 +3,7 @@ import { createOAuthIntrospector } from "./auth-introspection.mjs";
 import { configureHttp } from "./http.mjs";
 import { createTransport } from "./transport.mjs";
 import { createRequestHandler } from "./handler.mjs";
-import { mountOAuthResourceMetadata } from "./oauth.mjs";
+import { mountOAuthResourceMetadata } from "./oauth-metadata.mjs";
 import { createPostHandler } from "./server-http.mjs";
 
 export async function createMcpApp({
