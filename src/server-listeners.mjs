@@ -1,13 +1,6 @@
 import { loadTlsOptions } from "./tls.mjs";
 import { createRedirectApp } from "./redirect-app.mjs";
-
-export function createListeningHandler({ log, port }) {
-  return () => listeningCallback({ log }, port);
-}
-
-export function listeningCallback({ log }, port) {
-  log.debug(`MCP HTTP Server listening on ${port}`);
-}
+import { createListeningHandler } from "./server-listener-logging.mjs";
 
 export function startListeners({ config, app, activeLog }) {
   const { httpPort, httpsPort, tls, httpRedirect, createApp, createHttpServer, createHttpsServer } =

@@ -11,25 +11,23 @@ test("uses explicit metadata", () =>
     name: "x",
     version: "2",
   }));
-test("uses package fallback values", () =>
-  expect(
-    loadPackageMeta({
-      log: { warn: jest.fn() },
-      readFile: () => JSON.stringify({}),
-      packagePath: "test",
-    }),
-  ).toEqual({ name: packageMeta.name, version: packageMeta.version }));
-test("logs and falls back when metadata cannot be read", () => {
+test.each([
+  ["missing metadata values", () => JSON.stringify({}), "test", 0],
+  [
+    "unreadable metadata",
+    () => {
+      throw new Error("bad");
+    },
+    undefined,
+    1,
+  ],
+])("uses package fallback values for %s", (_case, readFile, packagePath, warningCount) => {
   const warn = jest.fn();
-  expect(
-    loadPackageMeta({
-      log: { warn },
-      readFile: () => {
-        throw new Error("bad");
-      },
-    }),
-  ).toEqual({ name: packageMeta.name, version: packageMeta.version });
-  expect(warn).toHaveBeenCalled();
+  expect(loadPackageMeta({ log: { warn }, readFile, packagePath })).toEqual({
+    name: packageMeta.name,
+    version: packageMeta.version,
+  });
+  expect(warn).toHaveBeenCalledTimes(warningCount);
 });
 test("logs error value when stack is absent", () => {
   const warn = jest.fn();

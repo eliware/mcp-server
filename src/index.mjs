@@ -5,7 +5,7 @@ export { hasScope, requireScope } from "./auth-scope.mjs";
 export { normalizeAuth } from "./auth-config.mjs";
 export { createOAuthIntrospector } from "./auth-introspection.mjs";
 export { handleRequestFailure, requestEndpoint, createPostHandler } from "./server-http.mjs";
-export { createListeningHandler, listeningCallback } from "./server-listeners.mjs";
+export { createListeningHandler, listeningCallback } from "./server-listener-logging.mjs";
 export { stderrLogger } from "./logger.mjs";
 export { createRedirectApp } from "./redirect-app.mjs";
 export { buildResponse } from "./response.mjs";

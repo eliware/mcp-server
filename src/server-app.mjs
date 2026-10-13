@@ -1,5 +1,5 @@
 import { createAuthMiddleware } from "./auth-middleware.mjs";
-import { resolveRuntimeAuth } from "./oauth-auth-config.mjs";
+import { resolveRuntimeAuth } from "./oauth-runtime-auth.mjs";
 import { configureHttp } from "./http.mjs";
 import { createTransport } from "./transport.mjs";
 import { createRequestHandler } from "./handler.mjs";
