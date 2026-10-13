@@ -76,5 +76,6 @@ test("serves OAuth requests and reports introspection failures", async () => {
   });
   const failed = await request(failingApp).post("/mcp").set("Authorization", "Bearer token");
   expect(failed.status).toBe(500);
-  expect(failed.body.error).toBe("Authentication failed");
+  expect(failed.body).toEqual({ error: "Authentication failed" });
+  expect(JSON.stringify(failed.body)).not.toContain("provider unavailable");
 });

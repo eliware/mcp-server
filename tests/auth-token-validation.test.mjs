@@ -58,3 +58,18 @@ test("rejects invalid token claims", () => {
     ).toBeNull();
   }
 });
+
+test("rejects an expiration timestamp of zero", () => {
+  expect(
+    validateOAuthToken(
+      { active: true, iss: "issuer", resource: "resource", exp: 0 },
+      { issuer: "issuer", resource: "resource", requiredScopes: [], now: 0 },
+    ),
+  ).toBeNull();
+  expect(
+    validateOAuthToken(
+      { active: true, iss: "issuer", resource: "resource", exp: null },
+      { issuer: "issuer", resource: "resource", requiredScopes: [], now: 0 },
+    ),
+  ).toEqual({ scopes: [] });
+});

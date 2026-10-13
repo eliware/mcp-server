@@ -11,7 +11,7 @@ export function validateOAuthToken(info, { issuer, resource, requiredScopes, now
     info?.active &&
     info.iss === issuer &&
     matchesResource(info, resource) &&
-    (!info.exp || Number(info.exp) > Math.floor(now / 1000)) &&
+    (info.exp === undefined || info.exp === null || Number(info.exp) > Math.floor(now / 1000)) &&
     (!info.token_type || String(info.token_type).toLowerCase() === "bearer") &&
     requiredScopes.every((scope) => scopes.includes(scope));
   return valid ? { scopes } : null;

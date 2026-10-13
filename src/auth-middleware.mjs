@@ -19,8 +19,8 @@ export function createAuthMiddleware({ auth = { mode: "none" }, endpointPaths })
       }
       req.mcpBearerToken = accessToken;
       next();
-    } catch (err) {
-      return res.status(500).json({ error: "Authentication failed", details: String(err) });
+    } catch {
+      return res.status(500).json({ error: "Authentication failed" });
     }
   };
 }

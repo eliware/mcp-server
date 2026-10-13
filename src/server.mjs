@@ -26,6 +26,6 @@ export async function mcpServer(options = {}) {
     activeLog,
     buildServer,
   });
-  const listeners = startListeners({ config, app, activeLog });
+  const listeners = await startListeners({ config, app, activeLog });
   return { app, ...listeners, mcpServer: initialServer, transport: initialTransport };
 }

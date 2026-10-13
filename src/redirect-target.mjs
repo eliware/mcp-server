@@ -1,5 +1,12 @@
 export function buildHttpsRedirectTarget({ host, httpsPort, requestUrl }) {
-  const hostname = host?.split(":")[0] || "localhost";
-  const portSuffix = httpsPort === 443 ? "" : `:${httpsPort}`;
+  let hostname = "localhost";
+  if (host) {
+    try {
+      hostname = new URL(`http://${host}`).hostname;
+    } catch {
+      hostname = "localhost";
+    }
+  }
+  const portSuffix = String(httpsPort) === "443" ? "" : `:${httpsPort}`;
   return `https://${hostname}${portSuffix}${requestUrl}`;
 }
