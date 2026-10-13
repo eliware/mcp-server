@@ -1,16 +1,20 @@
 # Release Notes
 
-## Unreleased
-
-### Changed
-
-Update dependencies and align the package with the current repository conventions.
-
 ## 12.0.0 — 2026-10-12
 
 ### Changed
 
-Move the public runtime entry point and declarations under `src/`. Keep package imports stable.
+Move runtime code and TypeScript declarations under `src/`. Keep package imports stable.
+Update dependencies and package metadata for version 12 and Node.js 26.
+Split server, transport, auth, and request handling into focused modules.
+Expand tests to cover server setup, transports, tool discovery, authentication, OAuth2, and PKCE.
+Update server examples and add container, Express, static token, bearer passthrough, and OAuth2 examples.
+
+### Added
+
+Add CI checks and npm package validation for the current repository conventions.
+Add repository specification indexes and schema checks.
+Add user guides for setup, configuration, tools, authentication, and troubleshooting.
 
 ## 1.1.10 — 2026-08-23
 

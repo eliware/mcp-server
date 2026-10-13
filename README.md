@@ -23,20 +23,20 @@ Pure-ESM Node.js MCP server with automatic tool discovery, Streamable HTTP and s
 
 ## Features
 
-- Serve MCP with stateless Streamable HTTP by default.
-- Use stdio for local MCP clients.
-- Discover `.mjs` tool files beside the server entry point.
-- Define tool input schemas with Zod.
-- Select no authentication, static bearer tokens, bearer passthrough, or OAuth2 introspection.
-- Pass application context to each tool.
+- Serve MCP over Streamable HTTP or stdio.
+- Discover tool files that end in `.mjs`.
+- Define tool inputs with Zod.
+- Use no auth, static bearer tokens, bearer passthrough, or OAuth2 introspection.
+- Pass application values to each tool through `context`.
 - Serve HTTP, HTTPS, or both.
-- Embed the MCP endpoint in an Express application.
+- Add the MCP route to an Express app.
 - Return JSON-safe values with `buildResponse()`.
 
 ## Requirements
 
 - Use Node.js 26 or later.
-- Use an MCP client for HTTP, HTTPS, or stdio requests.
+- Use an MCP client that supports the selected transport.
+- Set a tool directory or let the server use the directory beside its entry file.
 
 ## Setup
 
@@ -46,20 +46,23 @@ Install the package:
 npm install @eliware/mcp-server
 ```
 
-Import `mcpServer` and start the server:
+Create a server entry file:
 
 ```js
 import { mcpServer } from "@eliware/mcp-server";
 
-await mcpServer({ auth: { mode: "static", token: process.env.MCP_TOKEN } });
+await mcpServer({
+  httpPort: 1234,
+  auth: { mode: "static", token: process.env.MCP_TOKEN },
+});
 ```
 
-Place application tools in a `tools/` folder beside the entry point. The MCP endpoint is `/mcp`.
+Set `MCP_TOKEN` before you start a protected HTTP server. The default HTTP endpoint is `/mcp`.
 
 ## Usage
 
-Each tool file must end in `.mjs`. Each file must export one default async registration function.
-The function receives `mcpServer`, `toolName`, `log`, and injected context values.
+Put one `.mjs` file for each tool in the `tools/` directory beside the server entry file.
+Each file must export one default async function. The server calls this function at startup.
 
 ```js
 import { buildResponse, z } from "@eliware/mcp-server";
@@ -72,31 +75,20 @@ export default async function registerHello({ mcpServer, toolName, log }) {
 }
 ```
 
-Pass database and service values through `context`. Each tool receives those values.
+Pass app values through `context`. Each tool receives them as named properties.
 
 ```js
 await mcpServer({ context: { db, services } });
 ```
 
-Set `stdio: true` to use local stdio transport. Do not write logs to stdout in this mode.
-Set `httpPort: null` or `httpPort: false` to disable HTTP. Set `httpsPort` to enable HTTPS.
-HTTPS requires a TLS key and certificate. Set `tls.key` and `tls.cert`, or set their file paths.
-Set `httpRedirect: true` to redirect HTTP requests to HTTPS.
-Use `app` to supply an Express app. Use `configureApp` to add middleware before the MCP route.
-Use `stateless: false` for stateful transport. The default is stateless transport.
-Use `endpointPath` to set the MCP route. The default is `/mcp`.
-Use `allowedOrigins` to set allowed CORS origins. Use `entrypoint` to set the tool folder base.
-Use `enableJsonResponse: false` to disable JSON responses.
-
-The container example reads `MCP_HTTP_PORT` and `MCP_TOKEN`. TLS file paths use `TLS_KEY_FILE`,
-`TLS_CERT_FILE`, and optional `TLS_CA_FILE` when the caller enables HTTPS.
-
-Read [usage notes](docs/usage.md), [troubleshooting notes](docs/troubleshooting.md), and [specifications](specs/README.md).
-Read [release notes](RELEASE_NOTES.md) for version changes.
+Read the [usage guide](docs/usage.md), [configuration guide](docs/configuration.md), and [auth guide](docs/authentication.md).
+Browse the [docs index](docs/README.md) and [spec index](specs/README.md).
+Read [release notes](RELEASE_NOTES.md) for released changes.
 
 ## Development
 
-Install dependencies with `npm ci`. Run `npm run format` to format files.
+Install the locked dependencies with `npm ci`.
+Run `npm run format` to format files.
 Run `npm run typecheck` to check declarations.
 
 ## Testing
@@ -105,35 +97,36 @@ Run `npm test` for lint, format, audit, package, type, convention, and Jest chec
 
 ## Troubleshooting
 
-The server accepts MCP traffic at `/mcp`. Use `stdio: true` for local process clients.
-Write logs to stderr in stdio mode. Close server resources during shutdown.
+Send HTTP requests to `/mcp` unless you set `endpointPath`.
+Set `stdio: true` for a local process client. Send logs to stderr in stdio mode.
+Close the returned HTTP and HTTPS server instances during shutdown.
+Read the [troubleshooting guide](docs/troubleshooting.md) for common setup faults.
 
 ## Security
 
-Keep tokens, OAuth credentials, TLS keys, certificates, and client secrets in environment variables or mounted secret files.
-Use HTTPS and explicit authentication for remote deployments. Do not commit `.env` files or certificates.
+Store tokens, OAuth client secrets, and TLS keys in environment variables or secret files.
+Use HTTPS and explicit authentication for remote access.
+Do not commit `.env` files, certificates, or private keys.
+Read the [auth guide](docs/authentication.md) before you expose an endpoint.
 
 ## API
 
 `mcpServer(options)` starts the server and returns its app, server instances, MCP server, and transport.
-Set `auth` to `none`, `static`, `bearer-passthrough`, or `oauth2`. Static mode requires a token.
-OAuth2 mode requires an issuer, resource, and introspection function or endpoint settings.
-Set `toolsDir` to choose a tool folder. The default uses the entrypoint folder or bundled examples.
-Set `context` to pass values to each tool. Set `name` and `version` to override package metadata.
-`buildResponse(value)` returns an MCP text result.
-`convertBigIntToString(value)` converts BigInt values to strings.
-The package exports OAuth helpers, PKCE helpers, authentication helpers, and the Zod namespace.
+Set `auth` to `none`, `static`, `bearer-passthrough`, or `oauth2`.
+Set `toolsDir` to select a tool directory. The default uses the entry file directory or bundled examples.
+Set `context` to pass values to each tool. Set `name` and `version` to set MCP metadata.
+`buildResponse(value)` returns an MCP text result. `convertBigIntToString(value)` converts BigInt values.
+The package exports auth, OAuth, and PKCE helpers, plus the Zod namespace.
 Read `src/index.d.ts` for option and result types.
 
 ## Packaging
 
-The package contains `src/`, `docs/`, `examples/`, `specs/`, and its public metadata files.
-Run `npm run pack` to check package contents. Do not publish without the Eliware release process.
+The package includes `src/`, `docs/`, `examples/`, `specs/`, and package metadata.
+Run `npm run pack` to check package contents. Publication follows the Eliware release process.
 
 ## Examples
 
 Read [examples/README.md](examples/README.md) for server and tool examples.
-Read [docs/README.md](docs/README.md) for documentation links.
 
 ## Support
 
