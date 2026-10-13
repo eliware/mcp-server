@@ -21,7 +21,7 @@ await mcpServer({
 });
 ```
 
-Set `MCP_TOKEN` in the process environment before startup. The server accepts MCP requests at `/mcp` by default.
+Set `MCP_TOKEN` in the process environment before startup. In PowerShell, run `$env:MCP_TOKEN = "your-secret"`. In a POSIX shell, run `export MCP_TOKEN="your-secret"`. The server accepts MCP requests at `/mcp` by default.
 Set `endpointPath` to use a different route. See [configuration](configuration.md).
 
 ## Start a stdio server

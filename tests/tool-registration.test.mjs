@@ -19,42 +19,46 @@ test("loads and calls a tool with its name and context", async () => {
   );
 });
 
-test("warns when a loaded module has no default function", async () => {
-  const log = { warn: jest.fn(), error: jest.fn() };
-  await registerTools({ ...base, toolCache: new Map(), log, loadModule: async () => ({}) });
-  expect(log.warn).toHaveBeenCalledWith("No default export function in hello.mjs");
+test("rejects a loaded module with no default function", async () => {
+  await expect(
+    registerTools({ ...base, toolCache: new Map(), loadModule: async () => ({}) }),
+  ).rejects.toThrow("No default export function in hello.mjs");
 });
 
-test("logs module load errors and continues registration", async () => {
-  const log = { warn: jest.fn(), error: jest.fn() };
-  await registerTools({
-    ...base,
-    toolCache: new Map(),
-    log,
-    loadModule: async () => {
-      throw new Error("bad");
-    },
-  });
-  expect(log.error).toHaveBeenCalledWith(
-    expect.stringContaining("Error registering MCP tool"),
-    expect.any(String),
-  );
+test("rejects module load errors", async () => {
+  await expect(
+    registerTools({
+      ...base,
+      toolCache: new Map(),
+      loadModule: async () => {
+        throw new Error("bad");
+      },
+    }),
+  ).rejects.toThrow("Error registering MCP tool in hello.mjs: bad");
 });
 
-test("logs non-Error module failures", async () => {
-  const log = { warn: jest.fn(), error: jest.fn() };
-  await registerTools({
-    ...base,
-    toolCache: new Map(),
-    log,
-    loadModule: async () => {
-      throw { message: "bad" };
-    },
-  });
-  expect(log.error).toHaveBeenCalledWith(
-    expect.any(String),
-    expect.objectContaining({ message: "bad" }),
-  );
+test("rejects non-Error module failures", async () => {
+  await expect(
+    registerTools({
+      ...base,
+      toolCache: new Map(),
+      loadModule: async () => {
+        throw { message: "bad" };
+      },
+    }),
+  ).rejects.toThrow("Error registering MCP tool in hello.mjs: bad");
+});
+
+test("rejects errors without a message", async () => {
+  await expect(
+    registerTools({
+      ...base,
+      toolCache: new Map(),
+      loadModule: async () => {
+        throw new Error();
+      },
+    }),
+  ).rejects.toThrow("Error registering MCP tool in hello.mjs: Error");
 });
 
 test("reuses a loaded tool module from the cache", async () => {

@@ -7,5 +7,5 @@ export function createListenerErrorHandler({ log }) {
 }
 
 export function listeningCallback({ log }, port) {
-  log.debug(`MCP HTTP Server listening on ${port}`);
+  log.debug?.(`MCP HTTP Server listening on ${port}`);
 }

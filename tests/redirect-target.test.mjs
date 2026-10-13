@@ -27,6 +27,25 @@ test("uses an explicit port from the public host", () => {
   ).toBe("https://trusted.example:8443/mcp");
 });
 
+test("keeps brackets around IPv6 hosts with an explicit port", () => {
+  expect(
+    buildHttpsRedirectTarget({
+      httpsHost: "[2001:db8::1]:8443",
+      httpsPort: 443,
+      requestUrl: "/mcp",
+    }),
+  ).toBe("https://[2001:db8::1]:8443/mcp");
+});
+
+test.each(["user@trusted.example", "trusted.example/path", "trusted.example?x=1"])(
+  "rejects redirect hosts with extra URL data: %s",
+  (httpsHost) => {
+    expect(() =>
+      buildHttpsRedirectTarget({ httpsHost, httpsPort: 443, requestUrl: "/mcp" }),
+    ).toThrow("httpsHost must be a valid hostname");
+  },
+);
+
 test("rejects a missing or invalid redirect host", () => {
   expect(() =>
     buildHttpsRedirectTarget({ httpsHost: "bad host", httpsPort: 8443, requestUrl: "/mcp" }),

@@ -16,9 +16,11 @@ export async function registerTools({
       toolCache.set(specifier, mod);
       if (typeof mod.default === "function")
         await mod.default({ mcpServer: server, toolName, log, ...context });
-      else log.warn(`No default export function in ${file}`);
+      else throw new Error(`No default export function in ${file}`);
     } catch (err) {
-      log.error(`Error registering MCP tool in ${file}:`, err?.stack || err);
+      throw new Error(`Error registering MCP tool in ${file}: ${err?.message || err}`, {
+        cause: err,
+      });
     }
   }
 }

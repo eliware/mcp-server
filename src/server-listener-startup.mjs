@@ -34,14 +34,19 @@ export function waitForListener(instance, port, onListening, onRuntimeError) {
     }
     cancel = (error) => {
       instance.removeListener("error", onError);
-      if (started) return;
-      try {
-        instance.close(() => {});
-      } catch {}
+      if (started) return Promise.resolve();
+      const closed = new Promise((resolve) => {
+        try {
+          instance.close(resolve);
+        } catch {
+          resolve();
+        }
+      });
       if (!settled) {
         settled = true;
         reject(error);
       }
+      return closed;
     };
   });
   return { promise, cancel: (error) => cancel?.(error) };

@@ -53,9 +53,11 @@ export async function startListeners({ config, app, activeLog }) {
   try {
     await Promise.all(starts.map((start) => start.promise));
   } catch (error) {
-    for (const start of starts) start.cancel(error);
+    await Promise.all(starts.map((start) => start.cancel(error)));
     for (const instance of [httpInstance, httpsInstance]) {
-      if (instance?.listening) instance.close();
+      if (instance?.listening) {
+        await new Promise((resolve) => instance.close(resolve));
+      }
     }
     throw error;
   }

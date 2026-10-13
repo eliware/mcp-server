@@ -6,6 +6,15 @@ export function buildHttpsRedirectTarget({ httpsHost, httpsPort, requestUrl }) {
   let publicPort;
   try {
     const publicHost = new URL(`http://${httpsHost}`);
+    if (
+      publicHost.username ||
+      publicHost.password ||
+      publicHost.pathname !== "/" ||
+      publicHost.search ||
+      publicHost.hash
+    ) {
+      throw new Error("httpsHost must contain only a hostname and optional port");
+    }
     hostname = publicHost.hostname;
     publicPort = publicHost.port ? normalizeHttpsPort(publicHost.port) : undefined;
   } catch {

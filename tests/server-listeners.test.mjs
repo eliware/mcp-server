@@ -6,8 +6,9 @@ function createServer() {
     listening: false,
     on: jest.fn(),
     removeListener: jest.fn(),
-    close: jest.fn(function () {
+    close: jest.fn(function (callback) {
       this.listening = false;
+      callback?.();
     }),
   };
   instance.listen = jest.fn(function (_port, callback) {
@@ -190,9 +191,8 @@ test("stops pending listeners when another listener fails to bind", async () => 
     app: {},
     activeLog: { debug: jest.fn() },
   });
-  const error = new Error("EADDRINUSE");
-  httpsServer.onError(error);
-  await expect(startup).rejects.toBe(error);
+  httpsServer.onError(new Error("EADDRINUSE"));
+  await expect(startup).rejects.toMatchObject({ message: "EADDRINUSE" });
   expect(httpServer.close).toHaveBeenCalled();
   httpServer.listening = true;
   onHttpListening();

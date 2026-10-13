@@ -57,7 +57,7 @@ await mcpServer({
 });
 ```
 
-Set `MCP_TOKEN` before you start a protected HTTP server. The default HTTP endpoint is `/mcp`.
+Set `MCP_TOKEN` before you start a protected HTTP server. In PowerShell, run `$env:MCP_TOKEN = "your-secret"`. In a POSIX shell, run `export MCP_TOKEN="your-secret"`. The default HTTP endpoint is `/mcp`.
 
 ## Usage
 

@@ -2,7 +2,7 @@ import type { Application } from "express";
 import type { Server as HttpServer } from "node:http";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import type { AuthConfig } from "./auth-config.mjs";
+import type { AuthConfig, AuthMode } from "./auth-config.mjs";
 
 export interface McpServerOptions {
   log?: {
@@ -25,7 +25,7 @@ export interface McpServerOptions {
     caFile?: string;
   };
   httpRedirect?: boolean;
-  auth?: AuthConfig;
+  auth?: AuthMode | AuthConfig;
   name?: string;
   version?: string;
   context?: Record<string, unknown>;
