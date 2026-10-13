@@ -15,7 +15,8 @@
  * - log: server logger.
  * - ...context: custom values passed by the entrypoint's context option.
  */
-import { z, buildResponse } from "@eliware/mcp-server";
+import { z } from "@eliware/mcp-server";
+import { buildResponse } from "@eliware/mcp-server/utilities";
 
 export default async function registerEchoTool({ mcpServer, toolName, log, db }) {
   /*

@@ -19,26 +19,29 @@ test("supports a custom remove function and rejects invalid store setup", () => 
   expect(() => createPkceStore({ save: jest.fn() })).toThrow("PKCE store");
 });
 
-test("rejects invalid, missing, or expired state", async () => {
-  const store = { load: jest.fn().mockResolvedValue(null), remove: jest.fn() };
-  await expect(consumePkceState()).rejects.toThrow("Invalid");
-  await expect(consumePkceState({ store, state: "a", expectedState: "b" })).rejects.toThrow(
-    "Invalid",
-  );
-  await expect(consumePkceState({ store, state: "", expectedState: "s" })).rejects.toThrow(
-    "Invalid",
-  );
-  await expect(consumePkceState({ store, state: "s", expectedState: "" })).rejects.toThrow(
-    "Invalid",
-  );
-  await expect(consumePkceState({ store, state: "s", expectedState: "s" })).rejects.toThrow(
+test.each([
+  ["missing state", undefined, "Invalid"],
+  ["mismatched state", { state: "a", expectedState: "b" }, "Invalid"],
+  ["empty state", { state: "", expectedState: "s" }, "Invalid"],
+  ["empty expected state", { state: "s", expectedState: "" }, "Invalid"],
+  [
+    "expired state",
+    {
+      store: { load: jest.fn().mockResolvedValue(null), remove: jest.fn() },
+      state: "s",
+      expectedState: "s",
+    },
     "expired",
-  );
-});
-
-test("rejects state records without a verifier", async () => {
-  const store = { load: jest.fn().mockResolvedValue({}), remove: jest.fn() };
-  await expect(consumePkceState({ store, state: "s", expectedState: "s" })).rejects.toThrow(
+  ],
+  [
+    "state without a verifier",
+    {
+      store: { load: jest.fn().mockResolvedValue({}), remove: jest.fn() },
+      state: "s",
+      expectedState: "s",
+    },
     "expired",
-  );
+  ],
+])("rejects %s", async (_case, options, message) => {
+  await expect(consumePkceState(options)).rejects.toThrow(message);
 });

@@ -120,6 +120,10 @@
     ".": {
       "types": "./src/index.d.ts",
       "import": "./src/index.mjs"
+    },
+    "./utilities": {
+      "types": "./src/utilities.d.ts",
+      "import": "./src/utilities.mjs"
     }
   },
   "types": "./src/index.d.ts"
