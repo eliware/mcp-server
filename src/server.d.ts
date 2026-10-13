@@ -2,6 +2,7 @@ import type { Application } from "express";
 import type { Server as HttpServer } from "node:http";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import type { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { AuthConfig, AuthMode } from "./auth-config.mjs";
 
 export interface McpServerOptions {
@@ -43,7 +44,7 @@ export interface McpServerResult {
   httpInstance?: HttpServer;
   httpsInstance?: HttpServer;
   mcpServer: McpServer | undefined;
-  transport: StreamableHTTPServerTransport | undefined;
+  transport: StreamableHTTPServerTransport | StdioServerTransport | undefined;
 }
 
 export function mcpServer(options?: McpServerOptions): Promise<McpServerResult>;
