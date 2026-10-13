@@ -1,20 +1,34 @@
 # Release Notes
 
-## 12.0.0 — 2026-10-12
-
-### Changed
-
-Move runtime code and TypeScript declarations under `src/`. Keep package imports stable.
-Update dependencies and package metadata for version 12 and Node.js 26.
-Split server, transport, auth, and request handling into focused modules.
-Expand tests to cover server setup, transports, tool discovery, authentication, OAuth2, and PKCE.
-Update server examples and add container, Express, static token, bearer passthrough, and OAuth2 examples.
+## 12.0.0 — 2026-10-13
 
 ### Added
 
-Add CI checks and npm package validation for the current repository conventions.
-Add repository specification indexes and schema checks.
-Add user guides for setup, configuration, tools, authentication, and troubleshooting.
+- Add end-user guides for setup, configuration, tools, authentication, APIs, requirements, and troubleshooting.
+- Add OAuth client helpers for provider discovery, client registration, authorization code exchange, and PKCE.
+- Add auth helpers for static tokens, bearer passthrough, OAuth introspection, scopes, and user data.
+- Add Docker, Express, stdio, static token, passthrough, and OAuth2 examples.
+- Add CI and npm publish workflows, a Knit deployment workflow, and repository specification files.
+- Add type declarations for the server, transports, auth, OAuth, PKCE, tools, and utilities.
+
+### Changed
+
+- Move runtime code and declarations to `src/`. Export the server API and utility API from package entry points.
+- Set package version 12.0.0. Require Node.js 26 or later. Update dependencies and package metadata.
+- Split server, auth, OAuth, HTTP, transport, and tool discovery code into focused modules.
+- Keep stateless Streamable HTTP as the default. Support stateful HTTP and stdio transport modes.
+- Refresh tool discovery during stateless server builds. Reuse loaded tool modules.
+- Update the README, examples, container setup, release workflow, and validation rules.
+
+### Fixed
+
+- Validate OAuth state, scopes, client IDs, registration endpoints, and public redirect hosts and ports.
+- Escape OAuth challenge values. Reject unsafe redirect request targets.
+- Require PKCE stores to remove state after use. Reject empty OAuth state values.
+- Close listeners after startup failures. Contain runtime listener logging errors.
+- Fail server startup when a tool module fails to load or register.
+- Convert BigInt response values and reject circular response data.
+- Sanitize OAuth claims before tools receive them. Preserve the stdio transport type in the API declarations.
 
 ## 1.1.10 — 2026-08-23
 
