@@ -5,7 +5,6 @@ function createServer() {
   const instance = {
     listening: false,
     on: jest.fn(),
-    once: jest.fn(),
     removeListener: jest.fn(),
     close: jest.fn(function () {
       this.listening = false;
@@ -162,6 +161,7 @@ test("closes a listener if another startup callback fails", async () => {
   });
   await expect(startup).rejects.toThrow("log error");
   expect(httpServer.close).toHaveBeenCalled();
+  expect(httpsServer.close).toHaveBeenCalled();
 });
 
 test("stops pending listeners when another listener fails to bind", async () => {
