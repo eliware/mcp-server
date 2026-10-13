@@ -1,5 +1,5 @@
 import { createAuthMiddleware } from "./auth-middleware.mjs";
-import { createOAuthIntrospector } from "./auth-introspection.mjs";
+import { resolveRuntimeAuth } from "./oauth-auth-config.mjs";
 import { configureHttp } from "./http.mjs";
 import { createTransport } from "./transport.mjs";
 import { createRequestHandler } from "./handler.mjs";
@@ -43,17 +43,4 @@ export async function createMcpApp({
   });
   app.post([endpointPath], createPostHandler({ handle, log: activeLog }));
   return { app, initialTransport };
-}
-
-function resolveRuntimeAuth(auth) {
-  return auth?.mode === "oauth2" && !auth.introspect && auth.introspection
-    ? {
-        ...auth,
-        introspect: createOAuthIntrospector({
-          issuer: auth.issuer,
-          resource: auth.resource,
-          ...auth.introspection,
-        }),
-      }
-    : auth;
 }

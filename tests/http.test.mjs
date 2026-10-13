@@ -1,4 +1,4 @@
-import { jest, test, expect } from "@jest/globals";
+import { test, expect } from "@jest/globals";
 import express from "express";
 import request from "supertest";
 import { configureHttp } from "../src/http.mjs";
@@ -21,12 +21,6 @@ test("passes unrelated errors to downstream middleware", async () => {
   app.use((req, res, next) => next(new Error("boom")));
   app.use((err, req, res, _next) => res.status(500).send(err.message));
   expect((await request(app).get("/mcp")).status).toBe(500);
-});
-import { handleJsonError } from "../src/http.mjs";
-test("passes non-JSON errors through", () => {
-  const next = jest.fn();
-  handleJsonError(new Error("boom"), {}, {}, next);
-  expect(next).toHaveBeenCalled();
 });
 test("uses configured allowed origins", async () => {
   const app = express();

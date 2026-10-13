@@ -1,5 +1,5 @@
 import { setOAuthChallenge } from "./oauth-metadata.mjs";
-import { matchesResource, sanitizeClaims } from "./auth-claims.mjs";
+import { sanitizeClaims, validateOAuthToken } from "./auth-claims.mjs";
 
 export async function authenticateOAuthRequest({ config, accessToken, req, res }) {
   if (!accessToken) {
@@ -8,17 +8,8 @@ export async function authenticateOAuthRequest({ config, accessToken, req, res }
     return false;
   }
   const info = await config.introspect(accessToken);
-  const scopes = String(info?.scope || "")
-    .split(/\s+/)
-    .filter(Boolean);
-  const valid =
-    info?.active &&
-    info.iss === config.issuer &&
-    matchesResource(info, config.resource) &&
-    (!info.exp || Number(info.exp) > Math.floor(Date.now() / 1000)) &&
-    (!info.token_type || String(info.token_type).toLowerCase() === "bearer") &&
-    config.requiredScopes.every((scope) => scopes.includes(scope));
-  if (!valid) {
+  const token = validateOAuthToken(info, config);
+  if (!token) {
     res.status(401).json({ error: "Invalid OAuth2 token" });
     return false;
   }
@@ -28,7 +19,7 @@ export async function authenticateOAuthRequest({ config, accessToken, req, res }
     clientId: info.client_id,
     issuer: info.iss,
     resource: config.resource,
-    scopes,
+    scopes: token.scopes,
     claims: sanitizeClaims(info),
     accessToken,
   };
