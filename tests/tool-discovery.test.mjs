@@ -7,15 +7,23 @@ test("normalizes Windows tool folders", () => {
   expect(normalizeToolsDir("/C:/tools")).toBe("C:/tools");
 });
 
-test("discovers only mjs tools and caches the directory list", () => {
+test("discovers only mjs tools and refreshes the directory list", () => {
   const readDir = jest.fn(() => ["hello.mjs", "notes.txt"]);
   const toolCache = new Map();
   const options = { toolsDir: "/tmp", readDir, toolCache };
   const first = discoverTools(options);
   const second = discoverTools(options);
   expect(first.tools).toEqual([{ file: "hello.mjs", toolName: "hello" }]);
-  expect(second.tools).toBe(first.tools);
-  expect(readDir).toHaveBeenCalledTimes(1);
+  expect(second.tools).toEqual(first.tools);
+  expect(second.tools).not.toBe(first.tools);
+  expect(readDir).toHaveBeenCalledTimes(2);
+});
+
+test("discovers tools added between stateless builds", () => {
+  const readDir = jest.fn().mockReturnValueOnce(["hello.mjs"]).mockReturnValueOnce(["new.mjs"]);
+  const options = { toolsDir: "/tmp", readDir, toolCache: new Map() };
+  expect(discoverTools(options).tools).toEqual([{ file: "hello.mjs", toolName: "hello" }]);
+  expect(discoverTools(options).tools).toEqual([{ file: "new.mjs", toolName: "new" }]);
 });
 
 test("uses the file system reader by default", () => {

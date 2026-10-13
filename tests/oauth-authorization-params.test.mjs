@@ -16,10 +16,10 @@ test("uses supplied state and derives a challenge from the supplied verifier", (
   expect(params.codeChallenge).toBe("7w_YNF9DSfIdPf_pRjSq646_kPr-2-o9NAl16JGghdM");
 });
 
-test("preserves an empty state and rejects an empty verifier", () => {
-  const params = createOAuthAuthorizationParams({ state: "", codeVerifier: "v".repeat(43) });
-  expect(params.state).toBe("");
-  expect(params.codeVerifier).toBe("v".repeat(43));
+test("rejects an empty state and an empty verifier", () => {
+  expect(() => createOAuthAuthorizationParams({ state: "" })).toThrow(
+    "OAuth state must be a non-empty string",
+  );
   expect(() => createOAuthAuthorizationParams({ codeVerifier: "" })).toThrow(
     "43 to 128 unreserved characters",
   );

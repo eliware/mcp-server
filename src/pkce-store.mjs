@@ -1,7 +1,7 @@
 export function createPkceStore({ save, load, remove } = {}) {
-  if (typeof save !== "function" || typeof load !== "function")
-    throw new Error("PKCE store requires save and load functions");
-  return { save, load, remove: remove || (async () => undefined) };
+  if (typeof save !== "function" || typeof load !== "function" || typeof remove !== "function")
+    throw new Error("PKCE store requires save, load, and remove functions");
+  return { save, load, remove };
 }
 
 export async function consumePkceState({ store, state, expectedState } = {}) {

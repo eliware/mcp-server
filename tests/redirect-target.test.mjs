@@ -62,3 +62,14 @@ test("rejects an invalid HTTPS redirect port", () => {
     ).toThrow("httpsPort must be an integer from 1 through 65535");
   }
 });
+
+test.each([
+  ["https://attacker.example/path", "requestUrl must be an origin-relative path"],
+  ["//attacker.example/path", "requestUrl must be an origin-relative path"],
+  ["relative/path", "requestUrl must be an origin-relative path"],
+  ["/\\attacker.example/path", "requestUrl must stay on the configured host"],
+])("rejects an unsafe request target: %s", (requestUrl, message) => {
+  expect(() =>
+    buildHttpsRedirectTarget({ httpsHost: "trusted.example", httpsPort: 443, requestUrl }),
+  ).toThrow(message);
+});

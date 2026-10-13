@@ -12,3 +12,9 @@ test("ignores missing or non-object request parameters", () => {
   expect(injectRequestAuthMetadata(undefined, {})).toBeUndefined();
   expect(injectRequestAuthMetadata("params", {})).toBeUndefined();
 });
+
+test("removes caller-supplied auth metadata when authentication is disabled", () => {
+  const params = { _meta: { trace: "trace", mcpAuth: { mode: "static" } } };
+  injectRequestAuthMetadata(params);
+  expect(params._meta).toEqual({ trace: "trace" });
+});

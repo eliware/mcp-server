@@ -40,26 +40,26 @@ Use a persistent store when you select dynamic client registration.
 
 Import each function in this section from `@eliware/mcp-server/utilities`.
 
-| Export                                        | Use                                                           |
-| --------------------------------------------- | ------------------------------------------------------------- |
-| `buildResponse(value)`                        | Return a value as MCP text. Convert BigInt values to strings. |
-| `convertBigIntToString(value)`                | Convert BigInt values in supported data to strings.           |
-| `stderrLogger`                                | Use the default logger that writes to stderr.                 |
-| `discoverOAuthProvider(options)`              | Read provider metadata from an issuer.                        |
-| `registerOAuthClient(options)`                | Register a client with an OAuth endpoint.                     |
-| `createClientStore(options)`                  | Create a client store from load, save, and remove functions.  |
-| `resolveOAuthClient(options)`                 | Find or register an OAuth client through a store.             |
-| `createPkceState(options)`                    | Create a PKCE verifier, state, and challenge.                 |
-| `createPkceStore(options)`                    | Create a store for PKCE state.                                |
-| `consumePkceState(options)`                   | Read and validate a PKCE state value from a store.            |
-| `setOAuthChallenge(response, options)`        | Set the OAuth resource challenge response header.             |
-| `mountOAuthResourceMetadata(app, options)`    | Add OAuth protected resource metadata routes to an app.       |
-| `handleRequestFailure(context, error)`        | Log a request error and send an HTTP error response.          |
-| `requestEndpoint(context, request, response)` | Call the MCP request handler and report a failure.            |
-| `createPostHandler(context)`                  | Create an Express handler for MCP POST requests.              |
-| `createListeningHandler(context)`             | Create a listener callback that logs its port.                |
-| `listeningCallback(context, port)`            | Log that a server listens on a port.                          |
-| `createRedirectApp(options)`                  | Create an Express app that redirects requests to HTTPS.       |
+| Export                                        | Use                                                                  |
+| --------------------------------------------- | -------------------------------------------------------------------- |
+| `buildResponse(value)`                        | Return a value as MCP text. Convert BigInt values to strings.        |
+| `convertBigIntToString(value)`                | Convert BigInt values in supported data to strings.                  |
+| `stderrLogger`                                | Use the default logger that writes to stderr.                        |
+| `discoverOAuthProvider(options)`              | Read provider metadata from an issuer.                               |
+| `registerOAuthClient(options)`                | Register a client with an OAuth endpoint.                            |
+| `createClientStore(options)`                  | Create a client store from load, save, and remove functions.         |
+| `resolveOAuthClient(options)`                 | Find or register an OAuth client through a store.                    |
+| `createPkceState(options)`                    | Create a PKCE verifier, state, and challenge.                        |
+| `createPkceStore(options)`                    | Create a store with `save`, `load`, and one-time `remove` functions. |
+| `consumePkceState(options)`                   | Read and validate a PKCE state value from a store.                   |
+| `setOAuthChallenge(response, options)`        | Set the OAuth resource challenge response header.                    |
+| `mountOAuthResourceMetadata(app, options)`    | Add OAuth protected resource metadata routes to an app.              |
+| `handleRequestFailure(context, error)`        | Log a request error and send an HTTP error response.                 |
+| `requestEndpoint(context, request, response)` | Call the MCP request handler and report a failure.                   |
+| `createPostHandler(context)`                  | Create an Express handler for MCP POST requests.                     |
+| `createListeningHandler(context)`             | Create a listener callback that logs its port.                       |
+| `listeningCallback(context, port)`            | Log that a server listens on a port.                                 |
+| `createRedirectApp(options)`                  | Create an Express app that redirects requests to HTTPS.              |
 
 ## Types
 

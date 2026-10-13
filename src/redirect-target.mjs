@@ -22,7 +22,17 @@ export function buildHttpsRedirectTarget({ httpsHost, httpsPort, requestUrl }) {
   }
   const port = publicPort || normalizeHttpsPort(httpsPort);
   const portSuffix = port === 443 ? "" : `:${port}`;
-  return `https://${hostname}${portSuffix}${requestUrl}`;
+  if (
+    typeof requestUrl !== "string" ||
+    !requestUrl.startsWith("/") ||
+    requestUrl.startsWith("//")
+  ) {
+    throw new Error("requestUrl must be an origin-relative path");
+  }
+  const origin = `https://${hostname}${portSuffix}`;
+  const target = new URL(requestUrl, origin);
+  if (target.origin !== origin) throw new Error("requestUrl must stay on the configured host");
+  return `${origin}${target.pathname}${target.search}${target.hash}`;
 }
 
 export function normalizeHttpsPort(httpsPort) {

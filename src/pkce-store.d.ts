@@ -1,4 +1,4 @@
-export function createPkceStore(options: { save: Function; load: Function; remove?: Function }): {
+export function createPkceStore(options: { save: Function; load: Function; remove: Function }): {
   save: Function;
   load: Function;
   remove: Function;

@@ -4,12 +4,14 @@ import { consumePkceState, createPkceStore } from "../src/pkce-store.mjs";
 test("creates stores and consumes valid state once", async () => {
   const save = jest.fn();
   const load = jest.fn().mockResolvedValue({ verifier: "v" });
-  const store = createPkceStore({ save, load });
-  expect(store.remove).toBeInstanceOf(Function);
+  const remove = jest.fn();
+  const store = createPkceStore({ save, load, remove });
+  expect(store.remove).toBe(remove);
   await expect(consumePkceState({ store, state: "s", expectedState: "s" })).resolves.toEqual({
     verifier: "v",
   });
   expect(load).toHaveBeenCalledWith("s");
+  expect(remove).toHaveBeenCalledWith("s");
 });
 
 test("supports a custom remove function and rejects invalid store setup", () => {
@@ -17,6 +19,9 @@ test("supports a custom remove function and rejects invalid store setup", () => 
   expect(createPkceStore({ save: jest.fn(), load: jest.fn(), remove }).remove).toBe(remove);
   expect(() => createPkceStore()).toThrow("PKCE store");
   expect(() => createPkceStore({ save: jest.fn() })).toThrow("PKCE store");
+  expect(() => createPkceStore({ save: jest.fn(), load: jest.fn() })).toThrow(
+    "save, load, and remove",
+  );
 });
 
 test.each([

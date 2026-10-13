@@ -39,3 +39,11 @@ test("registers and saves clients with metadata defaults", async () => {
     global.fetch = originalFetch;
   }
 });
+
+test("rejects a missing registration endpoint before reading the store", async () => {
+  const store = { load: jest.fn(), save: jest.fn() };
+  await expect(resolveDynamicOAuthClient({ client: {}, provider: {}, store })).rejects.toThrow(
+    "OAuth registration endpoint is required",
+  );
+  expect(store.load).not.toHaveBeenCalled();
+});
