@@ -22,7 +22,8 @@ export {
 } from "./server-http.mjs";
 export { createRedirectApp } from "./redirect-app.mjs";
 export { buildResponse, convertBigIntToString } from "./response.mjs";
-export { discoverOAuthProvider, registerOAuthClient, createClientStore } from "./oauth.mjs";
+export { discoverOAuthProvider, registerOAuthClient } from "./oauth.mjs";
+export { createClientStore } from "./client-store.mjs";
 export { setOAuthChallenge, mountOAuthResourceMetadata } from "./oauth-metadata.mjs";
 export { resolveOAuthClient } from "./client.mjs";
 export { createOAuthClient } from "./oauth-client.mjs";

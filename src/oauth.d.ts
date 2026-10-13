@@ -7,8 +7,3 @@ export function registerOAuthClient(options: {
   metadata: Record<string, unknown>;
   fetchFn?: typeof fetch;
 }): Promise<Record<string, unknown>>;
-export function createClientStore(options: { load: Function; save: Function; remove?: Function }): {
-  load: Function;
-  save: Function;
-  remove: Function;
-};

@@ -1,5 +1,5 @@
 import { setOAuthChallenge } from "./oauth-metadata.mjs";
-import { matchesResource, sanitizeClaims } from "./auth-token.mjs";
+import { matchesResource, sanitizeClaims } from "./auth-claims.mjs";
 
 export async function authenticateOAuthRequest({ config, accessToken, req, res }) {
   if (!accessToken) {
