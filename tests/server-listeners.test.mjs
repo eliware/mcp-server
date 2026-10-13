@@ -4,6 +4,7 @@ import { startListeners } from "../src/server-listeners.mjs";
 function createServer() {
   const instance = {
     listening: false,
+    on: jest.fn(),
     once: jest.fn(),
     removeListener: jest.fn(),
     close: jest.fn(function () {
@@ -30,10 +31,11 @@ test("listener module starts the HTTP listener", async () => {
       createApp: jest.fn(),
     },
     app: {},
-    activeLog: { debug: jest.fn() },
+    activeLog: { debug: jest.fn(), error: jest.fn() },
   });
   expect(result.httpInstance).toBe(instance);
   expect(instance.listen).toHaveBeenCalledWith(1234, expect.any(Function));
+  instance.on.mock.calls[0][1](new Error("runtime"));
 });
 
 test("starts HTTPS only when TLS values exist", async () => {
@@ -104,7 +106,7 @@ test("rejects when a listener fails to bind", async () => {
   const error = new Error("EADDRINUSE");
   let onError;
   const instance = {
-    once: jest.fn((_event, callback) => {
+    on: jest.fn((_event, callback) => {
       onError = callback;
     }),
     removeListener: jest.fn(),
@@ -125,7 +127,7 @@ test("rejects when a listener fails to bind", async () => {
 test("rejects synchronous bind errors", async () => {
   const error = new Error("invalid port");
   const instance = {
-    once: jest.fn(),
+    on: jest.fn(),
     removeListener: jest.fn(),
     listen: jest.fn(() => {
       throw error;
@@ -144,7 +146,7 @@ test("closes a listener if another startup callback fails", async () => {
   const httpsServer = createServer();
   const activeLog = {
     debug: jest.fn(() => {
-      throw new Error("log error");
+      if (httpsServer.listening) throw new Error("log error");
     }),
   };
   const startup = startListeners({
@@ -174,7 +176,7 @@ test("stops pending listeners when another listener fails to bind", async () => 
   });
   const httpsServer = createServer();
   httpsServer.listen = jest.fn();
-  httpsServer.once.mockImplementation((_event, callback) => {
+  httpsServer.on.mockImplementation((_event, callback) => {
     httpsServer.onError = callback;
   });
   const startup = startListeners({
