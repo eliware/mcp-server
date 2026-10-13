@@ -5,7 +5,9 @@ export function waitForListener(instance, port, onListening, onRuntimeError) {
     let started = false;
     const onError = (error) => {
       if (started) {
-        onRuntimeError(error);
+        try {
+          onRuntimeError(error);
+        } catch {}
         return;
       }
       settled = true;
