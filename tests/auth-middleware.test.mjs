@@ -38,9 +38,14 @@ test("returns an error when middleware cannot read the request token", async () 
   );
 });
 
-test("serves no-auth requests through the Express app", async () => {
+test("serves no-auth and bearer-passthrough requests through the Express app", async () => {
   const response = await request(appFor({ mode: "none" })).post("/mcp");
   expect(response.body.auth.mode).toBe("none");
+
+  const app = appFor({ mode: "bearer-passthrough" });
+  expect((await request(app).post("/mcp")).status).toBe(401);
+  const forwarded = await request(app).post("/mcp").set("Authorization", "Bearer forwarded");
+  expect(forwarded.body.auth.accessToken).toBe("forwarded");
 });
 
 test("serves static-token requests through the Express app", async () => {
@@ -51,13 +56,6 @@ test("serves static-token requests through the Express app", async () => {
     if (value) call.set("Authorization", value);
     expect((await call).status).toBe(401);
   }
-});
-
-test("serves bearer-passthrough requests through the Express app", async () => {
-  const app = appFor({ mode: "bearer-passthrough" });
-  expect((await request(app).post("/mcp")).status).toBe(401);
-  const response = await request(app).post("/mcp").set("Authorization", "Bearer forwarded");
-  expect(response.body.auth.accessToken).toBe("forwarded");
 });
 
 test("serves OAuth requests and reports introspection failures", async () => {

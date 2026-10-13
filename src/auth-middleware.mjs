@@ -1,5 +1,5 @@
 import { bearer } from "./auth-bearer.mjs";
-import { validStaticToken } from "./auth-static-token.mjs";
+import { resolveAuthRequest } from "./auth-request.mjs";
 import { normalizeAuth } from "./auth-config.mjs";
 import { authenticateOAuthRequest } from "./auth-oauth.mjs";
 
@@ -9,16 +9,12 @@ export function createAuthMiddleware({ auth = { mode: "none" }, endpointPaths })
     if (req.method !== "POST" || !endpointPaths.includes(req.path)) return next();
     try {
       const accessToken = bearer(req);
-      if (config.mode === "static" && !validStaticToken(accessToken, config.token)) {
-        return res.status(401).json({ error: "Invalid bearer token" });
-      }
-      if (config.mode === "bearer-passthrough" && !accessToken) {
-        return res.status(401).json({ error: "Bearer token required" });
-      }
       if (config.mode === "oauth2") {
         if (!(await authenticateOAuthRequest({ config, accessToken, req, res }))) return;
       } else {
-        req.mcpAuth = { mode: config.mode, ...(accessToken ? { accessToken } : {}) };
+        const result = resolveAuthRequest(config, accessToken);
+        if (result.error) return res.status(401).json({ error: result.error });
+        req.mcpAuth = result.auth;
       }
       req.mcpBearerToken = accessToken;
       next();
