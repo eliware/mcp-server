@@ -53,7 +53,7 @@ test("serves static-token requests through the Express app", async () => {
   }
 });
 
-test("serves OAuth requests and reports introspection failures", async () => {
+test("serves OAuth requests and reports introspection service failures", async () => {
   const app = appFor({
     mode: "oauth2",
     issuer: "issuer",
@@ -75,7 +75,7 @@ test("serves OAuth requests and reports introspection failures", async () => {
     },
   });
   const failed = await request(failingApp).post("/mcp").set("Authorization", "Bearer token");
-  expect(failed.status).toBe(500);
-  expect(failed.body).toEqual({ error: "Authentication failed" });
+  expect(failed.status).toBe(503);
+  expect(failed.body).toEqual({ error: "Authentication service unavailable" });
   expect(JSON.stringify(failed.body)).not.toContain("provider unavailable");
 });

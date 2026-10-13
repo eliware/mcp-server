@@ -27,6 +27,7 @@ Set `auth.mode` to `oauth2`. Set `issuer`, `resource`, and an `introspect` funct
 You can use `createOAuthIntrospector()` to call an OAuth2 introspection endpoint.
 Set `introspection` with endpoint and client values to create this function from configuration.
 The server checks active status, issuer, resource, expiry, bearer token type, and required scopes.
+The server returns status 503 when the introspection service is unavailable.
 Set `scopes` to require scopes. Set `subjectClaim` to select a subject claim. The default claim is `sub`.
 
 ```js

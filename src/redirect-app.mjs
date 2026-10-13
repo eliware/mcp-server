@@ -1,10 +1,10 @@
 import { buildHttpsRedirectTarget } from "./redirect-target.mjs";
 
-export function createRedirectApp({ createApp, httpsPort }) {
+export function createRedirectApp({ createApp, httpsHost, httpsPort }) {
   const redirectApp = createApp();
   redirectApp.use((req, res) => {
     const target = buildHttpsRedirectTarget({
-      host: req.headers.host,
+      httpsHost,
       httpsPort,
       requestUrl: req.originalUrl || req.url,
     });

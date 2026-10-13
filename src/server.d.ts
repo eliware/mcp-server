@@ -15,6 +15,7 @@ export interface McpServerOptions {
   entrypoint?: string;
   httpPort?: number | string | null | false;
   httpsPort?: number | string;
+  httpsHost?: string;
   tls?: {
     key?: string | Buffer;
     cert?: string | Buffer;

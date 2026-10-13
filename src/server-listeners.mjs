@@ -26,8 +26,19 @@ function waitForListener(instance, port, onListening) {
 }
 
 export async function startListeners({ config, app, activeLog }) {
-  const { httpPort, httpsPort, tls, httpRedirect, createApp, createHttpServer, createHttpsServer } =
-    config;
+  const {
+    httpPort,
+    httpsPort,
+    httpsHost,
+    tls,
+    httpRedirect,
+    createApp,
+    createHttpServer,
+    createHttpsServer,
+  } = config;
+  if (httpRedirect && (!httpsHost || httpsPort === undefined)) {
+    throw new Error("httpRedirect requires httpsHost and httpsPort");
+  }
   const loadedTls = loadTlsOptions({ tls });
   if (httpsPort !== undefined && (!loadedTls.key || !loadedTls.cert)) {
     throw new Error("httpsPort requires tls.key and tls.cert");
@@ -36,7 +47,7 @@ export async function startListeners({ config, app, activeLog }) {
   let httpsInstance;
   const starts = [];
   if (httpPort !== null && httpPort !== false) {
-    const httpApp = httpRedirect ? createRedirectApp({ createApp, httpsPort }) : app;
+    const httpApp = httpRedirect ? createRedirectApp({ createApp, httpsHost, httpsPort }) : app;
     httpInstance = createHttpServer(httpApp);
     starts.push(
       waitForListener(

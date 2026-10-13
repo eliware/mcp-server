@@ -11,6 +11,7 @@ export function normalizeServerConfig(options = {}) {
     entrypoint: defaultEntrypoint,
     tls: undefined,
     httpRedirect: false,
+    httpsHost: undefined,
     auth: { mode: "none" },
     context: {},
     stateless: true,

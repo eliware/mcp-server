@@ -7,7 +7,13 @@ export async function authenticateOAuthRequest({ config, accessToken, req, res }
     sendOAuthAuthError(res, { error: "Bearer token required", resource: config.resource });
     return false;
   }
-  const info = await config.introspect(accessToken);
+  let info;
+  try {
+    info = await config.introspect(accessToken);
+  } catch {
+    res.status(503).json({ error: "Authentication service unavailable" });
+    return false;
+  }
   const token = validateOAuthToken(info, config);
   if (!token) {
     sendOAuthAuthError(res, { error: "Invalid OAuth2 token" });

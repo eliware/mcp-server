@@ -9,6 +9,7 @@ Read `src/index.d.ts` for TypeScript types.
 | ---------------- | --------------------------------------------------------- | ----------------------------------------------- |
 | `httpPort`       | Set the HTTP port. Set `null` or `false` to disable HTTP. | The operating system selects an available port. |
 | `httpsPort`      | Set the HTTPS port.                                       | Disabled.                                       |
+| `httpsHost`      | Set the public host for HTTPS redirects.                  | No value.                                       |
 | `httpRedirect`   | Redirect HTTP requests to HTTPS.                          | `false`                                         |
 | `endpointPath`   | Set the MCP route.                                        | `/mcp`                                          |
 | `allowedOrigins` | Set allowed CORS origins.                                 | `[]`                                            |
@@ -16,6 +17,7 @@ Read `src/index.d.ts` for TypeScript types.
 | `configureApp`   | Add middleware before the MCP route.                      | No callback.                                    |
 
 HTTPS needs a key and a certificate. Set `tls.key` and `tls.cert` to values or file paths.
+Set `httpsHost` and `httpsPort` when you enable `httpRedirect`.
 Set `tls.ca` or `tls.caFile` when the server needs a certificate authority file.
 You can set `TLS_KEY_FILE`, `TLS_CERT_FILE`, and `TLS_CA_FILE` as environment variables.
 

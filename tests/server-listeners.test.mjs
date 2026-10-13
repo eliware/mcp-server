@@ -66,6 +66,16 @@ test("requires TLS values for an HTTPS listener", async () => {
   ).rejects.toThrow("httpsPort requires tls.key and tls.cert");
 });
 
+test("requires a configured host and port for HTTP redirects", async () => {
+  await expect(
+    startListeners({
+      config: { httpPort: 80, httpRedirect: true, createHttpServer: jest.fn() },
+      app: {},
+      activeLog: { debug: jest.fn() },
+    }),
+  ).rejects.toThrow("httpRedirect requires httpsHost and httpsPort");
+});
+
 test("starts HTTP and HTTPS listeners with an HTTP redirect app", async () => {
   const httpServer = createServer();
   const httpsServer = createServer();
@@ -76,6 +86,7 @@ test("starts HTTP and HTTPS listeners with an HTTP redirect app", async () => {
       httpPort: 80,
       httpsPort: 443,
       httpRedirect: true,
+      httpsHost: "trusted.example",
       tls: { key: "key", cert: "cert" },
       createApp,
       createHttpServer: jest.fn(() => httpServer),

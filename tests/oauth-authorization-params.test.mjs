@@ -10,15 +10,17 @@ test("generates default state, verifier, and challenge values", () => {
 });
 
 test("uses supplied state and derives a challenge from the supplied verifier", () => {
-  const params = createOAuthAuthorizationParams({ state: "state", codeVerifier: "verifier" });
+  const params = createOAuthAuthorizationParams({ state: "state", codeVerifier: "v".repeat(43) });
   expect(params.state).toBe("state");
-  expect(params.codeVerifier).toBe("verifier");
-  expect(params.codeChallenge).toBe("iMnq5o6zALKXGivsnlom_0F5_WYda32GHkxlV7mq7hQ");
+  expect(params.codeVerifier).toBe("v".repeat(43));
+  expect(params.codeChallenge).toBe("7w_YNF9DSfIdPf_pRjSq646_kPr-2-o9NAl16JGghdM");
 });
 
-test("preserves explicitly supplied empty state and verifier values", () => {
-  const params = createOAuthAuthorizationParams({ state: "", codeVerifier: "" });
+test("preserves an empty state and rejects an empty verifier", () => {
+  const params = createOAuthAuthorizationParams({ state: "", codeVerifier: "v".repeat(43) });
   expect(params.state).toBe("");
-  expect(params.codeVerifier).toBe("");
-  expect(params.codeChallenge).toBe("47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU");
+  expect(params.codeVerifier).toBe("v".repeat(43));
+  expect(() => createOAuthAuthorizationParams({ codeVerifier: "" })).toThrow(
+    "43 to 128 unreserved characters",
+  );
 });
