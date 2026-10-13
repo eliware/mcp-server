@@ -1,13 +1,15 @@
 export function createOAuthAuthorizationUrl({
   provider,
-  credentials,
+  credentials = {},
   redirectUri,
   scopes = [],
   authorizationParams,
 }) {
+  const clientId = credentials.client_id || credentials.clientId;
+  if (!clientId) throw new Error("OAuth client ID is required");
   const url = new URL(provider.authorization_endpoint);
   url.search = new URLSearchParams({
-    client_id: credentials.client_id || credentials.clientId,
+    client_id: clientId,
     response_type: "code",
     redirect_uri: redirectUri,
     scope: scopes.join(" "),

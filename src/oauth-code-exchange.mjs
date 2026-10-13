@@ -1,12 +1,13 @@
 export async function exchangeOAuthCode({
   provider,
-  credentials,
+  credentials = {},
   fetchFn = fetch,
   code,
   redirectUri,
   codeVerifier,
 }) {
   const clientId = credentials.client_id || credentials.clientId;
+  if (!clientId) throw new Error("OAuth client ID is required");
   const clientSecret = credentials.client_secret || credentials.clientSecret;
   const headers = { "content-type": "application/x-www-form-urlencoded" };
   if (clientId && clientSecret) {

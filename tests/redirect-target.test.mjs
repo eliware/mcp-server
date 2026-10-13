@@ -17,6 +17,16 @@ test("preserves IPv6 hosts and omits a string default HTTPS port", () => {
   ).toBe("https://[2001:db8::1]/mcp");
 });
 
+test("uses an explicit port from the public host", () => {
+  expect(
+    buildHttpsRedirectTarget({
+      httpsHost: "trusted.example:8443",
+      httpsPort: 443,
+      requestUrl: "/mcp",
+    }),
+  ).toBe("https://trusted.example:8443/mcp");
+});
+
 test("rejects a missing or invalid redirect host", () => {
   expect(() =>
     buildHttpsRedirectTarget({ httpsHost: "bad host", httpsPort: 8443, requestUrl: "/mcp" }),

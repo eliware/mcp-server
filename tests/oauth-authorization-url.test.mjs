@@ -37,3 +37,7 @@ test("uses an empty scope by default", () => {
   expect(url.searchParams.get("state")).toBe("state");
   expect(url.searchParams.get("scope")).toBe("");
 });
+
+test("rejects authorization URL creation without a client ID", () => {
+  expect(() => createOAuthAuthorizationUrl({ provider })).toThrow("OAuth client ID is required");
+});

@@ -45,6 +45,12 @@ test("authenticates a confidential client with HTTP Basic", async () => {
   expect(options.body.has("client_id")).toBe(false);
 });
 
+test("rejects code exchange without a client ID", async () => {
+  await expect(exchangeOAuthCode({ provider, code: "code" })).rejects.toThrow(
+    "OAuth client ID is required",
+  );
+});
+
 test("rejects a failed code exchange", async () => {
   const fetchFn = jest.fn().mockResolvedValue({ ok: false, status: 400 });
   await expect(exchangeOAuthCode({ provider, credentials, fetchFn, code: "code" })).rejects.toThrow(

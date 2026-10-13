@@ -3,12 +3,15 @@ export function buildHttpsRedirectTarget({ httpsHost, httpsPort, requestUrl }) {
     throw new Error("httpsHost must be a valid hostname");
   }
   let hostname;
+  let publicPort;
   try {
-    hostname = new URL(`http://${httpsHost}`).hostname;
+    const publicHost = new URL(`http://${httpsHost}`);
+    hostname = publicHost.hostname;
+    publicPort = publicHost.port ? normalizeHttpsPort(publicHost.port) : undefined;
   } catch {
     throw new Error("httpsHost must be a valid hostname");
   }
-  const port = normalizeHttpsPort(httpsPort);
+  const port = publicPort || normalizeHttpsPort(httpsPort);
   const portSuffix = port === 443 ? "" : `:${port}`;
   return `https://${hostname}${portSuffix}${requestUrl}`;
 }
