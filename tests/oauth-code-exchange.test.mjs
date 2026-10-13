@@ -25,6 +25,26 @@ test("exchanges a code and sends the required request fields", async () => {
   expect(options.body.toString()).toContain("client_id=id");
 });
 
+test("authenticates a confidential client with HTTP Basic", async () => {
+  const fetchFn = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ access_token: "token" }),
+  });
+  await exchangeOAuthCode({
+    provider,
+    credentials: { client_id: "id", client_secret: "secret" },
+    fetchFn,
+    code: "code",
+    redirectUri: "https://app/cb",
+    codeVerifier: "verifier",
+  });
+  const [, options] = fetchFn.mock.calls[0];
+  expect(options.headers.authorization).toBe(
+    `Basic ${Buffer.from("id:secret").toString("base64")}`,
+  );
+  expect(options.body.has("client_id")).toBe(false);
+});
+
 test("rejects a failed code exchange", async () => {
   const fetchFn = jest.fn().mockResolvedValue({ ok: false, status: 400 });
   await expect(exchangeOAuthCode({ provider, credentials, fetchFn, code: "code" })).rejects.toThrow(

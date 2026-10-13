@@ -161,3 +161,38 @@ test("closes a listener if another startup callback fails", async () => {
   await expect(startup).rejects.toThrow("log error");
   expect(httpServer.close).toHaveBeenCalled();
 });
+
+test("stops pending listeners when another listener fails to bind", async () => {
+  const httpServer = createServer();
+  let onHttpListening;
+  httpServer.listen = jest.fn((_port, callback) => {
+    onHttpListening = callback;
+  });
+  httpServer.close.mockImplementation(function (callback) {
+    this.listening = false;
+    callback?.();
+  });
+  const httpsServer = createServer();
+  httpsServer.listen = jest.fn();
+  httpsServer.once.mockImplementation((_event, callback) => {
+    httpsServer.onError = callback;
+  });
+  const startup = startListeners({
+    config: {
+      httpPort: 80,
+      httpsPort: 443,
+      tls: { key: "key", cert: "cert" },
+      createHttpServer: () => httpServer,
+      createHttpsServer: () => httpsServer,
+    },
+    app: {},
+    activeLog: { debug: jest.fn() },
+  });
+  const error = new Error("EADDRINUSE");
+  httpsServer.onError(error);
+  await expect(startup).rejects.toBe(error);
+  expect(httpServer.close).toHaveBeenCalled();
+  httpServer.listening = true;
+  onHttpListening();
+  expect(httpServer.close).toHaveBeenCalledTimes(2);
+});

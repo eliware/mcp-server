@@ -3,14 +3,22 @@ import { createRedirectApp } from "./redirect-app.mjs";
 import { createListeningHandler } from "./server-listener-logging.mjs";
 
 function waitForListener(instance, port, onListening) {
-  return new Promise((resolve, reject) => {
+  let cancel;
+  const promise = new Promise((resolve, reject) => {
+    let settled = false;
     const onError = (error) => {
+      settled = true;
       instance.removeListener("error", onError);
       reject(error);
     };
     instance.once("error", onError);
     try {
       instance.listen(port, () => {
+        if (settled) {
+          instance.close(() => {});
+          return;
+        }
+        settled = true;
         instance.removeListener("error", onError);
         try {
           onListening();
@@ -22,7 +30,17 @@ function waitForListener(instance, port, onListening) {
     } catch (error) {
       onError(error);
     }
+    cancel = (error) => {
+      if (settled) return;
+      settled = true;
+      instance.removeListener("error", onError);
+      try {
+        instance.close(() => {});
+      } catch {}
+      reject(error);
+    };
   });
+  return { promise, cancel: (error) => cancel?.(error) };
 }
 
 export async function startListeners({ config, app, activeLog }) {
@@ -67,17 +85,14 @@ export async function startListeners({ config, app, activeLog }) {
       ),
     );
   }
-  const results = await Promise.allSettled(starts);
-  const failure = results.find((result) => result.status === "rejected");
-  if (failure) {
+  try {
+    await Promise.all(starts.map((start) => start.promise));
+  } catch (error) {
+    for (const start of starts) start.cancel(error);
     for (const instance of [httpInstance, httpsInstance]) {
-      if (instance?.listening) {
-        try {
-          instance.close();
-        } catch {}
-      }
+      if (instance?.listening) instance.close();
     }
-    throw failure.reason;
+    throw error;
   }
   return { httpInstance, httpsInstance };
 }

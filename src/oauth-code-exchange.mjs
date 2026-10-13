@@ -6,14 +6,20 @@ export async function exchangeOAuthCode({
   redirectUri,
   codeVerifier,
 }) {
+  const clientId = credentials.client_id || credentials.clientId;
+  const clientSecret = credentials.client_secret || credentials.clientSecret;
+  const headers = { "content-type": "application/x-www-form-urlencoded" };
+  if (clientId && clientSecret) {
+    headers.authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`;
+  }
   const response = await fetchFn(provider.token_endpoint, {
     method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
+    headers,
     body: new URLSearchParams({
       grant_type: "authorization_code",
       code,
       redirect_uri: redirectUri,
-      client_id: credentials.client_id || credentials.clientId,
+      ...(!clientSecret ? { client_id: clientId } : {}),
       code_verifier: codeVerifier,
     }),
   });
