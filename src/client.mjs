@@ -1,4 +1,4 @@
-import { registerOAuthClient } from "./oauth.mjs";
+import { registerOAuthClient } from "./oauth-registration.mjs";
 
 export async function resolveOAuthClient({ client = {}, provider, store } = {}) {
   if (client.mode === "static") {

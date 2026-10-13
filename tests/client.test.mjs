@@ -16,21 +16,30 @@ test("loads cached dynamic client", async () => {
   ).toBe(saved);
   expect(store.save).not.toHaveBeenCalled();
 });
-test("registers and persists dynamic client", async () => {
-  const store = { load: jest.fn().mockResolvedValue(null), save: jest.fn() };
-  const fetch = global.fetch;
-  global.fetch = jest
-    .fn()
-    .mockResolvedValue({ ok: true, json: async () => ({ client_id: "new" }) });
-  expect(
-    await resolveOAuthClient({
-      client: { mode: "dynamic", metadata: { client_name: "x" } },
-      provider: { registration_endpoint: "r" },
-      store,
-    }),
-  ).toEqual({ client_id: "new" });
-  expect(store.save).toHaveBeenCalled();
-  global.fetch = fetch;
+test("registers and persists dynamic clients with metadata defaults", async () => {
+  const originalFetch = global.fetch;
+  try {
+    for (const item of [
+      { client: { mode: "dynamic", metadata: { client_name: "x" } }, body: '{"client_name":"x"}' },
+      { client: { mode: "dynamic" }, body: "{}" },
+    ]) {
+      const store = { load: jest.fn().mockResolvedValue(null), save: jest.fn() };
+      global.fetch = jest
+        .fn()
+        .mockResolvedValue({ ok: true, json: async () => ({ client_id: "new" }) });
+      expect(
+        await resolveOAuthClient({
+          client: item.client,
+          provider: { registration_endpoint: "r" },
+          store,
+        }),
+      ).toEqual({ client_id: "new" });
+      expect(store.save).toHaveBeenCalledWith("r", { client_id: "new" });
+      expect(global.fetch.mock.calls[0][1].body).toBe(item.body);
+    }
+  } finally {
+    global.fetch = originalFetch;
+  }
 });
 test("rejects invalid client configuration", async () => {
   await expect(resolveOAuthClient({ client: { mode: "static" }, provider: {} })).rejects.toThrow();
@@ -47,18 +56,4 @@ test("covers default arguments and custom registration key", async () => {
   });
   expect(result.client_id).toBe("cached");
   expect(store.load).toHaveBeenCalledWith("custom");
-});
-test("registers dynamic client without metadata", async () => {
-  const store = { load: jest.fn().mockResolvedValue(null), save: jest.fn() };
-  const old = global.fetch;
-  global.fetch = jest
-    .fn()
-    .mockResolvedValue({ ok: true, json: async () => ({ client_id: "new" }) });
-  await resolveOAuthClient({
-    client: { mode: "dynamic" },
-    provider: { registration_endpoint: "r" },
-    store,
-  });
-  expect(global.fetch).toHaveBeenCalled();
-  global.fetch = old;
 });

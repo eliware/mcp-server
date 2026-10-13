@@ -19,10 +19,12 @@ export {
 } from "./server-http.mjs";
 export { createRedirectApp } from "./redirect-app.mjs";
 export { buildResponse, convertBigIntToString } from "./response.mjs";
-export { discoverOAuthProvider, registerOAuthClient } from "./oauth.mjs";
+export { discoverOAuthProvider } from "./oauth.mjs";
+export { registerOAuthClient } from "./oauth-registration.mjs";
 export { createClientStore } from "./client-store.mjs";
 export { setOAuthChallenge, mountOAuthResourceMetadata } from "./oauth-metadata.mjs";
 export { resolveOAuthClient } from "./client.mjs";
 export { createOAuthClient } from "./oauth-client.mjs";
-export { createPkceState, createPkceStore, consumePkceState } from "./pkce.mjs";
+export { createPkceState } from "./pkce.mjs";
+export { createPkceStore, consumePkceState } from "./pkce-store.mjs";
 export { z } from "zod";
