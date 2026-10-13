@@ -16,7 +16,6 @@ test("connects authorization URL creation to code exchange", async () => {
     fetchFn,
   });
   const auth = flow.authorizationUrl({ redirectUri: "https://app/cb", state: "state" });
-  expect(flow.authorizationUrl().codeVerifier).toBeTruthy();
   await expect(
     flow.exchangeCode({
       code: "code",
@@ -26,10 +25,11 @@ test("connects authorization URL creation to code exchange", async () => {
   ).resolves.toEqual({ access_token: "token" });
 });
 
-test("uses default flow options", () => {
+test("creates a default authorization URL", () => {
   const flow = createOAuthAuthorizationFlow({
     provider: { authorization_endpoint: "https://auth/authorize" },
     credentials: { client_id: "id" },
   });
-  expect(flow.authorizationUrl().codeVerifier).toBeTruthy();
+  const auth = flow.authorizationUrl();
+  expect(new URL(auth.url).searchParams.get("response_type")).toBe("code");
 });

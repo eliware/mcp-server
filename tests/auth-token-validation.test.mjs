@@ -34,3 +34,27 @@ test("validates OAuth token claims and returns scopes", () => {
     }),
   ).toBeNull();
 });
+
+test("rejects invalid token claims", () => {
+  const valid = { active: true, iss: "issuer", resource: "resource", scope: "read" };
+  const invalid = [
+    null,
+    { ...valid, active: false },
+    { ...valid, iss: "other" },
+    { ...valid, resource: "other" },
+    { ...valid, resource: undefined, aud: ["other"] },
+    { ...valid, exp: 99 },
+    { ...valid, token_type: "mac" },
+    { ...valid, scope: "read" },
+  ];
+  for (const info of invalid) {
+    expect(
+      validateOAuthToken(info, {
+        issuer: "issuer",
+        resource: "resource",
+        requiredScopes: info?.scope ? ["write"] : [],
+        now: 100000,
+      }),
+    ).toBeNull();
+  }
+});
