@@ -1,5 +1,6 @@
 import { loadTlsOptions } from "./tls.mjs";
-import { createListeningHandler, createRedirectApp } from "./server-http.mjs";
+import { createListeningHandler } from "./server-http.mjs";
+import { createRedirectApp } from "./redirect-app.mjs";
 
 export function startListeners({ config, app, activeLog }) {
   const { httpPort, httpsPort, tls, httpRedirect, createApp, createHttpServer, createHttpsServer } =

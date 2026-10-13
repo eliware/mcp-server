@@ -15,6 +15,7 @@ test("OAuth introspector posts credentials and returns JSON", async () => {
 });
 
 test("OAuth introspector rejects a missing endpoint and returns null on failure", async () => {
+  createOAuthIntrospector();
   const empty = createOAuthIntrospector({ fetchFn: jest.fn() });
   await expect(empty("token")).rejects.toThrow("OAuth introspection endpoint is required");
   const unavailable = createOAuthIntrospector({

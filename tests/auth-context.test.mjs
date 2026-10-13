@@ -28,4 +28,13 @@ test("auth context rejects missing access", () => {
   );
   expect(() => authContext.requireScope({}, "write")).toThrow("Missing scope: write");
   expect(authContext.hasScope({ _meta: { mcpAuth: { scopes: ["read"] } } }, "read")).toBe(true);
+  expect(authContext.hasScope()).toBe(false);
+  expect(authContext.getUser({ mcpAuth: { mode: "static" } })).toEqual({
+    subject: undefined,
+    clientId: undefined,
+    issuer: undefined,
+    scopes: [],
+  });
+  expect(() => authContext.requireBearer()).toThrow("Authentication required");
+  expect(() => authContext.requireScope()).toThrow("Missing scope");
 });

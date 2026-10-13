@@ -23,3 +23,13 @@ test("server options apply defaults", () => {
   expect(result.config.stateless).toBe(true);
   expect(result.config.endpointPath).toBe("/mcp");
 });
+
+test("uses a running mjs file as the default entrypoint", () => {
+  const original = process.argv[1];
+  process.argv[1] = "server.mjs";
+  try {
+    expect(resolveServerOptions().config.entrypoint).toBe("server.mjs");
+  } finally {
+    process.argv[1] = original;
+  }
+});

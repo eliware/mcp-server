@@ -1,6 +1,5 @@
 import { jest, test, expect } from "@jest/globals";
 import {
-  createRedirectApp,
   createListeningHandler,
   createPostHandler,
   handleRequestFailure,
@@ -34,15 +33,17 @@ test("server HTTP helpers log requests and callbacks", async () => {
   expect(stderrLogger.info).toBeInstanceOf(Function);
 });
 
-test("redirect app sends HTTPS redirects", () => {
-  let middleware;
-  const app = {
-    use: (callback) => {
-      middleware = callback;
-    },
-  };
-  createRedirectApp({ createApp: () => app, httpsPort: 443 });
-  const res = { redirect: jest.fn() };
-  middleware({ headers: { host: "host:80" }, originalUrl: "/mcp" }, res);
-  expect(res.redirect).toHaveBeenCalledWith(301, "https://host/mcp");
+test("does not send an HTTP response after headers are sent", () => {
+  const log = { error: jest.fn() };
+  const res = { headersSent: true, status: jest.fn(), json: jest.fn() };
+  handleRequestFailure({ log, res }, { message: "failed" });
+  expect(log.error).toHaveBeenCalled();
+  expect(res.status).not.toHaveBeenCalled();
+});
+
+test("writes every default logger level to stderr", () => {
+  const spy = jest.spyOn(console, "error").mockImplementation(() => {});
+  for (const level of ["debug", "info", "warn", "error"]) stderrLogger[level]("message");
+  expect(spy).toHaveBeenCalledTimes(4);
+  spy.mockRestore();
 });

@@ -1,4 +1,5 @@
-import { createAuthMiddleware, createOAuthIntrospector } from "./auth.mjs";
+import { createAuthMiddleware } from "./auth-middleware.mjs";
+import { createOAuthIntrospector } from "./auth-introspection.mjs";
 import { configureHttp } from "./http.mjs";
 import { createTransport } from "./transport.mjs";
 import { createRequestHandler } from "./handler.mjs";
