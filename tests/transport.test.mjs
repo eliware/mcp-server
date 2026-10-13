@@ -1,6 +1,9 @@
 import { test, expect } from "@jest/globals";
 import { createTransport } from "../src/transport.mjs";
-test("creates stateless transport", () =>
-  expect(createTransport({ stateless: true, enableJsonResponse: true })).toBeTruthy());
-test("creates stateful transport", () =>
-  expect(createTransport({ stateless: false, enableJsonResponse: false })).toBeTruthy());
+
+test.each([
+  ["stateless", true, true],
+  ["stateful", false, false],
+])("creates %s transport", (_mode, stateless, enableJsonResponse) => {
+  expect(createTransport({ stateless, enableJsonResponse })).toBeTruthy();
+});
