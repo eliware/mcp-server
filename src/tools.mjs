@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { discoverTools } from "./tool-discovery.mjs";
-import { registerTools } from "./tool-registration.mjs";
+import { discoverTools } from "./tool/discovery.mjs";
+import { registerTools } from "./tool/registration.mjs";
 
 export async function buildServer({
   toolsDir,

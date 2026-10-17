@@ -5,16 +5,16 @@ Read `src/index.d.ts` for TypeScript types.
 
 ## Network options
 
-| Option           | Use                                                       | Default                                         |
-| ---------------- | --------------------------------------------------------- | ----------------------------------------------- |
-| `httpPort`       | Set the HTTP port. Set `null` or `false` to disable HTTP. | The operating system selects an available port. |
-| `httpsPort`      | Set the HTTPS port.                                       | Disabled.                                       |
-| `httpsHost`      | Set the public host for HTTPS redirects.                  | No value.                                       |
-| `httpRedirect`   | Redirect HTTP requests to HTTPS.                          | `false`                                         |
-| `endpointPath`   | Set the MCP route.                                        | `/mcp`                                          |
-| `allowedOrigins` | Set allowed CORS origins.                                 | `[]`                                            |
-| `app`            | Supply an Express app.                                    | A new app.                                      |
-| `configureApp`   | Add middleware before the MCP route.                      | No callback.                                    |
+| Option           | Use                                                                 | Default                                                   |
+| ---------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
+| `httpPort`       | Set the HTTP network number. Set `null` or `false` to disable HTTP. | The operating system selects an available network number. |
+| `httpsPort`      | Set the HTTPS network number.                                       | Disabled.                                                 |
+| `httpsHost`      | Set the public host for HTTPS redirects.                            | No value.                                                 |
+| `httpRedirect`   | Redirect HTTP requests to HTTPS.                                    | `false`                                                   |
+| `endpointPath`   | Set the MCP route.                                                  | `/mcp`                                                    |
+| `allowedOrigins` | Set allowed CORS origins.                                           | `[]`                                                      |
+| `app`            | Supply an Express app.                                              | A new app.                                                |
+| `configureApp`   | Add middleware before the MCP route.                                | No callback.                                              |
 
 HTTPS needs a key and a certificate. Set `tls.key` and `tls.cert` to values or file paths.
 Set `httpsHost` and `httpsPort` when you enable `httpRedirect`.

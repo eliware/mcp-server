@@ -1,5 +1,5 @@
 import { resolveDynamicOAuthClient } from "./dynamic-client.mjs";
-import { validateOAuthClientMode } from "./client-mode.mjs";
+import { validateOAuthClientMode } from "./client/mode.mjs";
 
 export async function resolveOAuthClient({ client = {}, provider, store } = {}) {
   validateOAuthClientMode(client);

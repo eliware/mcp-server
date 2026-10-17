@@ -5,7 +5,7 @@ The default mode is `none`. Select a mode before you expose a network endpoint.
 
 ## No authentication
 
-Set `auth: { mode: "none" }` for a local or otherwise protected environment.
+Set `auth: { mode: "none" }` for a local environment or one that has protection at a different layer.
 This mode does not check bearer tokens.
 
 ## Static bearer token
@@ -27,7 +27,9 @@ Set `auth.mode` to `oauth2`. Set `issuer`, `resource`, and an `introspect` funct
 You can use `createOAuthIntrospector()` to call an OAuth2 introspection endpoint.
 Set `introspection` with endpoint and client values to create this function from configuration.
 The server checks active status, issuer, resource, expiry, bearer token type, and required scopes.
-The server returns status 503 when the introspection service is unavailable.
+
+The server returns status 503 when the introspection endpoint is unavailable.
+
 Set `scopes` to require scopes. Set `subjectClaim` to select a subject claim. The default claim is `sub`.
 
 ```js
@@ -51,7 +53,9 @@ await mcpServer({
 });
 ```
 
-OAuth2 mode serves protected resource metadata. The package does not provide a user login flow.
+OAuth2 mode serves protected resource metadata.
+
+The package does not provide a user login flow.
 
 ## Tool auth helpers
 

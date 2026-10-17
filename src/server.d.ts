@@ -3,7 +3,7 @@ import type { Server as HttpServer } from "node:http";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import type { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import type { AuthConfig, AuthMode } from "./auth-config.mjs";
+import type { AuthConfig, AuthMode } from "./auth/config.mjs";
 
 export interface McpServerOptions {
   log?: {

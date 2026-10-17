@@ -22,10 +22,10 @@ The package does not add authentication to application routes on a supplied Expr
 
 ## Protocol features
 
-The package exposes tools registered through discovered tool files.
-The server advertises tools and resources through its MCP server capabilities.
-The package does not discover resource or prompt files.
-Use the MCP SDK methods on the supplied server to register other supported features.
+The package exposes tools that tool files add at startup.
+The MCP server reports its tools and resources through its capabilities.
+The package does not scan for resource or prompt files.
+Use the MCP SDK methods on the supplied server to add other supported features.
 The package does not provide a client login page or an authorization server.
 
 Read [configuration](configuration.md), [authentication](authentication.md), and [tools and schemas](tools.md) for setup details.

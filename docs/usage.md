@@ -10,7 +10,7 @@ npm install @eliware/mcp-server
 
 ## Start an HTTP server
 
-Create an `.mjs` entry file. Set a port, a token, and a tool directory:
+Create an `.mjs` entry file. Set a network number, a token, and a tool directory:
 
 ```js
 import { mcpServer } from "@eliware/mcp-server";
@@ -55,7 +55,7 @@ process.once("SIGINT", closeServers);
 
 The stdio result contains a transport. Close it when the client session ends.
 
-## Choose an example
+## Select an example
 
 Use [examples/README.md](../examples/README.md) to find a runnable server example.
 Use [tools and schemas](tools.md) to add a tool.

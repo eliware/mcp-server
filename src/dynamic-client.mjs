@@ -1,4 +1,4 @@
-import { registerOAuthClient } from "./oauth-registration.mjs";
+import { registerOAuthClient } from "./oauth/registration.mjs";
 
 export async function resolveDynamicOAuthClient({ client, provider, store }) {
   const endpoint = provider.registration_endpoint;

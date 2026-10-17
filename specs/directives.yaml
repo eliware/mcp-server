@@ -5,7 +5,7 @@ directives:
     dos:
       - Keep public runtime code and declarations under src/.
       - Support HTTP, HTTPS, and stdio transports as documented.
-      - Protect access with the selected authentication mode.
+      - Require the selected authentication mode for access.
       - Pass configured context values to each registered tool.
     donts:
       - Do not expose credentials in responses or logs.
@@ -19,7 +19,7 @@ directives:
           - Do not load files with other extensions as tools.
       - id: E-210.0.1
         dos:
-          - Keep package contents limited to required runtime, docs, examples, and specs.
-          - Validate package contents before release review.
+          - Include only required runtime files, docs, examples, and specs in the package.
+          - Check package contents before release.
         donts:
           - Do not include credentials, certificates, or test output in the package.

@@ -3,7 +3,7 @@
 ## The client cannot connect
 
 Check that the server process is running and that the client uses the same transport.
-For HTTP, check the port and route. The default route is `/mcp`.
+For HTTP, check the network number and route. The default route is `/mcp`.
 For stdio, set `stdio: true` and start the server as a local process.
 Do not write application logs to stdout in stdio mode.
 

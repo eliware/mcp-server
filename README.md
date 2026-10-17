@@ -23,12 +23,12 @@ Pure-ESM Node.js MCP server with automatic tool discovery, Streamable HTTP and s
 
 ## Features
 
-- Serve MCP over Streamable HTTP or stdio.
-- Discover tool files that end in `.mjs`.
+- Run MCP with Streamable HTTP or stdio.
+- Load tool files that end in `.mjs`.
 - Define tool inputs with Zod.
 - Use no auth, static bearer tokens, bearer passthrough, or OAuth2 introspection.
 - Pass application values to each tool through `context`.
-- Serve HTTP, HTTPS, or both.
+- Start an HTTP server, an HTTPS server, or both.
 - Add the MCP route to an Express app.
 - Return JSON-safe values with `buildResponse()`.
 
@@ -101,7 +101,7 @@ Run `npm test` for lint, format, audit, package, type, convention, and Jest chec
 Send HTTP requests to `/mcp` unless you set `endpointPath`.
 Set `stdio: true` for a local process client. Send logs to stderr in stdio mode.
 Close the returned HTTP and HTTPS server instances during shutdown.
-Read the [troubleshooting guide](docs/troubleshooting.md) for common setup faults.
+Read the [troubleshooting guide](docs/troubleshooting.md) for frequent setup faults.
 
 ## Security
 
@@ -113,11 +113,17 @@ Read the [auth guide](docs/authentication.md) before you expose an endpoint.
 ## API
 
 `mcpServer(options)` starts the server and returns its app, server instances, MCP server, and transport.
+
 Set `auth` to `none`, `static`, `bearer-passthrough`, or `oauth2`.
+
 Set `toolsDir` to select a tool directory. The default uses the entry file directory or bundled examples.
+
 Set `context` to pass values to each tool. Set `name` and `version` to set MCP metadata.
+
 Import `buildResponse` and `convertBigIntToString` from `@eliware/mcp-server/utilities`.
+
 The package exports auth, OAuth, and PKCE helpers, plus the Zod namespace.
+
 Read `src/index.d.ts` for option and result types.
 
 ## Packaging

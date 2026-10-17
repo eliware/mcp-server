@@ -1,9 +1,9 @@
 import { buildServer } from "./tools.mjs";
 import { loadPackageMeta } from "./meta.mjs";
-import { createMcpApp } from "./server-app.mjs";
-import { resolveServerOptions } from "./server-options.mjs";
-import { startListeners } from "./server-listeners.mjs";
-import { createStdioResult } from "./server-stdio.mjs";
+import { createMcpApp } from "./server/app.mjs";
+import { resolveServerOptions } from "./server/options.mjs";
+import { startListeners } from "./server/listeners.mjs";
+import { createStdioResult } from "./server/stdio.mjs";
 
 export async function mcpServer(options = {}) {
   const { config, toolsDir, activeLog } = resolveServerOptions(options);

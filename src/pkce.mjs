@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { createCodeChallenge } from "./pkce-challenge.mjs";
+import { createCodeChallenge } from "./pkce/challenge.mjs";
 
 const encode = (value) => Buffer.from(value).toString("base64url");
 

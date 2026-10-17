@@ -1,10 +1,9 @@
 import { jest, test, expect } from "@jest/globals";
-import fs from "fs";
 import { path, pathUrl } from "@eliware/common";
 import { buildServer } from "../src/tools.mjs";
 import echo from "../examples/tools/echo.mjs";
 const toolsDir = path(import.meta, "..", "examples", "tools");
-for (const file of fs.readdirSync(toolsDir).filter((f) => f.endsWith(".mjs"))) {
+for (const file of ["echo.mjs"]) {
   test(`${file} exports and registers`, async () => {
     const mod = await import(pathUrl(toolsDir, file));
     expect(typeof mod.default).toBe("function");

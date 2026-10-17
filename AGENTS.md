@@ -6,7 +6,7 @@ Build `@eliware/mcp-server` with Node.js 26 or later and native ESM.
 
 ## Scope and boundaries
 
-Provide a reusable MCP server package. Keep application tools and user data outside this repo.
+Provide an MCP server package for use. Keep application tools and user data outside this repository.
 Do not publish or deploy during validation.
 
 ## Layout
@@ -16,16 +16,32 @@ Keep runtime code in `src/`, tests in `tests/`, docs in `docs/`, examples in `ex
 ## Development
 
 Keep each source module at 100 lines or less. Keep each test module at 200 lines or less.
-Mirror each source module with one test module.
+Keep one test module for each source module.
 
 ## Validation
 
-Run `npm test` for aggregate validation.
+Run focused tests first during development.
+
+Pass one or more test paths to `npm test` for focused testing.
+
+Run one test file with `npm test -- tests/path/to/example.test.mjs`.
+
+Run multiple test files with `npm test -- tests/path/to/first.test.mjs tests/path/to/second.test.mjs`.
+
+Prevent repeated full-suite runs during development.
+
+Run the full `npm test` suite for final validation before a commit, milestone, or release.
+
 Run `npm run lint` for lint checks.
+
 Run `npm run audit` for package audit checks.
+
 Run `npm run format` to format files.
+
 Run `npm run format:check` to check file format.
+
 Run `npm run typecheck` to check declarations.
+
 Run `npm run pack` to check package contents.
 
 ## Security
@@ -40,9 +56,23 @@ Keep docs and examples current. Follow shared repo conventions.
 ## Library
 
 Keep public runtime code and declarations under `src/`. Export supported APIs only.
+
+Run focused tests first during development.
+
+Pass one or more test paths to `npm test` for focused testing.
+
+Run one test file with `npm test -- tests/path/to/example.test.mjs`.
+
+Run multiple test files with `npm test -- tests/path/to/first.test.mjs tests/path/to/second.test.mjs`.
+
+Prevent repeated full-suite runs during development.
+
+Run the full `npm test` suite for final validation before a commit, milestone, or release.
+
 Keep one test module for each source module.
 
 ## npm publication
 
 The public package is `@eliware/mcp-server`. Include required runtime files and metadata.
-Run `npm run pack` before publication review. Follow the release process.
+
+Run `npm run pack` before release checks. Follow the release process.
