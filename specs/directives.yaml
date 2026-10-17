@@ -1,25 +1,41 @@
-version: "12.0"
-description: Defines requirements for the Eliware MCP server package.
+version: "13.0"
+description: Defines shared requirements for the Eliware MCP server package.
 directives:
   - id: E-210.0
     dos:
-      - Keep public runtime code and declarations under src/.
-      - Support HTTP, HTTPS, and stdio transports as documented.
-      - Require the selected authentication mode for access.
+      - Keep the public API small and document each supported option.
+      - Use the official MCP TypeScript SDK v2 packages.
+      - Use Fastify as the only supported web framework.
+      - Support Streamable HTTP and stdio transports.
+      - Require the modern MCP protocol revision 2026-07-28.
+      - Keep each source module focused on one responsibility.
+      - Inject external services and effects when this makes modules easier to test.
       - Pass configured context values to each registered tool.
     donts:
+      - Do not depend on Express or the v1 MCP SDK.
+      - Do not support the deprecated HTTP with SSE transport.
+      - Do not accept earlier MCP protocol revisions.
       - Do not expose credentials in responses or logs.
       - Do not write MCP protocol output to stdout in stdio mode.
     children:
       - id: E-210.0.0
         dos:
-          - Require each tool file to use the .mjs extension.
-          - Require each tool file to export one default registration function.
+          - Require each tool adapter to use the .mjs extension.
+          - Require each tool handler to use the .mjs extension.
+          - Require each tool handler to export one default registration function.
+          - Keep each tool adapter in tools/<name>.mjs.
+          - Keep each tool handler in src/tools/<name>.mjs.
+          - Make each adapter re-export its matching handler.
         donts:
           - Do not load files with other extensions as tools.
+          - Do not import or execute repository handlers during validation.
       - id: E-210.0.1
         dos:
-          - Include only required runtime files, docs, examples, and specs in the package.
+          - Keep public runtime code and declarations under src/.
+          - Mirror each source module with one test module.
+          - Limit each source module to 100 lines.
+          - Limit each test module to 200 lines.
+          - Include required runtime files and metadata in the npm package.
           - Check package contents before release.
         donts:
           - Do not include credentials, certificates, or test output in the package.

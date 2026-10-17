@@ -1,6 +1,6 @@
 # Authentication
 
-The server checks authentication on POST requests to the MCP route.
+The server checks authentication on requests to the MCP route.
 The default mode is `none`. Select a mode before you expose a network endpoint.
 
 ## No authentication
@@ -36,7 +36,7 @@ Set `scopes` to require scopes. Set `subjectClaim` to select a subject claim. Th
 import { mcpServer, createOAuthIntrospector } from "@eliware/mcp-server";
 
 await mcpServer({
-  httpPort: 1234,
+  port: 1234,
   auth: {
     mode: "oauth2",
     issuer: process.env.OAUTH_ISSUER,

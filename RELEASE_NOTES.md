@@ -9,7 +9,17 @@
 - Move each matching test into the same domain layout and update module imports.
 - Replace the publish workflow file with the canonical npm workflow.
 - Use `git pull` in the Knit deployment commands.
-- Rewrite project prose to follow ASD-STE100 language rules.
+- Use SDK v2 for server and stdio transports.
+- Use Fastify for HTTP requests and server lifecycle management.
+- Use the SDK v2 request handler for Streamable HTTP sessions.
+- Require protocol revision `2026-07-28` and reject requests without its envelope.
+- Keep static bearer checks and OAuth metadata routes in the Fastify server.
+- Call the SDK v2 `registerTool` method for tool setup.
+- Return only the active Fastify app or stdio transport from server startup.
+- Remove built-in TLS file loading.
+- Update server options, declarations, examples, and migration guidance for v13.
+- Replace Express examples and runtime paths with Fastify examples and runtime paths.
+- Rewrite project and user documentation to follow ASD-STE100 language rules.
 - Add focused test instructions and full-suite validation rules to `AGENTS.md`.
 
 ## 12.0.0 — 2026-10-13

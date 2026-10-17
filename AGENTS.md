@@ -20,29 +20,14 @@ Keep one test module for each source module.
 
 ## Validation
 
-Run focused tests first during development.
-
-Pass one or more test paths to `npm test` for focused testing.
-
+Run focused tests first during development. Pass one or more test paths to `npm test` for focused testing.
 Run one test file with `npm test -- tests/path/to/example.test.mjs`.
-
 Run multiple test files with `npm test -- tests/path/to/first.test.mjs tests/path/to/second.test.mjs`.
+Prevent repeated full-suite runs during development. Run the full `npm test` suite for final validation before a commit, milestone, or release.
 
-Prevent repeated full-suite runs during development.
-
-Run the full `npm test` suite for final validation before a commit, milestone, or release.
-
-Run `npm run lint` for lint checks.
-
-Run `npm run audit` for package audit checks.
-
-Run `npm run format` to format files.
-
-Run `npm run format:check` to check file format.
-
-Run `npm run typecheck` to check declarations.
-
-Run `npm run pack` to check package contents.
+Run `npm run lint` for lint checks. Run `npm run audit` for package audit checks.
+Run `npm run format` to format files. Run `npm run format:check` to check file format.
+Run `npm run typecheck` to check declarations. Run `npm run pack` to check package contents.
 
 ## Security
 
@@ -57,17 +42,10 @@ Keep docs and examples current. Follow shared repo conventions.
 
 Keep public runtime code and declarations under `src/`. Export supported APIs only.
 
-Run focused tests first during development.
-
-Pass one or more test paths to `npm test` for focused testing.
-
+Run focused tests first during development. Pass one or more test paths to `npm test` for focused testing.
 Run one test file with `npm test -- tests/path/to/example.test.mjs`.
-
 Run multiple test files with `npm test -- tests/path/to/first.test.mjs tests/path/to/second.test.mjs`.
-
-Prevent repeated full-suite runs during development.
-
-Run the full `npm test` suite for final validation before a commit, milestone, or release.
+Prevent repeated full-suite runs during development. Run the full `npm test` suite for final validation before a commit, milestone, or release.
 
 Keep one test module for each source module.
 
@@ -75,4 +53,4 @@ Keep one test module for each source module.
 
 The public package is `@eliware/mcp-server`. Include required runtime files and metadata.
 
-Run `npm run pack` before release checks. Follow the release process.
+Run `eliware-test --pack` before release checks. Follow the release process.

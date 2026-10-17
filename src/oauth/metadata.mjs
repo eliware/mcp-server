@@ -4,7 +4,7 @@ export function setOAuthChallenge(res, { resource, scope } = {}) {
   if (metadata !== "/.well-known/oauth-protected-resource/mcp")
     parts.push(`resource_metadata=${quoteValue(metadata)}`);
   if (scope) parts.push(`scope=${quoteValue(scope)}`);
-  res.set("WWW-Authenticate", parts.join(", "));
+  (res.header || res.set).call(res, "WWW-Authenticate", parts.join(", "));
 }
 
 function quoteValue(value) {

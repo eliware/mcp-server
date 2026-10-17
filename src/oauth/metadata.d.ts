@@ -1,6 +1,6 @@
-import type { Response } from "express";
+import type { FastifyReply } from "fastify";
 
 export function setOAuthChallenge(
-  res: Response,
+  res: FastifyReply,
   options?: { resource?: string; scope?: string },
 ): void;

@@ -1,7 +1,8 @@
 # Tools and schemas
 
-The server scans its tool directory for `.mjs` files at startup.
-Each file must export one default async function. The file name becomes the tool name.
+The server loads `.mjs` adapters from the tool directory.
+Each adapter must re-export the matching handler from `src/tools/`.
+The adapter file name becomes the tool name.
 
 ## Add a tool
 
@@ -11,17 +12,22 @@ Import `z` to define input fields. Import `buildResponse` to return JSON-safe da
 import { z } from "@eliware/mcp-server";
 import { buildResponse } from "@eliware/mcp-server/utilities";
 
-export default async function registerEcho({ mcpServer, toolName, log, service }) {
-  mcpServer.tool(
+export default async function addEcho({ mcpServer, toolName, log, service }) {
+  mcpServer.registerTool(
     toolName,
-    "Return the input text.",
-    { text: z.string().min(1) },
+    { description: "Return the input text.", inputSchema: { text: z.string().min(1) } },
     async ({ text }) => {
       log.debug("Echo request", { toolName });
       return buildResponse(await service.echo(text));
     },
   );
 }
+```
+
+Create `tools/echo.mjs` with this export:
+
+```js
+export { default } from "../src/tools/echo.mjs";
 ```
 
 The tool function receives `mcpServer`, `toolName`, `log`, and each property from `context`.
@@ -43,7 +49,7 @@ Do not pass secrets unless the tool needs them. Do not write secret values to lo
 ## Resources and prompts
 
 This package finds tool files only. It does not find resource or prompt files.
-Add resources and prompts through the supplied MCP server in a tool function when the SDK supports them.
+Add resources and prompts with the MCP SDK where its API supports them.
 The package does not define a separate resource or prompt file format.
 
 See [examples/README.md](../examples/README.md) for the complete tool example.

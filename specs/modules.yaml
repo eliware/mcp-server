@@ -1,0 +1,17 @@
+version: "13.0"
+description: Defines requirements for module boundaries and validation.
+directives:
+  - id: E-210.4
+    dos:
+      - Keep each module focused on one responsibility.
+      - Keep coordinator modules focused on the workflow they own.
+      - Pass replaceable dependencies to modules when this makes tests easier.
+      - Mirror each src/ .mjs module with one same-path tests/ .test.mjs module.
+      - Test each public contract and workflow result stated in documentation.
+      - Keep integration tests with the coordinator that owns the workflow.
+      - Use focused tests during development and run eliware-test for final validation.
+      - Keep source modules at 100 lines or fewer and test modules at 200 lines or fewer.
+    donts:
+      - Do not split a coordinator only because it calls helper modules.
+      - Do not combine unrelated business logic in one module.
+      - Do not use network services or wall-clock waits in tests.

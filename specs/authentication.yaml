@@ -1,0 +1,15 @@
+version: "13.0"
+description: Defines requirements for server authentication and authorization.
+directives:
+  - id: E-210.2
+    dos:
+      - Support servers without MCP authentication.
+      - Support static bearer tokens for basic protected servers.
+      - Keep OAuth and custom authorization in optional focused modules.
+      - Apply authentication before the MCP endpoint processes each request.
+      - Keep authorization rules separate from MCP protocol rules.
+      - Pass validated authentication data to each tool context.
+      - Return authentication errors without exposing tokens or private claims.
+    donts:
+      - Do not require consumers to set up OAuth in the basic path.
+      - Do not write credentials, access tokens, or private claims to logs.

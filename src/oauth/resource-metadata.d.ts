@@ -1,6 +1,6 @@
-import type { Application } from "express";
+import type { FastifyInstance } from "fastify";
 
 export function mountOAuthResourceMetadata(
-  app: Application,
+  app: FastifyInstance,
   options?: { resource?: string; issuer?: string; scopes?: string[] },
 ): void;

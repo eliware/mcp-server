@@ -1,0 +1,14 @@
+version: "13.0"
+description: Defines requirements for the public server API.
+directives:
+  - id: E-210.1
+    dos:
+      - Provide one default setup for a new Fastify Streamable HTTP server.
+      - Allow consumers to select stdio without configuring an HTTP listener.
+      - Inject application services into each tool handler through server context.
+      - Allow advanced consumers to configure Fastify through a documented callback.
+      - Return the Fastify instance and a shutdown method.
+      - Document public options, defaults, results, and errors in API documentation.
+    donts:
+      - Do not expose internal SDK or adapter modules as supported consumer APIs.
+      - Do not make basic consumers create transports or SDK server objects.

@@ -1,0 +1,15 @@
+version: "13.0"
+description: Defines requirements for package documentation.
+directives:
+  - id: E-210.3
+    dos:
+      - Document setup, tool creation, configuration, transport, authentication, and errors.
+      - Document Fastify customization, application values, testing, deployment, and migration.
+      - Describe only behavior shown by source code, schemas, and tests.
+      - Write end-user documentation with ASD-STE100 rules.
+      - Link every Markdown document from its directory index.
+      - Keep README MCP sections for Tools, Resources, Prompts, Transport, Authentication,
+        and Schemas.
+    donts:
+      - Do not document unsupported transports, protocol guarantees, or configuration.
+      - Do not expose live credentials or private values in examples.

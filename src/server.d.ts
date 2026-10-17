@@ -1,8 +1,5 @@
-import type { Application } from "express";
-import type { Server as HttpServer } from "node:http";
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import type { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import type { FastifyInstance } from "fastify";
+import type { StdioServerHandle } from "@modelcontextprotocol/server/stdio";
 import type { AuthConfig, AuthMode } from "./auth/config.mjs";
 
 export interface McpServerOptions {
@@ -14,37 +11,21 @@ export interface McpServerOptions {
   };
   toolsDir?: string;
   entrypoint?: string;
-  httpPort?: number | string | null | false;
-  httpsPort?: number | string;
-  httpsHost?: string;
-  tls?: {
-    key?: string | Buffer;
-    cert?: string | Buffer;
-    ca?: string | Buffer;
-    keyFile?: string;
-    certFile?: string;
-    caFile?: string;
-  };
-  httpRedirect?: boolean;
+  host?: string;
+  port?: number | string | null;
   auth?: AuthMode | AuthConfig;
   name?: string;
   version?: string;
   context?: Record<string, unknown>;
-  stateless?: boolean;
   stdio?: boolean;
   endpointPath?: string;
-  enableJsonResponse?: boolean;
+  allowedHosts?: string[];
   allowedOrigins?: string[];
-  app?: Application;
-  configureApp?: (app: Application) => void | Promise<void>;
+  fastify?: FastifyInstance;
+  configureFastify?: (app: FastifyInstance) => void | Promise<void>;
 }
 
-export interface McpServerResult {
-  app: Application | undefined;
-  httpInstance?: HttpServer;
-  httpsInstance?: HttpServer;
-  mcpServer: McpServer | undefined;
-  transport: StreamableHTTPServerTransport | StdioServerTransport | undefined;
-}
+export type McpServerResult =
+  { app: FastifyInstance; transport?: never } | { app?: never; transport: StdioServerHandle };
 
 export function mcpServer(options?: McpServerOptions): Promise<McpServerResult>;

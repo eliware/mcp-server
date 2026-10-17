@@ -6,18 +6,18 @@ test("mounts both metadata routes with configured and default scopes", () => {
   const app = { get: jest.fn((path, handler) => routes.push({ path, handler })) };
   mountOAuthResourceMetadata(app, { resource: "resource", issuer: "issuer", scopes: ["read"] });
   mountOAuthResourceMetadata(app, { resource: "r", issuer: "i" });
-  const rootResponse = { json: jest.fn() };
+  const rootResponse = { send: jest.fn() };
   routes[0].handler({}, rootResponse);
   expect(routes[0].path).toBe("/.well-known/oauth-protected-resource");
-  expect(rootResponse.json).toHaveBeenCalledWith({
+  expect(rootResponse.send).toHaveBeenCalledWith({
     resource: "resource",
     authorization_servers: ["issuer"],
     scopes_supported: ["read"],
   });
-  const mcpResponse = { json: jest.fn() };
+  const mcpResponse = { send: jest.fn() };
   routes[3].handler({}, mcpResponse);
   expect(routes[3].path).toBe("/.well-known/oauth-protected-resource/mcp");
-  expect(mcpResponse.json).toHaveBeenCalledWith({
+  expect(mcpResponse.send).toHaveBeenCalledWith({
     resource: "r",
     authorization_servers: ["i"],
     scopes_supported: [],

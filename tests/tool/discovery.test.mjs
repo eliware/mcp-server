@@ -19,7 +19,7 @@ test("discovers only mjs tools and refreshes the directory list", () => {
   expect(readDir).toHaveBeenCalledTimes(2);
 });
 
-test("discovers tools added between stateless builds", () => {
+test("discovers tools added between server builds", () => {
   const readDir = jest.fn().mockReturnValueOnce(["hello.mjs"]).mockReturnValueOnce(["new.mjs"]);
   const options = { toolsDir: "/tmp", readDir, toolCache: new Map() };
   expect(discoverTools(options).tools).toEqual([{ file: "hello.mjs", toolName: "hello" }]);

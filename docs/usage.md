@@ -10,13 +10,13 @@ npm install @eliware/mcp-server
 
 ## Start an HTTP server
 
-Create an `.mjs` entry file. Set a network number, a token, and a tool directory:
+Create an `.mjs` entry file. Set a listener number and a token for protected HTTP access:
 
 ```js
 import { mcpServer } from "@eliware/mcp-server";
 
 await mcpServer({
-  httpPort: 1234,
+  port: 1234,
   auth: { mode: "static", token: process.env.MCP_TOKEN },
 });
 ```
@@ -34,26 +34,22 @@ import { mcpServer } from "@eliware/mcp-server";
 await mcpServer({ stdio: true });
 ```
 
-The process connects to the MCP client through stdin and stdout.
+The process connects to the MCP client through stdin and stdout. It does not require an HTTP token.
 Send application logs to stderr. Do not write other data to stdout.
 
 ## Stop a server
 
-The HTTP server result contains `httpInstance` and may contain `httpsInstance`.
-Close each active server instance when the host process stops:
+The HTTP result contains a Fastify app. Close the app when the host process stops:
 
 ```js
-const result = await mcpServer({ httpPort: 1234, httpsPort: 443 });
-const closeServers = () => {
-  result.httpInstance?.close();
-  result.httpsInstance?.close();
-};
+const { app } = await mcpServer({ port: 1234 });
+const closeServer = () => app.close();
 
-process.once("SIGTERM", closeServers);
-process.once("SIGINT", closeServers);
+process.once("SIGTERM", closeServer);
+process.once("SIGINT", closeServer);
 ```
 
-The stdio result contains a transport. Close it when the client session ends.
+The stdio result contains a transport. Call `transport.close()` when the client session ends.
 
 ## Select an example
 

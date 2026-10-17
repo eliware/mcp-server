@@ -1,26 +1,21 @@
 # Configuration
 
-Pass one options object to `mcpServer(options)`. The server returns its Express app, active server instances, MCP server, and transport.
+Pass one options object to `mcpServer(options)`. The function returns a Fastify app or a stdio result.
 Read `src/index.d.ts` for TypeScript types.
 
 ## Network options
 
-| Option           | Use                                                                 | Default                                                   |
-| ---------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
-| `httpPort`       | Set the HTTP network number. Set `null` or `false` to disable HTTP. | The operating system selects an available network number. |
-| `httpsPort`      | Set the HTTPS network number.                                       | Disabled.                                                 |
-| `httpsHost`      | Set the public host for HTTPS redirects.                            | No value.                                                 |
-| `httpRedirect`   | Redirect HTTP requests to HTTPS.                                    | `false`                                                   |
-| `endpointPath`   | Set the MCP route.                                                  | `/mcp`                                                    |
-| `allowedOrigins` | Set allowed CORS origins.                                           | `[]`                                                      |
-| `app`            | Supply an Express app.                                              | A new app.                                                |
-| `configureApp`   | Add middleware before the MCP route.                                | No callback.                                              |
+| Option             | Use                                                                          | Default                |
+| ------------------ | ---------------------------------------------------------------------------- | ---------------------- |
+| `host`             | Set the network interface.                                                   | `127.0.0.1`            |
+| `port`             | Set the TCP listener number. Set `null` to create the app without listening. | `3000`                 |
+| `endpointPath`     | Set the MCP route.                                                           | `/mcp`                 |
+| `allowedHosts`     | Set host names for DNS rebinding checks.                                     | Localhost rules.       |
+| `allowedOrigins`   | Set browser source names for request checks.                                 | Localhost rules.       |
+| `fastify`          | Supply a Fastify app.                                                        | A new MCP Fastify app. |
+| `configureFastify` | Add routes, hooks, or plugins before MCP setup.                              | No callback.           |
 
-HTTPS needs a key and a certificate. Set `tls.key` and `tls.cert` to values or file paths.
-Set `httpsHost` and `httpsPort` when you enable `httpRedirect`.
-Set `httpsPort` to an integer from 1 through 65535 when you enable `httpRedirect`.
-Set `tls.ca` or `tls.caFile` when the server needs a certificate authority file.
-You can set `TLS_KEY_FILE`, `TLS_CERT_FILE`, and `TLS_CA_FILE` as environment variables.
+Pass a Fastify app with HTTPS options when TLS is necessary. Add the MCP Fastify adapter's host checks to a custom app when required.
 
 ## Tool options
 
@@ -32,18 +27,16 @@ You can set `TLS_KEY_FILE`, `TLS_CERT_FILE`, and `TLS_CA_FILE` as environment va
 | `name`       | Set MCP server metadata.                 | Package name.                   |
 | `version`    | Set MCP server metadata.                 | Package version.                |
 
-The server uses bundled example tools if it cannot find an entry file.
-Each tool file must end in `.mjs` and export a default async registration function.
+When no entry file is available, the server uses its bundled example tool directory.
+Each adapter must end in `.mjs` and re-export its matching handler from `src/tools/`.
 
 ## Transport options
 
-| Option               | Use                            | Default |
-| -------------------- | ------------------------------ | ------- |
-| `stdio`              | Use the local stdio transport. | `false` |
-| `stateless`          | Use stateless Streamable HTTP. | `true`  |
-| `enableJsonResponse` | Enable JSON responses.         | `true`  |
+| Option  | Use                            | Default |
+| ------- | ------------------------------ | ------- |
+| `stdio` | Use the local stdio transport. | `false` |
 
-The `stdio` option starts the stdio transport and does not start HTTP or HTTPS listeners.
+The `stdio` option starts stdio and does not start a Fastify listener.
 See [transport and protocol behavior](requirements.md) for boundaries.
 
 ## Logging

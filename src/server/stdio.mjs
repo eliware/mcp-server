@@ -1,10 +1,6 @@
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { serveStdio } from "@modelcontextprotocol/server/stdio";
 
-export async function createStdioResult(
-  initialServer,
-  createTransport = () => new StdioServerTransport(),
-) {
-  const transport = createTransport();
-  await initialServer.connect(transport);
-  return { app: undefined, httpInstance: undefined, mcpServer: initialServer, transport };
+export function createStdioResult(serverFactory, startStdio = serveStdio) {
+  const transport = startStdio(serverFactory);
+  return { transport };
 }

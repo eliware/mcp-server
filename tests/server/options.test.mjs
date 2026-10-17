@@ -7,7 +7,7 @@ test("server options resolve an entrypoint and listener values", () => {
     stdio: true,
   });
   expect(result.toolsDir).toContain("examples");
-  expect(result.config.httpPort).toBeUndefined();
+  expect(result.config.port).toBe(3000);
   expect(result.activeLog).toBeTruthy();
 });
 
@@ -20,7 +20,7 @@ test("server options accept a custom tool folder and logger", () => {
 
 test("server options apply defaults", () => {
   const result = resolveServerOptions();
-  expect(result.config.stateless).toBe(true);
+  expect(result.config.port).toBe(3000);
   expect(result.config.endpointPath).toBe("/mcp");
 });
 

@@ -1,0 +1,15 @@
+version: "13.0"
+description: Defines requirements for MCP transports and protocol behavior.
+directives:
+  - id: E-210.6
+    dos:
+      - Use the official MCP TypeScript SDK v2 for Streamable HTTP and stdio.
+      - Use Fastify for Streamable HTTP.
+      - Support modern MCP protocol revision 2026-07-28.
+      - Reject MCP requests without the protocol revision 2026-07-28 envelope.
+      - Keep stdio startup separate from Fastify startup.
+      - Test that the server rejects requests without the modern protocol envelope.
+      - Keep protocol output on stdout and diagnostics on stderr in stdio mode.
+    donts:
+      - Do not support HTTP with SSE.
+      - Do not use the v1 MCP SDK or Express adapters.

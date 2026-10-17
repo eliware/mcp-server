@@ -8,7 +8,7 @@ import { mcpServer } from "@eliware/mcp-server";
 
 await mcpServer({
   stdio: process.argv.includes("--stdio"),
-  httpPort: process.env.MCP_HTTP_PORT ? Number(process.env.MCP_HTTP_PORT) : 1234,
+  port: process.env.PORT ? Number(process.env.PORT) : 1234,
   auth: { mode: "static", token: process.env.MCP_TOKEN },
 
   // Every value here is available to each tool as an injected property.

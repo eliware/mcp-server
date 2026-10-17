@@ -3,7 +3,7 @@
 ## The client cannot connect
 
 Check that the server process is running and that the client uses the same transport.
-For HTTP, check the network number and route. The default route is `/mcp`.
+For HTTP, check the host, network number, and route. The default route is `/mcp`.
 For stdio, set `stdio: true` and start the server as a local process.
 Do not write application logs to stdout in stdio mode.
 
@@ -19,14 +19,14 @@ Read [tools and schemas](tools.md) for a tool example.
 Check the `Authorization` header and the selected auth mode.
 Static mode needs the configured token. Passthrough mode needs a bearer token.
 OAuth2 mode needs a valid active token with the configured issuer, resource, and scopes.
+Check that the client uses protocol revision `2026-07-28` and sends the required request envelope.
 Read [authentication](authentication.md) for mode details.
 
-## HTTPS does not start
+## Fastify does not start
 
-Set `httpsPort`, `tls.key`, and `tls.cert`.
-You can use `TLS_KEY_FILE` and `TLS_CERT_FILE` to set file paths.
-Check that the process can read each file.
+Check that the network number is available. Check that the process can use the selected host.
+Set `port: null` to create the app without starting a listener.
 
 ## Validate a local change
 
-Install dependencies with `npm ci`. Run `npm test`.
+Install dependencies with `npm ci`. Run `eliware-test`.

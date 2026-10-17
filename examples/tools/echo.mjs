@@ -28,23 +28,27 @@ export default async function registerEchoTool({ mcpServer, toolName, log, db })
     echoText: z.string().min(1).describe("Text to echo back"),
   };
 
-  mcpServer.tool(toolName, "Echo text back to the caller.", inputSchema, async ({ echoText }) => {
-    log.debug(`${toolName} request`, { echoText });
+  mcpServer.registerTool(
+    toolName,
+    { description: "Echo text back to the caller.", inputSchema },
+    async ({ echoText }) => {
+      log.debug(`${toolName} request`, { echoText });
 
-    // Custom context is injected by the entrypoint and available here.
-    // Example: await db.query('SELECT 1') when a database is configured.
-    void db;
+      // Custom context is injected by the entrypoint and available here.
+      // Example: await db.query('SELECT 1') when a database is configured.
+      void db;
 
-    /*
-     * buildResponse converts safe values (including BigInt) into the MCP
-     * result shape: { content: [{ type: 'text', text: '...' }] }.
-     */
-    const result = buildResponse({
-      message: "echo-reply",
-      data: { text: echoText },
-    });
+      /*
+       * buildResponse converts safe values (including BigInt) into the MCP
+       * result shape: { content: [{ type: 'text', text: '...' }] }.
+       */
+      const result = buildResponse({
+        message: "echo-reply",
+        data: { text: echoText },
+      });
 
-    log.debug(`${toolName} response`, { result });
-    return result;
-  });
+      log.debug(`${toolName} response`, { result });
+      return result;
+    },
+  );
 }

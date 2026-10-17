@@ -16,5 +16,5 @@ await mcpServer({
     }),
   },
   toolsDir: new URL("../tools/", import.meta.url).pathname,
-  httpPort: 1234,
+  port: 1234,
 });

@@ -9,4 +9,3 @@ export { hasScope, requireScope } from "./auth/scope.mjs";
 export { createOAuthIntrospector } from "./auth/introspection.mjs";
 export { createOAuthClient } from "./oauth/client.mjs";
 export { z } from "zod";
-export type { NextFunction } from "express";
