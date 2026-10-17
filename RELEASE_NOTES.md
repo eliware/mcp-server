@@ -2,25 +2,37 @@
 
 ## 13.0.0 — 2026-10-17
 
+### Added
+
+- Allow callers to configure TLS on a supplied Fastify app.
+- Add Fastify and stdio examples for the SDK v2 server setup.
+- Add a v13 migration guide and specifications for API, authentication, documentation, modules, tool setup, and transports.
+
 ### Changed
 
-- Set the package version to 13.0.0 and sync the npm lock file.
-- Move auth, client, OAuth, PKCE, redirect, server, and tool modules into domain directories.
-- Move each matching test into the same domain layout and update module imports.
-- Replace the publish workflow file with the canonical npm workflow.
-- Use `git pull` in the Knit deployment commands.
-- Use SDK v2 for server and stdio transports.
+- Upgrade the package and lock file to version 13.0.0 and the official MCP TypeScript SDK v2 packages.
 - Use Fastify for HTTP requests and server lifecycle management.
-- Use the SDK v2 request handler for Streamable HTTP sessions.
-- Require protocol revision `2026-07-28` and reject requests without its envelope.
-- Keep static bearer checks and OAuth metadata routes in the Fastify server.
-- Call the SDK v2 `registerTool` method for tool setup.
-- Return only the active Fastify app or stdio transport from server startup.
-- Remove built-in TLS file loading.
-- Update server options, declarations, examples, and migration guidance for v13.
-- Replace Express examples and runtime paths with Fastify examples and runtime paths.
-- Rewrite project and user documentation to follow ASD-STE100 language rules.
-- Add focused test instructions and full-suite validation rules to `AGENTS.md`.
+- Use the SDK v2 request handler to create Streamable HTTP sessions.
+- Require protocol revision `2026-07-28` and reject earlier revisions or requests without its envelope.
+- Use SDK v2 `registerTool()` for tool setup.
+- Keep static bearer checks and OAuth resource metadata routes in Fastify.
+- Use a stateless request handler that builds an MCP server for each HTTP request.
+- Return an object with the active Fastify app or stdio transport from server startup.
+- Rename `httpPort` to `port`, replace Express options with Fastify options, and update declarations.
+- Move authentication, client, OAuth, PKCE, server, and tool modules into domain directories with matching tests.
+- Update examples, API guidance, configuration guidance, and tool instructions for v13.
+- Rewrite repository and user documentation to follow ASD-STE100 language rules.
+- Align CI with the shared test workflow and fetch full Git history for tag checks.
+- Replace the publish workflow with the canonical npm workflow.
+- Update Knit deployment commands to pull the current repository changes.
+
+### Breaking changes
+
+- Remove Express support and Express examples.
+- Remove the SDK v1 dependency and compatibility paths.
+- Remove built-in TLS file loading and HTTP-to-HTTPS redirect support. Configure TLS on a supplied Fastify app.
+- Remove stateful transport options and JSON response configuration.
+- Remove the returned MCP server, listener, and transport details that are not active for the selected mode.
 
 ## 12.0.0 — 2026-10-13
 
