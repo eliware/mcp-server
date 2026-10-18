@@ -15,7 +15,8 @@ Read `src/index.d.ts` for TypeScript types.
 | `fastify`          | Supply a Fastify app.                                                        | A new MCP Fastify app. |
 | `configureFastify` | Add routes, hooks, or plugins before MCP setup.                              | No callback.           |
 
-Pass a Fastify app with HTTPS options when TLS is necessary. Add the MCP Fastify adapter's host checks to a custom app when required.
+Pass a Fastify app with HTTPS options when TLS is necessary. The package adds configured host and browser source checks to a supplied app.
+When you supply an app without these options, configure host and browser source checks before remote access.
 
 ## Tool options
 

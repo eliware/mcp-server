@@ -49,7 +49,8 @@ Do not pass secrets unless the tool needs them. Do not write secret values to lo
 ## Resources and prompts
 
 This package finds tool files only. It does not find resource or prompt files.
-Add resources and prompts with the MCP SDK where its API supports them.
+Each adapter receives the SDK server as `mcpServer`. Add resources and prompts to that server inside the adapter.
+The server advertises tools, resources, and prompts as supported capabilities.
 The package does not define a separate resource or prompt file format.
 
 See [examples/README.md](../examples/README.md) for the complete tool example.

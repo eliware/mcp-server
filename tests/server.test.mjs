@@ -1,9 +1,10 @@
-import { test, expect } from "@jest/globals";
+import { jest, test, expect } from "@jest/globals";
+import { createMcpFastifyApp } from "@modelcontextprotocol/fastify";
 import {
   CLIENT_CAPABILITIES_META_KEY,
   PROTOCOL_VERSION_META_KEY,
 } from "@modelcontextprotocol/server";
-import { createMcpFastifyApp } from "@modelcontextprotocol/fastify";
+import Fastify from "fastify";
 import { mcpServer } from "../src/server.mjs";
 
 const toolsDir = new URL("../examples/tools/", import.meta.url).pathname;
@@ -87,6 +88,69 @@ test("uses a supplied Fastify instance and configures application routes", async
   const health = await fastify.inject({ method: "GET", url: "/health" });
   expect(health.statusCode).toBe(200);
   await fastify.close();
+});
+
+test("applies configured host and origin rules to a supplied Fastify instance", async () => {
+  const fastify = Fastify();
+  await mcpServer({
+    fastify,
+    port: null,
+    allowedHosts: ["mcp.example"],
+    allowedOrigins: ["client.example"],
+  });
+  const blockedHost = await fastify.inject({
+    method: "GET",
+    url: "/unknown",
+    headers: { host: "other.example", origin: "https://client.example" },
+  });
+  const blockedOrigin = await fastify.inject({
+    method: "GET",
+    url: "/unknown",
+    headers: { host: "mcp.example", origin: "https://other.example" },
+  });
+  const allowedHeaders = await fastify.inject({
+    method: "GET",
+    url: "/unknown",
+    headers: { host: "mcp.example", origin: "https://client.example" },
+  });
+
+  expect(blockedHost.statusCode).toBe(403);
+  expect(blockedOrigin.statusCode).toBe(403);
+  expect(allowedHeaders.statusCode).toBe(404);
+  await fastify.close();
+});
+
+test("rejects HTTP requests with missing or mismatched modern headers", async () => {
+  const log = { debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn() };
+  const result = await mcpServer({ port: null, log, toolsDir });
+  const headers = {
+    accept: "application/json, text/event-stream",
+    "content-type": "application/json",
+    "MCP-Protocol-Version": "2026-07-28",
+    "Mcp-Method": "tools/call",
+    "Mcp-Name": "echo",
+  };
+  const payload = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "tools/call",
+    params: {
+      name: "echo",
+      arguments: { echoText: "hello" },
+      _meta: { [PROTOCOL_VERSION_META_KEY]: "2026-07-28" },
+    },
+  };
+  const invalid = { ...headers, "Mcp-Method": "tools/list" };
+  log.debug.mockClear();
+  const response = await result.app.inject({
+    method: "POST",
+    url: "/mcp",
+    headers: invalid,
+    payload,
+  });
+  expect(response.statusCode).toBeGreaterThanOrEqual(400);
+  expect(log.debug).not.toHaveBeenCalled();
+  await result.app.close();
 });
 
 test("serves OAuth protected-resource metadata", async () => {

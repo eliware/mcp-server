@@ -8,7 +8,7 @@ export function createMcpHandler({ buildServer, serverOptions, onerror }) {
         ...serverOptions,
         context: {
           ...serverOptions.context,
-          mcpAuth: context.http?.authInfo?.extra?.mcpAuth,
+          mcpAuth: context.authInfo?.extra?.mcpAuth,
         },
       }),
     {

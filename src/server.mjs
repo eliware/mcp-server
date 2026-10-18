@@ -1,4 +1,8 @@
-import { createMcpFastifyApp } from "@modelcontextprotocol/fastify";
+import {
+  createMcpFastifyApp,
+  hostHeaderValidation,
+  originValidation,
+} from "@modelcontextprotocol/fastify";
 import { buildServer } from "./tools.mjs";
 import { loadPackageMeta } from "./meta.mjs";
 import { resolveServerOptions } from "./server/options.mjs";
@@ -23,6 +27,12 @@ export async function mcpServer(options = {}) {
       allowedHosts: config.allowedHosts,
       allowedOrigins: config.allowedOrigins,
     });
+  if (config.fastify && config.allowedHosts) {
+    app.addHook("onRequest", hostHeaderValidation(config.allowedHosts));
+  }
+  if (config.fastify && config.allowedOrigins) {
+    app.addHook("onRequest", originValidation(config.allowedOrigins));
+  }
   if (config.configureFastify) await config.configureFastify(app);
   const auth = resolveRuntimeAuth(config.auth);
   if (auth?.mode === "oauth2") mountOAuthResourceMetadata(app, auth);

@@ -12,7 +12,10 @@ export async function buildServer({
   loadModule,
   toolCache = new Map(),
 }) {
-  const server = new McpServer({ name, version }, { capabilities: { tools: {}, resources: {} } });
+  const server = new McpServer(
+    { name, version },
+    { capabilities: { tools: {}, resources: {}, prompts: {} } },
+  );
   server.options = { name, version };
   server.context = context;
   const { resolvedToolsDir, tools } = discoverTools({ toolsDir, readDir, toolCache });

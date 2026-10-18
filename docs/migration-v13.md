@@ -3,7 +3,8 @@
 Version 13 replaces the MCP SDK v1 and Express setup with the official MCP TypeScript SDK v2 and Fastify.
 Update the server entry point, each tool handler, and custom HTTP integrations.
 Use an MCP client that supports protocol revision `2026-07-28`.
-The server rejects earlier revisions and requests without the `2026-07-28` envelope.
+The SDK rejects earlier revisions and requests without the required `2026-07-28` metadata and HTTP headers.
+The stdio transport rejects legacy `initialize` requests. Each HTTP request creates a new server instance.
 
 ## Update the server options
 
@@ -39,6 +40,7 @@ Keep each handler in `src/tools/`. Add the matching re-export adapter in `tools/
 ## Update transports and results
 
 Keep Streamable HTTP or stdio. Version 13 does not support HTTP with SSE.
+Send `MCP-Protocol-Version`, `Mcp-Method`, and `Mcp-Name` headers that match each HTTP request.
 Close the returned Fastify app with `app.close()`. Close the stdio result with `transport.close()`.
 The HTTP result does not expose an MCP SDK server or a transport instance because the SDK creates one server for each request.
 

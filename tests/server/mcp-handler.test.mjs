@@ -81,6 +81,57 @@ test("reports a factory failure through the configured logger", async () => {
   await handler.close();
 });
 
+test("passes verified OAuth identity through registration context and SDK auth info", async () => {
+  const auth = {
+    subject: "user-1",
+    scopes: ["example:read"],
+  };
+  const buildServer = jest.fn(({ context }) => {
+    const server = new McpServer({ name: "test-server", version: "1.0.0" });
+    server.registerTool(
+      "identity",
+      { description: "Return caller identity.", inputSchema: {} },
+      async () => ({
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({
+              subject: context.mcpAuth?.subject,
+              scopes: context.mcpAuth?.scopes,
+            }),
+          },
+        ],
+      }),
+    );
+    return server;
+  });
+  const handler = createMcpHandler({ buildServer, serverOptions: { context: {} } });
+  const message = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "tools/call",
+    params: {
+      name: "identity",
+      arguments: {},
+      _meta: {
+        [PROTOCOL_VERSION_META_KEY]: "2026-07-28",
+        [CLIENT_CAPABILITIES_META_KEY]: {},
+      },
+    },
+  };
+  const response = await handler.fetch(request(message), {
+    authInfo: { token: "verified", clientId: "", scopes: auth.scopes, extra: { mcpAuth: auth } },
+  });
+
+  expect(response.status).toBe(200);
+  expect(JSON.parse((await response.json()).result.content[0].text)).toEqual({
+    subject: "user-1",
+    scopes: ["example:read"],
+  });
+  expect(buildServer).toHaveBeenCalledWith({ context: { mcpAuth: auth } });
+  await handler.close();
+});
+
 function request(message) {
   const modern = message.params?._meta?.[PROTOCOL_VERSION_META_KEY];
   return new Request("http://localhost/mcp", {
@@ -90,6 +141,7 @@ function request(message) {
       "content-type": "application/json",
       ...(modern ? { "MCP-Protocol-Version": modern } : {}),
       ...(modern ? { "Mcp-Method": message.method } : {}),
+      ...(message.params?.name ? { "Mcp-Name": message.params.name } : {}),
     },
     body: JSON.stringify(message),
   });

@@ -7,6 +7,9 @@ directives:
       - Use Fastify for Streamable HTTP.
       - Support modern MCP protocol revision 2026-07-28.
       - Reject MCP requests without the protocol revision 2026-07-28 envelope.
+      - Reject legacy initialize requests with stdio.
+      - Require matching modern MCP headers for Streamable HTTP requests.
+      - Create a server instance for each HTTP request.
       - Keep stdio startup separate from Fastify startup.
       - Test that the server rejects requests without the modern protocol envelope.
       - Keep protocol output on stdout and diagnostics on stderr in stdio mode.
