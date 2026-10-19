@@ -1,5 +1,5 @@
 import fs from "fs";
-import { path } from "@eliware/common";
+import { path } from "@eliware/path";
 import packageMeta from "../package.json" with { type: "json" };
 
 export function loadPackageMeta({

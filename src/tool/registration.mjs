@@ -1,4 +1,4 @@
-import { pathUrl } from "@eliware/common";
+import { pathUrl } from "@eliware/path";
 
 export async function registerTools({
   server,

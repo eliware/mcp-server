@@ -1,5 +1,5 @@
 import { jest, test, expect } from "@jest/globals";
-import { path } from "@eliware/common";
+import { path } from "@eliware/path";
 import { discoverTools, normalizeToolsDir } from "../../src/tool/discovery.mjs";
 
 test("normalizes Windows tool folders", () => {

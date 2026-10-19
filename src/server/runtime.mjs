@@ -1,5 +1,5 @@
 import { dirname, resolve } from "node:path";
-import { path } from "@eliware/common";
+import { path } from "@eliware/path";
 import { stderrLogger } from "../logger.mjs";
 import { normalizeToolsDir } from "../tool/discovery.mjs";
 

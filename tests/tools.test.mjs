@@ -1,5 +1,5 @@
 import { jest, test, expect } from "@jest/globals";
-import { path, pathUrl } from "@eliware/common";
+import { path, pathUrl } from "@eliware/path";
 import { buildServer } from "../src/tools.mjs";
 import echo from "../examples/tools/echo.mjs";
 const toolsDir = path(import.meta, "..", "examples", "tools");

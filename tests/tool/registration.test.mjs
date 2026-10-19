@@ -1,5 +1,5 @@
 import { jest, test, expect } from "@jest/globals";
-import { pathUrl } from "@eliware/common";
+import { pathUrl } from "@eliware/path";
 import { registerTools } from "../../src/tool/registration.mjs";
 
 const base = {

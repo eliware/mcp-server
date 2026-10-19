@@ -19,6 +19,14 @@ test("starts a server factory with the stdio SDK", () => {
   });
 });
 
+test("uses the SDK stdio function when no function is injected", async () => {
+  const result = createStdioResult(
+    () => new McpServer({ name: "test-server", version: "1.0.0" }, { capabilities: { tools: {} } }),
+  );
+  expect(result.transport).toBeTruthy();
+  await result.transport.close();
+});
+
 test("serves a modern stdio discovery request and pins the connection", async () => {
   const input = new PassThrough();
   const output = new PassThrough();
