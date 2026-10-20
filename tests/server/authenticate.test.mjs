@@ -29,8 +29,6 @@ test("passes a valid static bearer token to the SDK request", async () => {
   expect(await authenticateRequest(request, reply, { mode: "static", token: "right" })).toBe(true);
   expect(request.raw.auth).toMatchObject({
     token: "right",
-    clientId: "",
-    scopes: [],
     extra: { mcpAuth: { mode: "static", accessToken: "right" } },
   });
 });

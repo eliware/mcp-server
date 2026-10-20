@@ -3,6 +3,7 @@ import { resolveAuthRequest } from "../auth/request.mjs";
 import { validateOAuthToken } from "../auth/token-validation.mjs";
 import { createOAuthAuthContext } from "../auth/oauth/context.mjs";
 import { setOAuthChallenge } from "../oauth/metadata.mjs";
+import { attachAuthInfo } from "./auth-context.mjs";
 
 export async function authenticateRequest(request, reply, auth) {
   const config = normalizeAuth(auth);
@@ -38,17 +39,6 @@ async function authenticateOAuth(request, reply, config) {
   const auth = createOAuthAuthContext({ config, info, accessToken, scopes: token.scopes });
   attachAuthInfo(request, auth);
   return true;
-}
-
-function attachAuthInfo(request, auth) {
-  request.raw.auth = {
-    token: auth.accessToken,
-    clientId: auth.clientId || "",
-    scopes: auth.scopes || [],
-    extra: { mcpAuth: auth },
-  };
-  request.mcpAuth = auth;
-  request.mcpBearerToken = auth.accessToken;
 }
 
 function sendOAuthError(reply, config, error) {

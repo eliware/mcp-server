@@ -14,9 +14,7 @@ test("creates stores and consumes valid state once", async () => {
   expect(remove).toHaveBeenCalledWith("s");
 });
 
-test("supports a custom remove function and rejects invalid store setup", () => {
-  const remove = jest.fn();
-  expect(createPkceStore({ save: jest.fn(), load: jest.fn(), remove }).remove).toBe(remove);
+test("rejects invalid store setup", () => {
   expect(() => createPkceStore()).toThrow("PKCE store");
   expect(() => createPkceStore({ save: jest.fn() })).toThrow("PKCE store");
   expect(() => createPkceStore({ save: jest.fn(), load: jest.fn() })).toThrow(

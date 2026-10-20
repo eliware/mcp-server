@@ -7,7 +7,7 @@ const provider = {
   registration_endpoint: "https://auth/register",
 };
 
-test("builds a client from provider data and stored credentials", async () => {
+test("builds an authorization client from provider data and stored credentials", async () => {
   const fetchFn = jest.fn().mockResolvedValue({ ok: true, json: async () => provider });
   const credentials = { client_id: "registered" };
   const store = { load: jest.fn().mockResolvedValue(credentials) };
@@ -21,7 +21,7 @@ test("builds a client from provider data and stored credentials", async () => {
   expect(client.credentials).toEqual(credentials);
   expect(client.authorizationUrl).toBeInstanceOf(Function);
   expect(client.exchangeCode).toBeInstanceOf(Function);
-  expect(store.load).toHaveBeenCalled();
+  expect(client.authorizationUrl({ state: "state" }).url).toContain("state=state");
 });
 
 test("rejects omitted client options", async () => {

@@ -48,13 +48,14 @@ Use this subpath for advanced authentication and client workflows.
 
 Import each function in this section from `@eliware/mcp-server/utilities`.
 
-| Export                             | Use                                                           |
-| ---------------------------------- | ------------------------------------------------------------- |
-| `buildResponse(value)`             | Return a value as MCP text. Convert BigInt values to strings. |
-| `convertBigIntToString(value)`     | Convert BigInt values in supported data to strings.           |
-| `stderrLogger`                     | Use the default logger that writes to stderr.                 |
-| `createListeningHandler(context)`  | Create a listener callback that writes its network number.    |
-| `listeningCallback(context, port)` | Write that a server listens on a network number.              |
+| Export                                | Use                                                           |
+| ------------------------------------- | ------------------------------------------------------------- |
+| `buildResponse(value)`                | Return a value as MCP text. Convert BigInt values to strings. |
+| `convertBigIntToString(value)`        | Convert BigInt values in supported data to strings.           |
+| `stderrLogger`                        | Use the default logger that writes to stderr.                 |
+| `createListenerErrorHandler(context)` | Create a callback that logs listener errors.                  |
+| `createListeningHandler(context)`     | Create a callback that logs when the server starts.           |
+| `listeningCallback(context, port)`    | Log that the server listens on the supplied port.             |
 
 ## Types
 
