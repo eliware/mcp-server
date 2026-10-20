@@ -10,9 +10,20 @@ Do not write application logs to stdout in stdio mode.
 ## The server finds no tools
 
 Check that each tool file is in the configured tool directory.
-Check that each file name ends in `.mjs` and has a default async export.
+Check that each file name ends in `.mjs` and has a default function export.
 Set `toolsDir` to the correct directory or set `entrypoint` to the server file.
+Keep tool modules directly in the tool directory. The server does not scan subfolders.
 Read [tools and schemas](tools.md) for a tool example.
+
+## The server reports a package metadata error
+
+Add `name` and `version` to the consumer package manifest.
+You can set both values in the `mcpServer()` options when the server cannot read the manifest.
+
+## A tool fails during registration
+
+Check the error message for the tool file name and the underlying error.
+Check that the default function imports its dependencies and registers the tool successfully.
 
 ## The server rejects a request
 
@@ -29,4 +40,4 @@ Set `port: null` to create the app without starting a listener.
 
 ## Validate a local change
 
-Install dependencies with `npm ci`. Run `eliware-test`.
+Install dependencies with `npm ci`. Run `npm test` to run the repository checks.

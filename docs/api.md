@@ -4,7 +4,7 @@ Import server and auth functions from `@eliware/mcp-server`.
 Import OAuth and PKCE functions from `@eliware/mcp-server/oauth`.
 Import low-level helpers from `@eliware/mcp-server/utilities`.
 Use [configuration](configuration.md) for server options and [authentication](authentication.md) for auth setup.
-Read `src/index.d.ts` for exact TypeScript signatures.
+The package includes TypeScript declarations for its public API.
 
 ## Server and tools
 
@@ -59,5 +59,6 @@ Import each function in this section from `@eliware/mcp-server/utilities`.
 ## Types
 
 The package exports `AuthMode`, `AuthConfig`, `McpServerOptions`, `McpServerResult`, and `ToolRegistrationContext`.
-The result type has `close()` and an optional Fastify app.
+The result type has an asynchronous `close()` method and an optional Fastify app.
 The `McpServerOptions` type lists supported network, transport, auth, context, and logger values.
+The `ToolRegistrationContext` type describes values that the server passes to a tool module.

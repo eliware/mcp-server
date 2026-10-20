@@ -1,5 +1,8 @@
 # Documentation
 
+Start with the usage guide to install and run a server.
+Then read the tool, configuration, and authentication guides.
+
 - [API reference](api.md)
 - [Authentication](authentication.md)
 - [Configuration](configuration.md)

@@ -10,19 +10,27 @@ npm install @eliware/mcp-server
 
 ## Start an HTTP server
 
-Create an `.mjs` entry file. Set a listener number and a token for protected HTTP access:
+Create an ESM entry file. Use `.mjs`, or use `.js` in a package with `"type": "module"`.
+This example starts a protected HTTP server on port `1234`:
 
 ```js
 import { mcpServer } from "@eliware/mcp-server";
 
-await mcpServer({
+const token = process.env.MCP_TOKEN;
+if (!token) throw new Error("Set MCP_TOKEN before you start the server.");
+
+const server = await mcpServer({
   port: 1234,
-  auth: { mode: "static", token: process.env.MCP_TOKEN },
+  auth: { mode: "static", token },
 });
 ```
 
-Set `MCP_TOKEN` in the process environment before startup. In PowerShell, run `$env:MCP_TOKEN = "your-secret"`. In a POSIX shell, run `export MCP_TOKEN="your-secret"`. The server accepts MCP requests at `/mcp` by default.
-Set `endpointPath` to use a different route. See [configuration](configuration.md).
+Set `MCP_TOKEN` before startup. In PowerShell, run `$env:MCP_TOKEN = "your-secret"`.
+In a POSIX shell, run `export MCP_TOKEN="your-secret"`.
+The server accepts requests at `/mcp` by default. Set `endpointPath` to change this route.
+
+Read [configuration](configuration.md) for all options.
+Add tool modules under `tools/` beside the entry file. Start the server with `node server.mjs`.
 
 ## Start a stdio server
 
@@ -34,12 +42,13 @@ import { mcpServer } from "@eliware/mcp-server";
 await mcpServer({ stdio: true });
 ```
 
-The process connects to the MCP client through stdin and stdout. It does not require an HTTP token.
-Send application logs to stderr. Do not write other data to stdout.
+The process connects to the MCP client through stdin and stdout.
+Stdio mode does not use HTTP authentication. Send logs to stderr.
+Do not write application data to stdout.
 
 ## Stop a server
 
-Call `close()` when the host process stops. The HTTP result also contains a Fastify app:
+Call `close()` when the host process stops. The HTTP result also contains a Fastify app for advanced use:
 
 ```js
 const server = await mcpServer({ port: 1234 });

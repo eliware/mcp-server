@@ -6,12 +6,9 @@
 
 import { mcpServer } from "@eliware/mcp-server";
 
-await mcpServer({
+const server = await mcpServer({
   stdio: process.argv.includes("--stdio"),
   port: process.env.PORT ? Number(process.env.PORT) : 1234,
-  auth: { mode: "static", token: process.env.MCP_TOKEN },
-
-  // Every value here is available to each tool as an injected property.
   context: {
     appName: "my-mcp-server",
     db: createDatabaseClient(),
@@ -26,3 +23,6 @@ function createDatabaseClient() {
     },
   };
 }
+
+process.once("SIGINT", () => void server.close());
+process.once("SIGTERM", () => void server.close());
