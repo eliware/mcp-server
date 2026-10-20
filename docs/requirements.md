@@ -31,10 +31,10 @@ The package applies MCP authentication only to the MCP route on a supplied Fasti
 
 ## Protocol features
 
-The package exposes tools that tool files add at startup.
+The package exposes tools that tool modules add at startup.
 The MCP server reports tools, resources, and prompts through its capabilities.
 The package does not scan for resource or prompt files.
-Add resources or prompts to the SDK server inside a tool adapter when needed.
+Add resources or prompts to the SDK server inside a tool module when needed.
 The package does not provide a client login page or an authorization server.
 
 Read [configuration](configuration.md), [authentication](authentication.md), and [tools and schemas](tools.md) for setup details.

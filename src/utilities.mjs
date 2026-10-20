@@ -2,11 +2,3 @@ export { createListeningHandler, listeningCallback } from "./server/listener/log
 export { stderrLogger } from "./logger.mjs";
 export { buildResponse } from "./response.mjs";
 export { convertBigIntToString } from "./bigint-conversion.mjs";
-export { discoverOAuthProvider } from "./oauth.mjs";
-export { registerOAuthClient } from "./oauth/registration.mjs";
-export { createClientStore } from "./client/store.mjs";
-export { setOAuthChallenge } from "./oauth/metadata.mjs";
-export { mountOAuthResourceMetadata } from "./oauth/resource-metadata.mjs";
-export { resolveOAuthClient } from "./client.mjs";
-export { createPkceState } from "./pkce.mjs";
-export { createPkceStore, consumePkceState } from "./pkce/store.mjs";

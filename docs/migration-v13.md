@@ -35,14 +35,24 @@ mcpServer.registerTool(
 );
 ```
 
-Keep each handler in `src/tools/`. Add the matching re-export adapter in `tools/`.
+Keep each tool in one module under `tools/`.
+Move the tool registration function into that module and remove its re-export adapter.
+Read injected application values through the registration function's `context` property.
 
 ## Update transports and results
 
 Keep Streamable HTTP or stdio. Version 13 does not support HTTP with SSE.
 Send `MCP-Protocol-Version`, `Mcp-Method`, and `Mcp-Name` headers that match each HTTP request.
-Close the returned Fastify app with `app.close()`. Close the stdio result with `transport.close()`.
+Call `close()` on each server result to stop its active transport.
+Use the optional `app` property for advanced HTTP configuration.
 The HTTP result does not expose an MCP SDK server or a transport instance because the SDK creates one server for each request.
+
+## Update metadata and OAuth imports
+
+The server reads its default name and version from the consumer package manifest.
+Set both values in the server options when the application has no readable manifest.
+Import OAuth and PKCE helpers from `@eliware/mcp-server/oauth`.
+Import general response and logging helpers from `@eliware/mcp-server/utilities`.
 
 ## Update custom authorization
 

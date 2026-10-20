@@ -1,6 +1,6 @@
 # Configuration
 
-Pass one options object to `mcpServer(options)`. The function returns a Fastify app or a stdio result.
+Pass one options object to `mcpServer(options)`. The result has a `close()` method for both transports.
 Read `src/index.d.ts` for TypeScript types.
 
 ## Network options
@@ -20,16 +20,18 @@ When you supply an app without these options, configure host and browser source 
 
 ## Tool options
 
-| Option       | Use                                      | Default                         |
-| ------------ | ---------------------------------------- | ------------------------------- |
-| `entrypoint` | Set the server entry file.               | The running `.mjs` entry file.  |
-| `toolsDir`   | Set the folder that contains tool files. | `tools/` beside the entry file. |
-| `context`    | Pass values to each tool.                | `{}`                            |
-| `name`       | Set MCP server metadata.                 | Package name.                   |
-| `version`    | Set MCP server metadata.                 | Package version.                |
+| Option       | Use                                      | Default                            |
+| ------------ | ---------------------------------------- | ---------------------------------- |
+| `entrypoint` | Set the server entry file.               | The running JavaScript entry file. |
+| `toolsDir`   | Set the folder that contains tool files. | `tools/` beside the entry file.    |
+| `context`    | Pass values to each tool.                | `{}`                               |
+| `name`       | Set MCP server metadata.                 | Consumer package name.             |
+| `version`    | Set MCP server metadata.                 | Consumer package version.          |
 
-When no entry file is available, the server uses its bundled example tool directory.
-Each adapter must end in `.mjs` and re-export its matching handler from `src/tools/`.
+When no entry file is available, the server uses `tools/` in the current directory.
+Each tool module must end in `.mjs` and export a default registration function.
+The server reads default metadata from the consumer package manifest.
+Set both `name` and `version` when the consumer manifest is not available.
 
 ## Transport options
 

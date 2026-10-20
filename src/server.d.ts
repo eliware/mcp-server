@@ -1,5 +1,4 @@
 import type { FastifyInstance } from "fastify";
-import type { StdioServerHandle } from "@modelcontextprotocol/server/stdio";
 import type { AuthConfig, AuthMode } from "./auth/config.mjs";
 
 export interface McpServerOptions {
@@ -25,7 +24,6 @@ export interface McpServerOptions {
   configureFastify?: (app: FastifyInstance) => void | Promise<void>;
 }
 
-export type McpServerResult =
-  { app: FastifyInstance; transport?: never } | { app?: never; transport: StdioServerHandle };
+export type McpServerResult = { app?: FastifyInstance; close: () => Promise<void> };
 
 export function mcpServer(options?: McpServerOptions): Promise<McpServerResult>;

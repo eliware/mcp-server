@@ -14,17 +14,18 @@ test("starts a server factory with the stdio SDK", () => {
   const startStdio = jest.fn(() => transport);
   const result = createStdioResult(serverFactory, startStdio);
   expect(startStdio).toHaveBeenCalledWith(serverFactory, { legacy: "reject" });
-  expect(result).toEqual({
-    transport,
-  });
+  expect(result.close).toBeInstanceOf(Function);
+  expect(result.transport).toBeUndefined();
+  result.close();
+  expect(transport.close).toHaveBeenCalledTimes(1);
 });
 
 test("uses the SDK stdio function when no function is injected", async () => {
   const result = createStdioResult(
     () => new McpServer({ name: "test-server", version: "1.0.0" }, { capabilities: { tools: {} } }),
   );
-  expect(result.transport).toBeTruthy();
-  await result.transport.close();
+  expect(result.close).toBeInstanceOf(Function);
+  await result.close();
 });
 
 test("serves a modern stdio discovery request and pins the connection", async () => {

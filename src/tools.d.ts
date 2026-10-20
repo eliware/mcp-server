@@ -5,5 +5,5 @@ export interface ToolRegistrationContext {
   mcpServer: McpServer;
   toolName: string;
   log: McpServerOptions["log"];
-  [key: string]: unknown;
+  context: Record<string, unknown>;
 }

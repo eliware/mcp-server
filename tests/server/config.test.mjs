@@ -8,11 +8,21 @@ test("normalizes server defaults and caller options", () => {
   expect(config.port).toBe(3000);
 });
 
-test("uses an mjs process entrypoint as the default", () => {
+test("uses a JavaScript process entrypoint as the default", () => {
   const original = process.argv[1];
-  process.argv[1] = "server.mjs";
+  process.argv[1] = "server.js";
   try {
-    expect(normalizeServerConfig().entrypoint).toBe("server.mjs");
+    expect(normalizeServerConfig().entrypoint).toBe("server.js");
+  } finally {
+    process.argv[1] = original;
+  }
+});
+
+test("keeps the default entrypoint undefined when the process has no script", () => {
+  const original = process.argv[1];
+  process.argv[1] = undefined;
+  try {
+    expect(normalizeServerConfig().entrypoint).toBeUndefined();
   } finally {
     process.argv[1] = original;
   }

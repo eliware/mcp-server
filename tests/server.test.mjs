@@ -4,6 +4,7 @@ const logger = { debug() {}, info() {}, warn() {}, error() {} };
 const app = {
   addHook: jest.fn(),
   listen: jest.fn(async () => {}),
+  close: jest.fn(async () => {}),
 };
 const handler = { close: jest.fn(async () => {}) };
 const mocks = {
@@ -14,7 +15,7 @@ const mocks = {
   createMcpHandler: jest.fn(() => handler),
   mountMcpHandler: jest.fn(),
   authenticateRequest: jest.fn(async () => true),
-  createStdioResult: jest.fn(() => ({ transport: "stdio" })),
+  createStdioResult: jest.fn(() => ({ close: jest.fn() })),
   resolveRuntimeAuth: jest.fn((auth) => auth),
   mountOAuthResourceMetadata: jest.fn(),
   hostHeaderValidation: jest.fn((hosts) => ({ hosts })),
@@ -30,7 +31,12 @@ const mocks = {
       stdio: false,
       ...options,
     };
-    return { config, toolsDir: "/tools", activeLog: config.log || logger };
+    return {
+      config,
+      toolsDir: "/tools",
+      packagePath: "/package.json",
+      activeLog: config.log || logger,
+    };
   }),
 };
 
@@ -73,6 +79,7 @@ function clearMocks() {
   }
   app.addHook.mockClear();
   app.listen.mockClear();
+  app.close.mockClear();
   handler.close.mockClear();
 }
 
@@ -81,7 +88,8 @@ test("builds a default HTTP server without listening when port is null", async (
   const result = await mcpServer({ port: null, context: { value: 1 } });
   const handlerOptions = mocks.createMcpHandler.mock.calls[0][0];
 
-  expect(result).toEqual({ app });
+  expect(result.app).toBe(app);
+  expect(result.close).toBeInstanceOf(Function);
   expect(mocks.createMcpFastifyApp).toHaveBeenCalledWith({
     host: "127.0.0.1",
     allowedHosts: undefined,
@@ -107,6 +115,8 @@ test("builds a default HTTP server without listening when port is null", async (
   const onClose = app.addHook.mock.calls.find(([name]) => name === "onClose")[1];
   await onClose();
   expect(handler.close).toHaveBeenCalledTimes(1);
+  await result.close();
+  expect(app.close).toHaveBeenCalledTimes(1);
 });
 
 test("starts the default server with the configured default listener", async () => {
@@ -133,7 +143,7 @@ test("configures a supplied Fastify app and OAuth metadata", async () => {
     port: 4000,
   };
 
-  expect(await mcpServer(options)).toEqual({ app });
+  expect((await mcpServer(options)).app).toBe(app);
   expect(mocks.createMcpFastifyApp).not.toHaveBeenCalled();
   expect(configureFastify).toHaveBeenCalledWith(app);
   expect(mocks.hostHeaderValidation).toHaveBeenCalledWith(options.allowedHosts);
@@ -146,7 +156,9 @@ test("configures a supplied Fastify app and OAuth metadata", async () => {
 
 test("selects stdio without creating an HTTP server", async () => {
   clearMocks();
-  expect(await mcpServer({ stdio: true })).toEqual({ transport: "stdio" });
+  const result = await mcpServer({ stdio: true });
+  expect(result).toEqual({ close: expect.any(Function) });
+  expect(result.close).toBe(mocks.createStdioResult.mock.results[0].value.close);
   expect(mocks.createStdioResult).toHaveBeenCalledTimes(1);
   expect(mocks.createMcpFastifyApp).not.toHaveBeenCalled();
   expect(mocks.createMcpHandler).not.toHaveBeenCalled();

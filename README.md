@@ -24,7 +24,7 @@ Pure-ESM Node.js MCP server with automatic tool discovery, Streamable HTTP and s
 ## Features
 
 - Run MCP with Streamable HTTP or stdio.
-- Load tool files that end in `.mjs`.
+- Load one `.mjs` module for each tool.
 - Define tool inputs with Zod.
 - Select no authentication, a static bearer token, bearer passthrough, or OAuth2 introspection.
 - Pass application values to each tool through `context`.
@@ -36,7 +36,7 @@ Pure-ESM Node.js MCP server with automatic tool discovery, Streamable HTTP and s
 
 - Use Node.js 26 or later.
 - Use an MCP client that supports protocol revision `2026-07-28` and the selected transport.
-- Set a tool directory or let the server use the directory beside its entry file.
+- Put tool modules in `tools/` beside the entry file.
 
 ## Setup
 
@@ -61,8 +61,8 @@ Set `MCP_TOKEN` before you start a protected HTTP server. In PowerShell, run `$e
 
 ## Usage
 
-Put one `.mjs` adapter in `tools/` and one matching handler in `src/tools/` for each tool.
-The adapter re-exports the handler. The server loads the handler when it creates an SDK server.
+Put one `.mjs` tool module in `tools/` for each tool.
+The server loads each module when it creates an SDK server.
 
 ```js
 import { z } from "@eliware/mcp-server";
@@ -80,11 +80,9 @@ export default async function registerHello({ mcpServer, toolName, log }) {
 }
 ```
 
-Create `tools/hello.mjs` with `export { default } from "../src/tools/hello.mjs";`.
-
 ### Tools
 
-Add each tool handler and its matching adapter.
+Add each tool in one focused module.
 
 ### Resources
 
@@ -106,7 +104,7 @@ Select no authentication, a static bearer token, bearer passthrough, or OAuth in
 
 Use the exported `z` value to define tool input schemas.
 
-Pass app values through `context`. Each tool receives them as named properties.
+Pass app values through `context`. Each tool receives them under the `context` property.
 
 ```js
 await mcpServer({ context: { db, services } });
@@ -130,7 +128,7 @@ Run `eliware-test` for lint, format, audit, package, type, convention, and Jest 
 
 Send HTTP requests to `/mcp` unless you set `endpointPath`.
 Set `stdio: true` for a local process client. Send logs to stderr in stdio mode.
-Close the Fastify app during shutdown.
+Call `close()` on the server result during shutdown.
 Read the [troubleshooting guide](docs/troubleshooting.md) for frequent setup faults.
 
 ## Security
@@ -142,17 +140,19 @@ Read the [auth guide](docs/authentication.md) before you expose an endpoint.
 
 ## API
 
-`mcpServer(options)` starts Fastify or stdio and returns an object with the active app or transport.
+`mcpServer(options)` starts Fastify or stdio and returns an object with `close()`.
+The HTTP result also returns the Fastify app for advanced use.
 
 Set `auth` to `none`, `static`, `bearer-passthrough`, or `oauth2`.
 
-Set `toolsDir` to point to a tool directory. The default uses the entry file directory or bundled examples.
+Set `toolsDir` to point to a tool directory. The default uses `tools/` beside the entry file or in the current directory.
 
 Set `context` to pass values to each tool. Set `name` and `version` to set MCP metadata.
 
 Import `buildResponse` and `convertBigIntToString` from `@eliware/mcp-server/utilities`.
 
-The package exports auth, OAuth, and PKCE helpers, plus the Zod namespace.
+The package exports auth helpers and the Zod namespace.
+Import OAuth and PKCE helpers from `@eliware/mcp-server/oauth`.
 
 Read `src/index.d.ts` for option and result types.
 

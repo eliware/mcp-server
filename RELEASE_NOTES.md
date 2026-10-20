@@ -1,6 +1,6 @@
 # Release Notes
 
-## 13.0.0 — 2026-10-17
+## 13.0.0 — 2026-10-19
 
 ### Added
 
@@ -10,6 +10,12 @@
 
 ### Changed
 
+- Load each tool from one module in the consumer tools directory.
+- Pass injected application values under the tool registration `context` property.
+- Return a shared `close()` method for HTTP and stdio servers.
+- Read default server metadata from the consumer package manifest and require explicit values when it cannot be read.
+- Resolve JavaScript entry files without requiring the `.mjs` extension and stop loading bundled example tools as a fallback.
+- Move OAuth and PKCE helpers to the `@eliware/mcp-server/oauth` subpath.
 - Upgrade the package and lock file to version 13.0.0 and the official MCP TypeScript SDK v2 packages.
 - Use Fastify for HTTP requests and server lifecycle management.
 - Use the SDK v2 request handler to create Streamable HTTP sessions.
@@ -28,6 +34,10 @@
 
 ### Breaking changes
 
+- Replace the two-file tool adapter and handler pattern with one tool module.
+- Replace flattened tool context properties with the `context` property.
+- Replace transport-specific result properties with the shared `close()` method.
+- Remove OAuth and PKCE helpers from the root and utility exports. Import them from `@eliware/mcp-server/oauth`.
 - Remove Express support and Express examples.
 - Remove the SDK v1 dependency and compatibility paths.
 - Remove built-in TLS file loading and HTTP-to-HTTPS redirect support. Configure TLS on a supplied Fastify app.

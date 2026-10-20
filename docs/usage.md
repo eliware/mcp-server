@@ -39,17 +39,17 @@ Send application logs to stderr. Do not write other data to stdout.
 
 ## Stop a server
 
-The HTTP result contains a Fastify app. Close the app when the host process stops:
+Call `close()` when the host process stops. The HTTP result also contains a Fastify app:
 
 ```js
-const { app } = await mcpServer({ port: 1234 });
-const closeServer = () => app.close();
+const server = await mcpServer({ port: 1234 });
+const closeServer = () => server.close();
 
 process.once("SIGTERM", closeServer);
 process.once("SIGINT", closeServer);
 ```
 
-The stdio result contains a transport. Call `transport.close()` when the client session ends.
+The stdio result has the same `close()` method. Call it when the client session ends.
 
 ## Select an example
 

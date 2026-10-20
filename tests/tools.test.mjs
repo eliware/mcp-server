@@ -12,6 +12,7 @@ for (const file of ["echo.mjs"]) {
       mcpServer: { registerTool },
       toolName: "test-tool",
       log: { debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn() },
+      context: {},
     });
     expect(registerTool).toHaveBeenCalled();
   });
@@ -31,7 +32,7 @@ test("builds server and loads mjs tools", async () => {
 test("echo tool returns its input", async () => {
   const registerTool = jest.fn();
   const log = { debug: jest.fn() };
-  await echo({ mcpServer: { registerTool }, toolName: "echo", log });
+  await echo({ mcpServer: { registerTool }, toolName: "echo", log, context: {} });
   const handler = registerTool.mock.calls[0][2];
   const result = await handler({ echoText: "hello" }, {});
   expect(JSON.parse(result.content[0].text)).toEqual({

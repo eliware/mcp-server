@@ -3,11 +3,13 @@ description: Defines requirements for tool discovery and registration.
 directives:
   - id: E-210.5
     dos:
-      - Find tool adapters in the configured tools directory.
-      - Load each adapter and its matching source handler without executing unrelated files.
-      - Pass application services to each tool handler.
+      - Find tool modules in the configured tools directory.
+      - Load each tool module without executing unrelated files.
+      - Pass application services in a named context property.
+      - Pass the SDK server, tool name, logger, and context to each tool module.
       - Keep input schemas and tool behavior with their focused handlers.
       - Document each tool purpose, input, output, and side effect.
     donts:
       - Do not make basic consumers set up the MCP SDK server.
-      - Do not silently ignore invalid tool adapters or handlers.
+      - Do not silently ignore invalid tool modules.
+      - Do not require more than one file for each tool.

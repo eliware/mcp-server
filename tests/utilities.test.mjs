@@ -2,10 +2,10 @@ import { test, expect } from "@jest/globals";
 import * as utilities from "../src/utilities.mjs";
 import * as packageUtilities from "@eliware/mcp-server/utilities";
 
-test("utilities entry point exports logging, OAuth, and PKCE helpers", () => {
+test("utility entry point exports general helpers without OAuth functions", () => {
   expect(utilities.stderrLogger).toBeTruthy();
-  expect(utilities.mountOAuthResourceMetadata).toBeInstanceOf(Function);
-  expect(utilities.discoverOAuthProvider).toBeInstanceOf(Function);
-  expect(utilities.createPkceStore).toBeInstanceOf(Function);
-  expect(packageUtilities.mountOAuthResourceMetadata).toBe(utilities.mountOAuthResourceMetadata);
+  expect(utilities.mountOAuthResourceMetadata).toBeUndefined();
+  expect(utilities.discoverOAuthProvider).toBeUndefined();
+  expect(utilities.createPkceStore).toBeUndefined();
+  expect(packageUtilities.buildResponse).toBe(utilities.buildResponse);
 });

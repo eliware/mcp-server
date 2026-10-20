@@ -1,22 +1,23 @@
 import fs from "fs";
-import { path } from "@eliware/path";
-import packageMeta from "../package.json" with { type: "json" };
+import { resolve } from "node:path";
 
 export function loadPackageMeta({
   name,
   version,
   log,
   readFile = fs.readFileSync,
-  packagePath = path(import.meta, "..", "package.json"),
+  packagePath = resolve(process.cwd(), "package.json"),
 }) {
   try {
     const pkg = JSON.parse(readFile(packagePath, "utf8"));
-    return {
-      name: name || pkg.name || packageMeta.name,
-      version: version || pkg.version || packageMeta.version,
-    };
+    const result = { name: name || pkg.name, version: version || pkg.version };
+    if (!result.name || !result.version) throw new Error("Package name and version are required");
+    return result;
   } catch (err) {
-    log.warn("[SERVER] Could not read package.json for version:", err?.stack || err);
-    return { name: name || packageMeta.name, version: version || packageMeta.version };
+    if (name && version) return { name, version };
+    log?.warn?.("[SERVER] Could not read consumer package metadata:", err?.stack || err);
+    throw new Error("Set name and version or provide a readable consumer package.json", {
+      cause: err,
+    });
   }
 }

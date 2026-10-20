@@ -20,15 +20,12 @@ directives:
     children:
       - id: E-210.0.0
         dos:
-          - Require each tool adapter to use the .mjs extension.
-          - Require each tool handler to use the .mjs extension.
-          - Require each tool handler to export one default registration function.
-          - Keep each tool adapter in tools/<name>.mjs.
-          - Keep each tool handler in src/tools/<name>.mjs.
-          - Make each adapter re-export its matching handler.
+          - Require each tool module to use the .mjs extension.
+          - Require each tool module to export one default registration function.
+          - Keep each tool module in tools/<name>.mjs.
         donts:
           - Do not load files with other extensions as tools.
-          - Do not import or execute repository handlers during validation.
+          - Do not load unrelated files from the consumer application.
       - id: E-210.0.1
         dos:
           - Keep public runtime code and declarations under src/.

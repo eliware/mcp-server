@@ -7,18 +7,18 @@
  * - The server discovers and registers the file automatically.
  *
  * Registration signature:
- *   async function ({ mcpServer, toolName, log, ...context })
+ *   async function ({ mcpServer, toolName, log, context })
  *
  * Arguments:
  * - mcpServer: SDK server used to register the tool.
  * - toolName: filename without .mjs; use it as the registered name.
  * - log: server logger.
- * - ...context: custom values passed by the entrypoint's context option.
+ * - context: custom values passed by the entrypoint's context option.
  */
 import { z } from "@eliware/mcp-server";
 import { buildResponse } from "@eliware/mcp-server/utilities";
 
-export default async function registerEchoTool({ mcpServer, toolName, log, db }) {
+export default async function registerEchoTool({ mcpServer, toolName, log, context }) {
   /*
    * z describes and validates tool inputs.
    * This schema exposes one required string: echoText.
@@ -35,8 +35,8 @@ export default async function registerEchoTool({ mcpServer, toolName, log, db })
       log.debug(`${toolName} request`, { echoText });
 
       // Custom context is injected by the entrypoint and available here.
-      // Example: await db.query('SELECT 1') when a database is configured.
-      void db;
+      // Example: await context.db.query('SELECT 1') when a database is configured.
+      void context.db;
 
       /*
        * buildResponse converts safe values (including BigInt) into the MCP

@@ -1,4 +1,5 @@
-import type { AuthConfig, createOAuthIntrospector } from "../src/index.js";
+import type { AuthConfig } from "../src/index.js";
+import type { createOAuthIntrospector } from "../src/oauth/public-api.js";
 
 export const oauthConfig: AuthConfig = {
   mode: "oauth2",

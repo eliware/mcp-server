@@ -1,7 +1,7 @@
 import { log as logger } from "@eliware/log";
 import { normalizeEntrypoint } from "../entrypoint-path.mjs";
 export function normalizeServerConfig(options = {}) {
-  const defaultEntrypoint = process.argv[1]?.endsWith(".mjs") ? process.argv[1] : undefined;
+  const defaultEntrypoint = process.argv[1];
   const defaults = {
     log: logger,
     entrypoint: defaultEntrypoint,

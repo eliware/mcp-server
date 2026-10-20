@@ -2,10 +2,12 @@ import { test, expect } from "@jest/globals";
 import { stderrLogger } from "../../src/logger.mjs";
 import { resolveServerRuntime } from "../../src/server/runtime.mjs";
 
-test("resolves the tool folder from an entrypoint or caller option", () => {
+test("resolves the tool and package folders from an entrypoint or caller option", () => {
   const config = { entrypoint: "/app/server.mjs", log: { debug() {} }, stdio: false };
-  expect(resolveServerRuntime({ config }).toolsDir).toContain("app");
-  expect(resolveServerRuntime({ config }).toolsDir).toContain("tools");
+  const result = resolveServerRuntime({ config, options: { packagePath: "/app/package.json" } });
+  expect(result.toolsDir).toContain("app");
+  expect(result.toolsDir).toContain("tools");
+  expect(result.packagePath).toBe("/app/package.json");
   expect(resolveServerRuntime({ config, options: { toolsDir: "custom" } }).toolsDir).toBe("custom");
 });
 

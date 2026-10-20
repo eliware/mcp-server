@@ -126,6 +126,10 @@
     "./utilities": {
       "types": "./src/utilities.d.ts",
       "import": "./src/utilities.mjs"
+    },
+    "./oauth": {
+      "types": "./src/oauth/public-api.d.ts",
+      "import": "./src/oauth/public-api.mjs"
     }
   },
   "types": "./src/index.d.ts"

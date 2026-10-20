@@ -14,8 +14,13 @@ import { resolveRuntimeAuth } from "./oauth/runtime-auth.mjs";
 import { mountOAuthResourceMetadata } from "./oauth/resource-metadata.mjs";
 
 export async function mcpServer(options = {}) {
-  const { config, toolsDir, activeLog } = resolveServerOptions(options);
-  const meta = loadPackageMeta({ name: config.name, version: config.version, log: activeLog });
+  const { config, toolsDir, packagePath, activeLog } = resolveServerOptions(options);
+  const meta = loadPackageMeta({
+    name: config.name,
+    version: config.version,
+    log: activeLog,
+    packagePath,
+  });
   const serverOptions = { ...meta, toolsDir, log: activeLog, context: config.context };
   const build = () => buildServer(serverOptions);
   if (config.stdio) return createStdioResult(build);
@@ -43,5 +48,5 @@ export async function mcpServer(options = {}) {
   });
   mountMcpHandler({ app, handler, endpointPath: config.endpointPath });
   if (config.port !== null) await app.listen({ host: config.host, port: Number(config.port) });
-  return { app };
+  return { app, close: () => app.close() };
 }

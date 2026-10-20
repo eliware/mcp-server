@@ -8,8 +8,13 @@ directives:
       - Inject application services into each tool handler through server context.
       - Apply configured host and browser source checks to a supplied Fastify app.
       - Allow advanced consumers to configure Fastify through a documented callback.
-      - Return the Fastify instance and a shutdown method.
+      - Return one close method for HTTP and stdio results.
+      - Return the Fastify instance with HTTP results for advanced configuration.
+      - Return no transport-specific property in the stdio result.
+      - Read default server metadata from the consumer package manifest.
+      - Require explicit metadata when the consumer manifest is not available.
+      - Keep OAuth helpers on the dedicated package subpath.
       - Document public options, defaults, results, and errors in API documentation.
     donts:
-      - Do not expose internal SDK or adapter modules as supported consumer APIs.
+      - Do not expose internal SDK modules as supported consumer APIs.
       - Do not make basic consumers create transports or SDK server objects.

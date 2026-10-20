@@ -8,14 +8,19 @@ const base = {
   tools: [{ file: "hello.mjs", toolName: "hello" }],
   toolCache: new Map(),
   log: { warn: jest.fn(), error: jest.fn() },
-  context: { db: "db" },
+  context: { db: "db", mcpServer: "spoof", log: "spoof" },
 };
 
 test("loads and calls a tool with its name and context", async () => {
   const handler = jest.fn();
   await registerTools({ ...base, loadModule: async () => ({ default: handler }) });
   expect(handler).toHaveBeenCalledWith(
-    expect.objectContaining({ mcpServer: base.server, toolName: "hello", db: "db" }),
+    expect.objectContaining({
+      mcpServer: base.server,
+      toolName: "hello",
+      log: base.log,
+      context: base.context,
+    }),
   );
 });
 

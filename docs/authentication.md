@@ -33,7 +33,8 @@ The server returns status 503 when the introspection endpoint is unavailable.
 Set `scopes` to require scopes. Set `subjectClaim` to select a subject claim. The default claim is `sub`.
 
 ```js
-import { mcpServer, createOAuthIntrospector } from "@eliware/mcp-server";
+import { mcpServer } from "@eliware/mcp-server";
+import { createOAuthIntrospector } from "@eliware/mcp-server/oauth";
 
 await mcpServer({
   port: 1234,

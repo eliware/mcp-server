@@ -1,5 +1,5 @@
 import { mcpServer } from "@eliware/mcp-server";
-import { createOAuthIntrospector } from "@eliware/mcp-server";
+import { createOAuthIntrospector } from "@eliware/mcp-server/oauth";
 
 await mcpServer({
   auth: {
