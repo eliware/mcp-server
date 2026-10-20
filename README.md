@@ -23,143 +23,51 @@ Pure-ESM Node.js MCP server with automatic tool discovery, Streamable HTTP and s
 
 ## Features
 
-- Run MCP with Streamable HTTP or stdio.
-- Load one `.mjs` module for each tool.
-- Define tool inputs with Zod.
-- Select no authentication, a static bearer token, bearer passthrough, or OAuth2 introspection.
-- Pass application values to each tool through `context`.
-- Start an HTTP server with Fastify.
-- Supply a Fastify instance for HTTPS or custom plugins.
-- Return JSON-safe values with `buildResponse()`.
+Create MCP servers with Streamable HTTP or stdio, discovered tool modules, Zod input schemas, shared context, and optional authentication.
 
 ## Requirements
 
-- Use Node.js 26 or later.
-- Use an MCP client that supports protocol revision `2026-07-28` and the selected transport.
-- Put tool modules in `tools/` beside the entry file.
+Use Node.js 26 or later. Use an MCP client that supports protocol revision `2026-07-28` and the selected transport.
 
 ## Setup
 
-Install the package:
-
-```sh
-npm install @eliware/mcp-server
-```
-
-Create a server entry file:
-
-```js
-import { mcpServer } from "@eliware/mcp-server";
-
-await mcpServer({
-  port: 1234,
-  auth: { mode: "static", token: process.env.MCP_TOKEN },
-});
-```
-
-Set `MCP_TOKEN` before you start a protected HTTP server. In PowerShell, run `$env:MCP_TOKEN = "your-secret"`. In a POSIX shell, run `export MCP_TOKEN="your-secret"`. The default HTTP endpoint is `/mcp`.
+Install the package with `npm install @eliware/mcp-server`. Read the [setup guide](docs/usage.md) before you create a server.
 
 ## Usage
 
-Put one `.mjs` tool module in `tools/` for each tool.
-The server loads each module when it creates an SDK server.
+Create a server with `mcpServer()` and add tool modules in `tools/`. Read the [usage guide](docs/usage.md), [configuration guide](docs/configuration.md), and [authentication guide](docs/authentication.md).
 
-```js
-import { z } from "@eliware/mcp-server";
-import { buildResponse } from "@eliware/mcp-server/utilities";
-
-export default async function registerHello({ mcpServer, toolName, log }) {
-  mcpServer.registerTool(
-    toolName,
-    { description: "Say hello.", inputSchema: { name: z.string().min(1) } },
-    async ({ name }) => {
-      log.debug(`${toolName} request`, { name });
-      return buildResponse({ message: `Hello, ${name}!` });
-    },
-  );
-}
-```
-
-### Tools
-
-Add each tool in one focused module.
-
-### Resources
-
-Add resources through the MCP SDK. The package does not scan resource files.
-
-### Prompts
-
-Add prompts through the MCP SDK. The package does not scan prompt files.
-
-### Transport
-
-Use Streamable HTTP or stdio. The package does not support HTTP with SSE.
-
-### Authentication
-
-Select no authentication, a static bearer token, bearer passthrough, or OAuth introspection.
-
-### Schemas
-
-Use the exported `z` value to define tool input schemas.
-
-Pass app values through `context`. Each tool receives them under the `context` property.
-
-```js
-await mcpServer({ context: { db, services } });
-```
-
-Read the [usage guide](docs/usage.md), [configuration guide](docs/configuration.md), and [auth guide](docs/authentication.md).
-Browse the [docs index](docs/README.md) and [spec index](specs/README.md).
-Read [release notes](RELEASE_NOTES.md) for released changes.
+Browse the [documentation index](docs/README.md), [specifications index](specs/README.md), and [release notes](RELEASE_NOTES.md).
 
 ## Development
 
-Install the locked dependencies with `npm ci`.
-Run `eliware-test --format` to format files.
-Run `npm run typecheck` to check declarations.
+Run `npm ci` to install locked dependencies. Run `npm run format` to format files. Run `npm run format:check` to check file formatting.
+
+Run `npm run lint` for lint checks. Run `npm run audit` for dependency checks. Run `npm run typecheck` to check TypeScript declarations.
 
 ## Testing
 
-Run `eliware-test` for lint, format, audit, package, type, convention, and Jest checks.
+Run `npm test` for aggregate validation. Run `npm run pack` to check package contents.
 
 ## Troubleshooting
 
-Send HTTP requests to `/mcp` unless you set `endpointPath`.
-Set `stdio: true` for a local process client. Send logs to stderr in stdio mode.
-Call `close()` on the server result during shutdown.
-Read the [troubleshooting guide](docs/troubleshooting.md) for frequent setup faults.
+Read the [troubleshooting guide](docs/troubleshooting.md) for setup and runtime issues.
 
 ## Security
 
-Store tokens, OAuth client secrets, and TLS keys in environment variables or secret files.
-Use HTTPS and explicit authentication for remote access.
-Do not commit `.env` files, certificates, or private keys.
-Read the [auth guide](docs/authentication.md) before you expose an endpoint.
+Keep tokens, OAuth client secrets, and TLS keys in environment variables or secret files. Use HTTPS and explicit authentication for remote access.
 
 ## API
 
-`mcpServer(options)` starts Fastify or stdio and returns an object with `close()`.
-The HTTP result also returns the Fastify app for advanced use.
+Import `mcpServer` and `z` from `@eliware/mcp-server`. Import `buildResponse` and `convertBigIntToString` from `@eliware/mcp-server/utilities`.
 
-Set `auth` to `none`, `static`, `bearer-passthrough`, or `oauth2`.
-
-Set `toolsDir` to point to a tool directory. The default uses `tools/` beside the entry file or in the current directory.
-
-Set `context` to pass values to each tool. Set `name` and `version` to set MCP metadata.
-
-Import `buildResponse` and `convertBigIntToString` from `@eliware/mcp-server/utilities`.
-
-The package exports auth helpers and the Zod namespace.
-Import OAuth and PKCE helpers from `@eliware/mcp-server/oauth`.
-
-Read `src/index.d.ts` for option and result types.
+Import OAuth and PKCE helpers from `@eliware/mcp-server/oauth`. Read the [API reference](docs/api.md) for exported functions, options, and result types.
 
 ## Packaging
 
-The package includes `src/`, `docs/`, `examples/`, `specs/`, and package metadata.
-Run `eliware-test --pack` to check package contents. Publication follows the Eliware release process.
+The npm package includes `src/`, `docs/`, `README.md`, `AGENTS.md`, `LICENSE`, `RELEASE_NOTES.md`, `examples/`, `specs/`, and `.env.example`.
+
+Use numeric `MAJOR.MINOR.PATCH` versions and a `v<version>` tag for each release. Run `npm run pack` to check package contents. The [npm workflow](.github/workflows/npm.yaml) publishes approved tagged releases.
 
 ## Examples
 
