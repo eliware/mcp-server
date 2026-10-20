@@ -5,6 +5,7 @@
 ### Added
 
 - Allow callers to configure TLS on a supplied Fastify app.
+- Export `createListenerErrorHandler` from the utilities entry point.
 - Add Fastify and stdio examples for the SDK v2 server setup.
 - Add a v13 migration guide and specifications for API, authentication, documentation, modules, tool setup, and transports.
 
@@ -25,8 +26,12 @@
 - Use a stateless request handler that builds an MCP server for each HTTP request.
 - Return an object with the active Fastify app or stdio transport from server startup.
 - Rename `httpPort` to `port`, replace Express options with Fastify options, and update declarations.
+- Replace `@eliware/common` with direct `@eliware/log` and `@eliware/path` dependencies.
+- Use `PORT` in the supplied environment and container examples.
+- Split authentication context, OAuth client setup, and listener error handling into focused modules with matching tests.
 - Move authentication, client, OAuth, PKCE, server, and tool modules into domain directories with matching tests.
 - Update examples, API guidance, configuration guidance, and tool instructions for v13.
+- Remove content from `AGENTS.md` and `README.md` that the shared conventions do not require.
 - Rewrite repository and user documentation to follow ASD-STE100 language rules.
 - Align CI with the shared test workflow and fetch full Git history for tag checks.
 - Replace the publish workflow with the canonical npm workflow.
