@@ -39,6 +39,30 @@ Create a server with `mcpServer()` and add tool modules in `tools/`. Read the [u
 
 Browse the [documentation index](docs/README.md), [specifications index](specs/README.md), and [release notes](RELEASE_NOTES.md).
 
+### Tools
+
+Add one `.mjs` module for each tool in `tools/`. Read the [tool guide](docs/tools.md) for registration and context details.
+
+### Resources
+
+The package does not scan resource files. Add resources to the SDK server inside a tool module. Read the [tool guide](docs/tools.md).
+
+### Prompts
+
+The package does not scan prompt files. Add prompts to the SDK server inside a tool module. Read the [tool guide](docs/tools.md).
+
+### Transport
+
+Use Streamable HTTP or stdio. The package does not support HTTP with SSE. Read the [protocol requirements](docs/requirements.md).
+
+### Authentication
+
+Select no authentication, a static bearer token, bearer passthrough, or OAuth2 introspection. Use HTTPS for OAuth endpoints. Read the [authentication guide](docs/authentication.md).
+
+### Schemas
+
+Import `z` from `@eliware/mcp-server` to define tool input schemas. Read the [tool guide](docs/tools.md).
+
 ## Development
 
 Run `npm ci` to install locked dependencies. Run `npm run format` to format files. Run `npm run format:check` to check file formatting.

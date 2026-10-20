@@ -10,6 +10,8 @@ directives:
       - Keep authorization rules separate from MCP protocol rules.
       - Pass validated authentication data to each tool context.
       - Return authentication errors without exposing tokens or private claims.
+      - Require HTTPS for OAuth issuer and introspection endpoints.
+      - Require HTTPS for authorization, registration, and token endpoints.
     donts:
       - Do not require consumers to set up OAuth in the basic path.
       - Do not write credentials, access tokens, or private claims to logs.

@@ -1,3 +1,5 @@
+import { assertHttpsOAuthEndpoint } from "../endpoint-security.mjs";
+
 export function createOAuthAuthorizationUrl({
   provider,
   credentials = {},
@@ -7,6 +9,7 @@ export function createOAuthAuthorizationUrl({
 }) {
   const clientId = credentials.client_id || credentials.clientId;
   if (!clientId) throw new Error("OAuth client ID is required");
+  assertHttpsOAuthEndpoint(provider.authorization_endpoint, "OAuth authorization endpoint");
   const url = new URL(provider.authorization_endpoint);
   url.search = new URLSearchParams({
     client_id: clientId,

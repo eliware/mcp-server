@@ -51,6 +51,21 @@ test("rejects code exchange without a client ID", async () => {
   );
 });
 
+test("rejects HTTP token endpoints before sending a code or client secret", async () => {
+  const fetchFn = jest.fn();
+  await expect(
+    exchangeOAuthCode({
+      provider: { token_endpoint: "http://auth/token" },
+      credentials: { client_id: "id", client_secret: "secret" },
+      fetchFn,
+      code: "authorization-code",
+      redirectUri: "https://app/cb",
+      codeVerifier: "verifier",
+    }),
+  ).rejects.toThrow("must use HTTPS");
+  expect(fetchFn).not.toHaveBeenCalled();
+});
+
 test("rejects a failed code exchange", async () => {
   const fetchFn = jest.fn().mockResolvedValue({ ok: false, status: 400 });
   await expect(exchangeOAuthCode({ provider, credentials, fetchFn, code: "code" })).rejects.toThrow(

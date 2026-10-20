@@ -1,9 +1,12 @@
+import { assertHttpsOAuthEndpoint } from "./endpoint-security.mjs";
+
 export async function registerOAuthClient({
   registrationEndpoint,
   metadata,
   fetchFn = fetch,
 } = {}) {
   if (!registrationEndpoint) throw new Error("OAuth registration endpoint is required");
+  assertHttpsOAuthEndpoint(registrationEndpoint, "OAuth registration endpoint");
   const response = await fetchFn(registrationEndpoint, {
     method: "POST",
     headers: { "content-type": "application/json" },

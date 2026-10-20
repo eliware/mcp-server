@@ -30,3 +30,16 @@ test("OAuth introspector rejects a missing endpoint and returns null on failure"
   });
   await expect(publicClient("token")).resolves.toEqual({});
 });
+
+test("rejects HTTP introspection endpoints before sending a token or client secret", () => {
+  const fetchFn = jest.fn();
+  expect(() =>
+    createOAuthIntrospector({
+      introspectionEndpoint: "http://auth/introspect",
+      clientId: "client",
+      clientSecret: "secret",
+      fetchFn,
+    }),
+  ).toThrow("must use HTTPS");
+  expect(fetchFn).not.toHaveBeenCalled();
+});

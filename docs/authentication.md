@@ -26,6 +26,8 @@ The server rejects a missing token with status 401.
 ## OAuth2 introspection
 
 Set `auth.mode` to `oauth2`.
+Use HTTPS for the issuer, introspection, authorization, registration, and token endpoints.
+The OAuth helpers reject other schemes before they send tokens, codes, or client data.
 
 Set `issuer` and `resource`.
 Pass an `introspect` function or set `introspection.endpoint`.

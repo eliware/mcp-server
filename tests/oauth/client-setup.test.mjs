@@ -19,3 +19,15 @@ test("discovers provider metadata and resolves stored credentials", async () => 
   expect(setup).toEqual({ provider, credentials });
   expect(store.load).toHaveBeenCalled();
 });
+
+test("rejects an HTTP issuer before provider discovery", async () => {
+  const fetchFn = jest.fn();
+  await expect(
+    createOAuthClientSetup({
+      issuer: "http://auth",
+      client: { mode: "static", client_id: "id" },
+      fetchFn,
+    }),
+  ).rejects.toThrow("must use HTTPS");
+  expect(fetchFn).not.toHaveBeenCalled();
+});

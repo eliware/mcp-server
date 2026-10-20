@@ -20,10 +20,26 @@ test("registers a client and sends its metadata", async () => {
 test("rejects registration failures and missing endpoints", async () => {
   const bad = jest.fn().mockResolvedValue(response({}, false, 500));
   await expect(
-    registerOAuthClient({ registrationEndpoint: "x", metadata: {}, fetchFn: bad }),
+    registerOAuthClient({
+      registrationEndpoint: "https://auth/register",
+      metadata: {},
+      fetchFn: bad,
+    }),
   ).rejects.toThrow("registration");
   await expect(registerOAuthClient({ metadata: {}, fetchFn: bad })).rejects.toThrow("endpoint");
   await expect(registerOAuthClient()).rejects.toThrow("endpoint");
+});
+
+test("rejects HTTP registration endpoints before sending client data", async () => {
+  const fetchFn = jest.fn();
+  await expect(
+    registerOAuthClient({
+      registrationEndpoint: "http://auth/register",
+      metadata: { client_name: "app" },
+      fetchFn,
+    }),
+  ).rejects.toThrow("must use HTTPS");
+  expect(fetchFn).not.toHaveBeenCalled();
 });
 
 test("uses fetch by default", async () => {

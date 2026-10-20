@@ -6,6 +6,7 @@
 
 - Allow callers to configure TLS on a supplied Fastify app.
 - Export `createListenerErrorHandler` from the utilities entry point.
+- Add Tools, Resources, Prompts, Transport, Authentication, and Schemas summaries to the README.
 - Add Fastify and stdio examples for the SDK v2 server setup.
 - Add a v13 migration guide and specifications for API, authentication, documentation, modules, tool setup, and transports.
 
@@ -36,6 +37,11 @@
 - Align CI with the shared test workflow and fetch full Git history for tag checks.
 - Replace the publish workflow with the canonical npm workflow.
 - Update Knit deployment commands to pull the current repository changes.
+
+### Security
+
+- Require HTTPS for OAuth issuer, introspection, authorization, registration, and token endpoints.
+- Reject OAuth endpoint URLs with other schemes before a helper sends a request.
 
 ### Breaking changes
 

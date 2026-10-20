@@ -28,11 +28,11 @@ test("registers and saves clients with metadata defaults", async () => {
       expect(
         await resolveDynamicOAuthClient({
           client: item.client,
-          provider: { registration_endpoint: "r" },
+          provider: { registration_endpoint: "https://auth/register" },
           store,
         }),
       ).toEqual({ client_id: "new" });
-      expect(store.save).toHaveBeenCalledWith("r", { client_id: "new" });
+      expect(store.save).toHaveBeenCalledWith("https://auth/register", { client_id: "new" });
       expect(global.fetch.mock.calls[0][1].body).toBe(item.body);
     }
   } finally {

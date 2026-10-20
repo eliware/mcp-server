@@ -1,3 +1,5 @@
+import { assertHttpsOAuthEndpoint } from "./endpoint-security.mjs";
+
 export async function exchangeOAuthCode({
   provider,
   credentials = {},
@@ -8,6 +10,7 @@ export async function exchangeOAuthCode({
 }) {
   const clientId = credentials.client_id || credentials.clientId;
   if (!clientId) throw new Error("OAuth client ID is required");
+  assertHttpsOAuthEndpoint(provider.token_endpoint, "OAuth token endpoint");
   const clientSecret = credentials.client_secret || credentials.clientSecret;
   const headers = { "content-type": "application/x-www-form-urlencoded" };
   if (clientId && clientSecret) {

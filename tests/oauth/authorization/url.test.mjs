@@ -41,3 +41,17 @@ test("uses an empty scope by default", () => {
 test("rejects authorization URL creation without a client ID", () => {
   expect(() => createOAuthAuthorizationUrl({ provider })).toThrow("OAuth client ID is required");
 });
+
+test("rejects HTTP authorization endpoints before building a client URL", () => {
+  expect(() =>
+    createOAuthAuthorizationUrl({
+      provider: { authorization_endpoint: "http://auth/authorize" },
+      credentials: { client_id: "id" },
+      authorizationParams: {
+        state: "state",
+        codeChallenge: "challenge",
+        codeChallengeMethod: "S256",
+      },
+    }),
+  ).toThrow("must use HTTPS");
+});

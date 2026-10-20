@@ -1,4 +1,5 @@
 import { createOAuthIntrospectionRequest } from "./introspection-request.mjs";
+import { assertHttpsOAuthEndpoint } from "../oauth/endpoint-security.mjs";
 
 export function createOAuthIntrospector({
   resource,
@@ -8,6 +9,7 @@ export function createOAuthIntrospector({
   fetchFn = fetch,
 } = {}) {
   if (!introspectionEndpoint) throw new Error("OAuth introspection endpoint is required");
+  assertHttpsOAuthEndpoint(introspectionEndpoint, "OAuth introspection endpoint");
   return async (token) => {
     const response = await fetchFn(
       introspectionEndpoint,
