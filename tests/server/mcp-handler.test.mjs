@@ -6,29 +6,6 @@ import {
 } from "@modelcontextprotocol/server";
 import { createMcpHandler } from "../../src/server/mcp-handler.mjs";
 
-test("rejects requests without the current protocol envelope", async () => {
-  const buildServer = jest.fn(
-    () => new McpServer({ name: "test-server", version: "1.0.0" }, { capabilities: { tools: {} } }),
-  );
-  const handler = createMcpHandler({ buildServer, serverOptions: { context: { value: 1 } } });
-  const response = await handler.fetch(
-    request({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "initialize",
-      params: {
-        protocolVersion: "2025-11-25",
-        capabilities: {},
-        clientInfo: { name: "test-client", version: "1.0.0" },
-      },
-    }),
-  );
-
-  expect(response.status).not.toBe(200);
-  expect(buildServer).not.toHaveBeenCalled();
-  await handler.close();
-});
-
 test("serves requests with the current protocol envelope", async () => {
   const buildServer = jest.fn(
     () => new McpServer({ name: "test-server", version: "1.0.0" }, { capabilities: { tools: {} } }),

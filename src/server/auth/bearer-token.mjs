@@ -1,3 +1,5 @@
+import { parseBearerToken } from "../../auth/bearer.mjs";
+
 export function readBearerToken(request) {
-  return /^Bearer\s+(.+)$/i.exec(request.headers.authorization || "")?.[1];
+  return parseBearerToken(request.headers.authorization);
 }

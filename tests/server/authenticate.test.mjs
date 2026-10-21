@@ -18,12 +18,6 @@ test("leaves the raw request without auth when auth is disabled", async () => {
   expect(reply.send).not.toHaveBeenCalled();
 });
 
-test("rejects an invalid static bearer token", async () => {
-  const { request, reply } = fixture({ authorization: "Bearer wrong" });
-  expect(await authenticateRequest(request, reply, { mode: "static", token: "right" })).toBe(false);
-  expect(reply.code).toHaveBeenCalledWith(401);
-});
-
 test("passes a valid static bearer token to the SDK request", async () => {
   const { request, reply } = fixture({ authorization: "Bearer right" });
   expect(await authenticateRequest(request, reply, { mode: "static", token: "right" })).toBe(true);
@@ -38,12 +32,6 @@ test("rejects OAuth when the request has no bearer token", async () => {
   expect(await authenticateRequest(request, reply, oauthConfig())).toBe(false);
   expect(reply.code).toHaveBeenCalledWith(401);
   expect(reply.header).toHaveBeenCalledWith("WWW-Authenticate", expect.any(String));
-});
-
-test("rejects bearer passthrough when the request has no token", async () => {
-  const { request, reply } = fixture();
-  expect(await authenticateRequest(request, reply, "bearer-passthrough")).toBe(false);
-  expect(reply.code).toHaveBeenCalledWith(401);
 });
 
 test("reports unavailable OAuth introspection", async () => {

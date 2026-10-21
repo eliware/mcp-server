@@ -1,5 +1,8 @@
 export function bearer(req) {
-  const value = req.get("authorization") || "";
-  const match = /^Bearer\s+([^\s]+)$/i.exec(value);
+  return parseBearerToken(req.get("authorization"));
+}
+
+export function parseBearerToken(authorization) {
+  const match = /^Bearer\s+([^\s]+)$/i.exec(authorization || "");
   return match?.[1] || null;
 }

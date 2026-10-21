@@ -2,11 +2,41 @@ import { jest, test, expect } from "@jest/globals";
 import {
   CLIENT_CAPABILITIES_META_KEY,
   PROTOCOL_VERSION_META_KEY,
+  McpServer,
 } from "@modelcontextprotocol/server";
 import { createMcpFastifyApp } from "@modelcontextprotocol/fastify";
 import { buildServer } from "../../src/tools.mjs";
 import { createMcpHandler } from "../../src/server/mcp-handler.mjs";
 import { mountMcpHandler } from "../../src/server/fastify-route.mjs";
+
+test("rejects a request without the current protocol envelope through Fastify", async () => {
+  const buildServer = jest.fn(
+    () => new McpServer({ name: "test-server", version: "1.0.0" }, { capabilities: { tools: {} } }),
+  );
+  const handler = createMcpHandler({ buildServer, serverOptions: { context: {} } });
+  const app = createMcpFastifyApp();
+  mountMcpHandler({ app, handler });
+  const response = await app.inject({
+    method: "POST",
+    url: "/mcp",
+    headers: { accept: "application/json, text/event-stream", "content-type": "application/json" },
+    payload: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-11-25",
+        capabilities: {},
+        clientInfo: { name: "test-client", version: "1.0.0" },
+      },
+    }),
+  });
+
+  expect(response.statusCode).not.toBe(200);
+  expect(buildServer).not.toHaveBeenCalled();
+  await app.close();
+  await handler.close();
+});
 
 test("serves the SDK handler through a Fastify route", async () => {
   const handler = createMcpHandler({

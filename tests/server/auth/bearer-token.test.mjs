@@ -6,6 +6,6 @@ test("reads a bearer token without case sensitivity", () => {
 });
 
 test("returns no token for an absent or non-bearer authorization header", () => {
-  expect(readBearerToken({ headers: {} })).toBeUndefined();
-  expect(readBearerToken({ headers: { authorization: "Basic value" } })).toBeUndefined();
+  expect(readBearerToken({ headers: {} })).toBeNull();
+  expect(readBearerToken({ headers: { authorization: "Basic value" } })).toBeNull();
 });
