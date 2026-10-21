@@ -1,7 +1,4 @@
-export function matchesResource(info, resource) {
-  if (info?.resource === resource) return true;
-  return Array.isArray(info?.aud) ? info.aud.includes(resource) : info?.aud === resource;
-}
+import { matchesResource } from "./resource-matching.mjs";
 
 export function validateOAuthToken(info, { issuer, resource, requiredScopes, now = Date.now() }) {
   const scopes = String(info?.scope || "")

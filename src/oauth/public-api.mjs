@@ -1,6 +1,6 @@
-export { createOAuthIntrospector } from "../auth/introspection.mjs";
+export { createOAuthIntrospector } from "./introspection.mjs";
 export { createOAuthClient } from "./client.mjs";
-export { discoverOAuthProvider } from "../oauth.mjs";
+export { discoverOAuthProvider } from "./provider-discovery.mjs";
 export { registerOAuthClient } from "./registration.mjs";
 export { createClientStore } from "../client/store.mjs";
 export { setOAuthChallenge } from "./metadata.mjs";

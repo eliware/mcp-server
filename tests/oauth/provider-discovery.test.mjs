@@ -1,5 +1,5 @@
 import { jest, test, expect } from "@jest/globals";
-import { discoverOAuthProvider } from "../src/oauth.mjs";
+import { discoverOAuthProvider } from "../../src/oauth/provider-discovery.mjs";
 
 const response = (body, ok = true, status = 200) => ({ ok, status, json: async () => body });
 

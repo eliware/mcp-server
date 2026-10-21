@@ -1,5 +1,5 @@
 import { jest, test, expect } from "@jest/globals";
-import { createOAuthIntrospector } from "../../src/auth/introspection.mjs";
+import { createOAuthIntrospector } from "../../src/oauth/introspection.mjs";
 
 test("OAuth introspector posts credentials and returns JSON", async () => {
   const fetchFn = jest.fn(async () => ({ ok: true, json: async () => ({ active: true }) }));

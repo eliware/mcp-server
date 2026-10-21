@@ -1,6 +1,5 @@
 import { jest, test, expect } from "@jest/globals";
 import { path, pathUrl } from "@eliware/path";
-import { buildServer } from "../src/tools.mjs";
 import echo from "../examples/tools/echo.mjs";
 const toolsDir = path(import.meta, "..", "examples", "tools");
 for (const file of ["echo.mjs"]) {
@@ -18,17 +17,6 @@ for (const file of ["echo.mjs"]) {
   });
 }
 
-const log = { debug: jest.fn(), warn: jest.fn(), error: jest.fn() };
-test("builds server and loads mjs tools", async () => {
-  const server = await buildServer({
-    toolsDir: new URL("../examples/tools/", import.meta.url).pathname,
-    log,
-    name: "test",
-    version: "1",
-    context: {},
-  });
-  expect(server.options.name).toBe("test");
-});
 test("echo tool returns its input", async () => {
   const registerTool = jest.fn();
   const log = { debug: jest.fn() };

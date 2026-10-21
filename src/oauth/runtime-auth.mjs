@@ -1,4 +1,4 @@
-import { createOAuthIntrospector } from "../auth/introspection.mjs";
+import { createOAuthIntrospector } from "./introspection.mjs";
 
 export function resolveRuntimeAuth(auth) {
   return auth?.mode === "oauth2" && !auth.introspect && auth.introspection

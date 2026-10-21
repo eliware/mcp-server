@@ -1,4 +1,4 @@
-import { createOAuthIntrospectionRequest } from "./introspection-request.mjs";
+import { createOAuthIntrospectionRequest } from "../auth/introspection-request.mjs";
 import { assertHttpsOAuthEndpoint } from "../oauth/endpoint-security.mjs";
 
 export function createOAuthIntrospector({

@@ -1,4 +1,4 @@
-import { discoverOAuthProvider } from "../oauth.mjs";
+import { discoverOAuthProvider } from "./provider-discovery.mjs";
 import { resolveOAuthClient } from "../client.mjs";
 
 export async function createOAuthClientSetup({ issuer, client, store, fetchFn }) {

@@ -1,5 +1,8 @@
 import { test, expect } from "@jest/globals";
 import { createToolServer } from "../../src/tool/server.mjs";
+import { buildServer } from "../../src/tools.mjs";
+
+const log = { debug() {}, warn() {}, error() {} };
 
 test("creates an MCP server with tool, resource, and prompt capabilities", () => {
   const calls = [];
@@ -31,4 +34,16 @@ test("uses the MCP SDK server class by default", () => {
   const server = createToolServer({ name: "default", version: "1.0.0", context: {} });
 
   expect(server.options).toEqual({ name: "default", version: "1.0.0" });
+});
+
+test("builds the server and registers discovered mjs tools", async () => {
+  const server = await buildServer({
+    toolsDir: new URL("../../examples/tools/", import.meta.url).pathname,
+    log,
+    name: "test",
+    version: "1",
+    context: {},
+  });
+
+  expect(server.options.name).toBe("test");
 });

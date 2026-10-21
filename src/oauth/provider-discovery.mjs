@@ -1,4 +1,4 @@
-import { assertHttpsOAuthEndpoint } from "./oauth/endpoint-security.mjs";
+import { assertHttpsOAuthEndpoint } from "./endpoint-security.mjs";
 
 export async function discoverOAuthProvider({ issuer, fetchFn = fetch } = {}) {
   if (!issuer) throw new Error("OAuth issuer is required");
