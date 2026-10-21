@@ -1,4 +1,4 @@
-version: "14.0"
+version: "15.0"
 description: Defines shared requirements for the Eliware MCP server package.
 directives:
   - id: E-210.0

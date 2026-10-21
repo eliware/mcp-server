@@ -1,5 +1,20 @@
 # Release Notes
 
+## 15.0.0 — 2026-10-21
+
+### Changed
+
+- Set the package version to 15.0.0 and the maintained specification versions to 15.0.
+- Upgrade `@eliware/log`, `@eliware/path`, and `@eliware/test` to version 15.
+- Update the lock file after the dependency updates.
+- Rename and update the migration guide with current package setup and OAuth state guidance.
+- Align repository documentation and indexes with Eliware Test 15 conventions.
+
+### Migration
+
+- Keep the current `mcpServer` options and tool registration modules.
+- Use the OAuth client state and atomic PKCE store contract described in the authentication guide.
+
 ## 14.0.0 — 2026-10-21
 
 ### Added

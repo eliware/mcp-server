@@ -1,6 +1,6 @@
 {
   "name": "@eliware/mcp-server",
-  "version": "14.0.0",
+  "version": "15.0.0",
   "type": "module",
   "description": "Pure-ESM Node.js MCP server with automatic tool discovery, Streamable HTTP and stdio transports, TLS, Zod schemas, injectable context, bearer authentication, and generic OAuth2 support.",
   "keywords": [
@@ -52,8 +52,8 @@
     "node": ">=26"
   },
   "dependencies": {
-    "@eliware/log": "^14.0.0",
-    "@eliware/path": "^14.0.0",
+    "@eliware/log": "^15.0.0",
+    "@eliware/path": "^15.0.0",
     "@modelcontextprotocol/fastify": "2.0.1",
     "@modelcontextprotocol/node": "2.1.1",
     "@modelcontextprotocol/server": "2.3.1",
@@ -61,7 +61,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@eliware/test": "^14.0.0",
+    "@eliware/test": "^15.0.0",
     "typescript": "^7.0.2"
   },
   "jest": {

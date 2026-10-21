@@ -1,4 +1,4 @@
-version: "14.0"
+version: "15.0"
 description: Defines requirements for tool discovery and registration.
 directives:
   - id: E-210.5

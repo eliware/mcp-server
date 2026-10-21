@@ -8,7 +8,7 @@ Then read the tool, configuration, and authentication guides.
 - [Configuration](configuration.md)
 - [Deployment](deployment.md)
 - [Fastify customization](fastify.md)
-- [Migration to version 13](migration-v13.md)
+- [Migration to version 15](migration-v15.md)
 - [Out of scope](out-of-scope.md)
 - [Requirements](requirements.md)
 - [Testing](testing.md)
