@@ -83,9 +83,7 @@ Keep tokens, OAuth client secrets, and TLS keys in environment variables or secr
 
 ## API
 
-Import `mcpServer` and `z` from `@eliware/mcp-server`. Import `buildResponse` and `convertBigIntToString` from `@eliware/mcp-server/utilities`.
-
-Import OAuth and PKCE helpers from `@eliware/mcp-server/oauth`. Read the [API reference](docs/api.md) for exported functions, options, and result types.
+Read the [API reference](docs/api.md) for exports, options, and result types.
 
 ## Packaging
 

@@ -2,21 +2,20 @@
 
 ## Project
 
-Maintain the `@eliware/mcp-server` library for Model Context Protocol servers.
+Eliware maintains the `@eliware/mcp-server` library for Model Context Protocol servers.
 Use Node.js 26 or newer and native ESM.
 
 ## Scope and boundaries
 
-Keep requirements in their authoritative specifications.
+Keep repository requirements in their authoritative specifications.
 
 ## Layout
 
-Keep library modules in `src/`, tests in `tests/`, examples in `examples/`, and user guides in `docs/`.
+Use README.md and specs/README.md to find maintained files.
 
 ## Development
 
-Install locked dependencies with `npm ci`.
-Keep each source and test module focused on one responsibility.
+Read specs/README.md before you change code.
 
 ## Validation
 
@@ -29,13 +28,11 @@ Run npm run format:check to check formatting.
 
 ## Security
 
-Use HTTPS for OAuth endpoints.
-Do not expose credentials, tokens, or private data.
+Keep credentials, secret values, private data, and runtime state out of Git.
 
 ## Changes
 
-Update the specifications and user guides when behavior changes.
-Keep package metadata and the lock file in sync.
+Update specifications and user guides when package behavior changes.
 
 ## Library
 
@@ -47,4 +44,4 @@ Run the full `npm test` suite for final validation before a commit, milestone, o
 
 ## npm publication
 
-Publish the package through the canonical npm workflow after release approval.
+Follow Eliware Operations procedures for release approval.
