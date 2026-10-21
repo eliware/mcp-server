@@ -3,7 +3,7 @@ import { jest, test, expect } from "@jest/globals";
 const mocks = {
   validateOAuthToken: jest.fn(),
   createOAuthAuthContext: jest.fn(() => ({ mode: "oauth2", subject: "user-1" })),
-  setOAuthChallenge: jest.fn(),
+  sendOAuthError: jest.fn(() => false),
 };
 
 await jest.unstable_mockModule("../../../src/auth/token-validation.mjs", () => ({
@@ -12,8 +12,8 @@ await jest.unstable_mockModule("../../../src/auth/token-validation.mjs", () => (
 await jest.unstable_mockModule("../../../src/auth/oauth/context.mjs", () => ({
   createOAuthAuthContext: mocks.createOAuthAuthContext,
 }));
-await jest.unstable_mockModule("../../../src/oauth/metadata.mjs", () => ({
-  setOAuthChallenge: mocks.setOAuthChallenge,
+await jest.unstable_mockModule("../../../src/server/auth/oauth-error.mjs", () => ({
+  sendOAuthError: mocks.sendOAuthError,
 }));
 
 const { authenticateOAuthRequest } = await import("../../../src/server/auth/oauth.mjs");
@@ -48,13 +48,12 @@ test("validates introspection data and attaches OAuth context", async () => {
   expect(request.raw.auth.extra.mcpAuth).toEqual({ mode: "oauth2", subject: "user-1" });
 });
 
-test("adds a challenge when the request has no bearer token", async () => {
+test("delegates a missing bearer token to the OAuth error response", async () => {
   const { request, reply } = fixture(undefined);
   const config = { mode: "oauth2", resource: "https://resource.example" };
 
   expect(await authenticateOAuthRequest(request, reply, config)).toBe(false);
-  expect(mocks.setOAuthChallenge).toHaveBeenCalled();
-  expect(reply.code).toHaveBeenCalledWith(401);
+  expect(mocks.sendOAuthError).toHaveBeenCalledWith(reply, config, "Bearer token required");
 });
 
 test("returns an unavailable response when introspection throws", async () => {
@@ -66,13 +65,12 @@ test("returns an unavailable response when introspection throws", async () => {
   expect(reply.send).toHaveBeenCalledWith({ error: "Authentication endpoint is unavailable" });
 });
 
-test("adds a challenge when introspection returns an invalid token", async () => {
+test("delegates an invalid token to the OAuth error response", async () => {
   const { request, reply } = fixture("Bearer token");
   const config = { mode: "oauth2", resource: "https://resource.example", introspect: jest.fn() };
   config.introspect.mockResolvedValue({ active: false });
   mocks.validateOAuthToken.mockReturnValue(null);
 
   expect(await authenticateOAuthRequest(request, reply, config)).toBe(false);
-  expect(mocks.setOAuthChallenge).toHaveBeenCalled();
-  expect(reply.code).toHaveBeenCalledWith(401);
+  expect(mocks.sendOAuthError).toHaveBeenCalledWith(reply, config, "Invalid OAuth2 token");
 });

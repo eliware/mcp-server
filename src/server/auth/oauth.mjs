@@ -1,8 +1,8 @@
 import { validateOAuthToken } from "../../auth/token-validation.mjs";
 import { createOAuthAuthContext } from "../../auth/oauth/context.mjs";
-import { setOAuthChallenge } from "../../oauth/metadata.mjs";
 import { attachAuthInfo } from "../auth-context.mjs";
 import { readBearerToken } from "./bearer-token.mjs";
+import { sendOAuthError } from "./oauth-error.mjs";
 
 export async function authenticateOAuthRequest(request, reply, config) {
   const accessToken = readBearerToken(request);
@@ -19,10 +19,4 @@ export async function authenticateOAuthRequest(request, reply, config) {
   const auth = createOAuthAuthContext({ config, info, accessToken, scopes: token.scopes });
   attachAuthInfo(request, auth);
   return true;
-}
-
-function sendOAuthError(reply, config, error) {
-  setOAuthChallenge({ set: (...args) => reply.header(...args) }, { resource: config.resource });
-  reply.code(401).send({ error });
-  return false;
 }
