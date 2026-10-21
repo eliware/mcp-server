@@ -12,8 +12,10 @@ directives:
       - Preserve request metadata when a request has no validated authentication data.
       - Remove caller-supplied authentication metadata before the MCP handler uses it.
       - Return OAuth state so consumers can associate callbacks with user sessions.
-      - Require matching callback state before exchanging an authorization code.
-      - Store each PKCE verifier with its state and consume it once through one atomic operation.
+      - Associate callback state with a session value before redirecting the user.
+      - Compare callback state with the saved session value before exchanging a code.
+      - Store each PKCE verifier and session value with its state.
+      - Consume each PKCE record once through one atomic operation.
       - Require custom PKCE stores to return and remove each record in one atomic operation.
       - Allow consumers to supply custom PKCE storage for requests across processes.
       - Return authentication errors without exposing tokens or private claims.

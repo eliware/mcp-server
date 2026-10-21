@@ -17,8 +17,9 @@ export function createInMemoryPkceStore() {
 }
 
 export async function consumePkceState({ store, state, expectedState } = {}) {
-  if (!state || !expectedState || state !== expectedState) throw new Error("Invalid OAuth state");
+  if (!state || !expectedState) throw new Error("Invalid OAuth state");
   const record = await store.consume(state);
-  if (!record?.verifier) throw new Error("OAuth state expired or unknown");
+  if (!record?.verifier || !record.sessionState) throw new Error("OAuth state expired or unknown");
+  if (record.sessionState !== expectedState) throw new Error("Invalid OAuth state");
   return record;
 }

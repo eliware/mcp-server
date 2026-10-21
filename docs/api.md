@@ -44,11 +44,15 @@ Use this subpath for advanced authentication and client workflows.
 | `setOAuthChallenge(response, options)`     | Set the OAuth resource challenge header.                  |
 | `mountOAuthResourceMetadata(app, options)` | Add OAuth protected resource metadata routes to Fastify.  |
 
-The OAuth client stores each PKCE verifier until it exchanges the matching code.
-Save the returned state in the user session before you redirect the user.
-Pass the callback state and the saved session state to `exchangeCode`.
-The client rejects a missing or mismatched state before it sends a token request.
+The OAuth client stores each PKCE verifier with a session value until it exchanges the matching code.
+Save a random session value before you start OAuth.
+Set the `sessionState` option in `authorizationUrl` to that value.
+Pass the callback state and the saved session value to `exchangeCode`.
+The client checks the saved value against the value stored with the PKCE verifier.
+The client rejects a missing or mismatched value before it sends a token request.
+
 Pass a shared `pkceStore` to `createOAuthClient` when requests can run in multiple processes.
+A shared store must save the session value with each verifier.
 A shared store must return and remove each record in one atomic `consume(state)` call.
 
 ## Utility exports

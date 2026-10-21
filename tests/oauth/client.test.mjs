@@ -21,7 +21,10 @@ test("builds an authorization client from provider data and stored credentials",
   expect(client.credentials).toEqual(credentials);
   expect(client.authorizationUrl).toBeInstanceOf(Function);
   expect(client.exchangeCode).toBeInstanceOf(Function);
-  const authorization = await client.authorizationUrl({ state: "state" });
+  const authorization = await client.authorizationUrl({
+    state: "state",
+    sessionState: "session-state",
+  });
   expect(authorization.url).toContain("state=state");
   expect(authorization.state).toBe("state");
 });

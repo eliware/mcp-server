@@ -13,14 +13,21 @@ npm install @eliware/mcp-server@15
 
 ## Update OAuth callbacks
 
-Await `authorizationUrl` and save its `state` value in the user session.
-Send the callback state and the saved session state to `exchangeCode`.
-The client rejects missing or mismatched state before it sends a token request.
-The client stores and consumes each PKCE verifier with its state.
+Create and save a random session value before you start OAuth.
+Set the `sessionState` option in `authorizationUrl` to that value.
+Send the callback state and the saved session value to `exchangeCode`.
+The client rejects a missing or mismatched session value before it sends a token request.
+The client stores and consumes each PKCE verifier with its state and session value.
 
 ```js
-const authorization = await client.authorizationUrl({ redirectUri, scopes });
-session.expectedOAuthState = authorization.state;
+import { randomUUID } from "node:crypto";
+
+session.expectedOAuthState ??= randomUUID();
+const authorization = await client.authorizationUrl({
+  redirectUri,
+  scopes,
+  sessionState: session.expectedOAuthState,
+});
 redirect(authorization.url);
 
 const tokens = await client.exchangeCode({
@@ -34,6 +41,7 @@ const tokens = await client.exchangeCode({
 ## Update custom PKCE stores
 
 Provide `save` and `consume` methods when you set `pkceStore`.
+Save the `sessionState` value with the PKCE verifier.
 Make `consume(state)` return and remove the matching record as one atomic action.
 Use shared storage with atomic consumption when requests can run in multiple processes.
 Do not use separate calls to read and delete a record.

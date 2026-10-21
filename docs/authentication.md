@@ -71,15 +71,25 @@ The package does not provide a user login flow or an authorization server.
 ## OAuth client state
 
 Await `authorizationUrl` to create an authorization request.
-Save its `state` value in the user session before you redirect the user.
+Create and save a random `sessionState` value in the user session before you start OAuth.
+Pass that value to `authorizationUrl` before you redirect the user.
 Pass the callback state and the saved session state to `exchangeCode`.
-The client rejects the callback when these values do not match.
+The client checks the saved session value against the value stored with the PKCE verifier.
+The client rejects a missing or mismatched session value before it sends a token request.
+
 The client stores each PKCE verifier in memory by default.
 Use a shared `pkceStore` across processes, with a `consume(state)` method that returns and removes each record atomically.
+Each stored record must include the PKCE verifier and the session state.
 
 ```js
-const authorization = await client.authorizationUrl({ redirectUri, scopes });
-session.expectedOAuthState = authorization.state;
+import { randomUUID } from "node:crypto";
+
+session.expectedOAuthState ??= randomUUID();
+const authorization = await client.authorizationUrl({
+  redirectUri,
+  scopes,
+  sessionState: session.expectedOAuthState,
+});
 redirect(authorization.url);
 
 const tokens = await client.exchangeCode({
