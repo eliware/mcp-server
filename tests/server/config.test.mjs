@@ -18,6 +18,13 @@ test("uses a JavaScript process entrypoint as the default", () => {
   }
 });
 
+test("normalizes a string file URL entrypoint", () => {
+  const entrypoint = new URL("../../src/server.mjs", import.meta.url).href;
+  expect(normalizeServerConfig({ entrypoint }).entrypoint).toBe(
+    normalizeServerConfig({ entrypoint: new URL(entrypoint) }).entrypoint,
+  );
+});
+
 test("keeps the default entrypoint undefined when the process has no script", () => {
   const original = process.argv[1];
   process.argv[1] = undefined;

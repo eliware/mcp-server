@@ -11,7 +11,7 @@ export function createOAuthAuthorizationUrl({
   if (!clientId) throw new Error("OAuth client ID is required");
   assertHttpsOAuthEndpoint(provider.authorization_endpoint, "OAuth authorization endpoint");
   const url = new URL(provider.authorization_endpoint);
-  url.search = new URLSearchParams({
+  const params = new URLSearchParams({
     client_id: clientId,
     response_type: "code",
     redirect_uri: redirectUri,
@@ -20,5 +20,6 @@ export function createOAuthAuthorizationUrl({
     code_challenge: authorizationParams.codeChallenge,
     code_challenge_method: authorizationParams.codeChallengeMethod,
   });
+  for (const [key, value] of params) url.searchParams.set(key, value);
   return url.toString();
 }
