@@ -30,19 +30,25 @@ The package includes TypeScript declarations for its public API.
 Import OAuth, introspection, and PKCE helpers from `@eliware/mcp-server/oauth`.
 Use this subpath for advanced authentication and client workflows.
 
-| Export                                     | Use                                                                    |
-| ------------------------------------------ | ---------------------------------------------------------------------- |
-| `createOAuthIntrospector(options)`         | Check bearer tokens with an OAuth introspection endpoint.              |
-| `createOAuthClient(options)`               | Create an OAuth client with provider and authorization code functions. |
-| `discoverOAuthProvider(options)`           | Read provider metadata from an issuer.                                 |
-| `registerOAuthClient(options)`             | Send client data to an OAuth endpoint.                                 |
-| `createClientStore(options)`               | Create storage for OAuth client data.                                  |
-| `resolveOAuthClient(options)`              | Find or add an OAuth client through a store.                           |
-| `createPkceState(options)`                 | Create a PKCE verifier, state, and challenge.                          |
-| `createPkceStore(options)`                 | Create storage for one-time PKCE state.                                |
-| `consumePkceState(options)`                | Read and validate a PKCE state value.                                  |
-| `setOAuthChallenge(response, options)`     | Set the OAuth resource challenge header.                               |
-| `mountOAuthResourceMetadata(app, options)` | Add OAuth protected resource metadata routes to Fastify.               |
+| Export                                     | Use                                                       |
+| ------------------------------------------ | --------------------------------------------------------- |
+| `createOAuthIntrospector(options)`         | Check bearer tokens with an OAuth introspection endpoint. |
+| `createOAuthClient(options)`               | Create a state-checked OAuth authorization code flow.     |
+| `discoverOAuthProvider(options)`           | Read provider metadata from an issuer.                    |
+| `registerOAuthClient(options)`             | Send client data to an OAuth endpoint.                    |
+| `createClientStore(options)`               | Create storage for OAuth client data.                     |
+| `resolveOAuthClient(options)`              | Find or add an OAuth client through a store.              |
+| `createPkceState(options)`                 | Create a PKCE verifier, state, and challenge.             |
+| `createPkceStore(options)`                 | Create storage for one-time PKCE state.                   |
+| `consumePkceState(options)`                | Read and validate a PKCE state value.                     |
+| `setOAuthChallenge(response, options)`     | Set the OAuth resource challenge header.                  |
+| `mountOAuthResourceMetadata(app, options)` | Add OAuth protected resource metadata routes to Fastify.  |
+
+The OAuth client stores each PKCE verifier until it exchanges the matching code.
+Save the returned state in the user session before you redirect the user.
+Pass the callback state and the saved session state to `exchangeCode`.
+The client rejects a missing or mismatched state before it sends a token request.
+Pass a shared `pkceStore` to `createOAuthClient` when requests can run in multiple processes.
 
 ## Utility exports
 

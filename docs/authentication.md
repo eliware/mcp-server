@@ -68,6 +68,28 @@ OAuth2 mode serves protected resource metadata at these routes:
 
 The package does not provide a user login flow or an authorization server.
 
+## OAuth client state
+
+Await `authorizationUrl` to create an authorization request.
+Save its `state` value in the user session before you redirect the user.
+Pass the callback state and the saved session state to `exchangeCode`.
+The client rejects the callback when these values do not match.
+The client stores each PKCE verifier in memory by default.
+Pass a shared `pkceStore` when requests can run in multiple processes.
+
+```js
+const authorization = await client.authorizationUrl({ redirectUri, scopes });
+session.expectedOAuthState = authorization.state;
+redirect(authorization.url);
+
+const tokens = await client.exchangeCode({
+  code: callback.code,
+  redirectUri,
+  state: callback.state,
+  expectedState: session.expectedOAuthState,
+});
+```
+
 ## Tool auth helpers
 
 Use `requireAuth`, `requireBearer`, `getAccessToken`, `getUser`, `hasScope`, and `requireScope` in tools.

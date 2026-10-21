@@ -18,3 +18,17 @@ test("removes caller-supplied auth metadata when authentication is disabled", ()
   injectRequestAuthMetadata(params);
   expect(params._meta).toEqual({ trace: "trace" });
 });
+
+test("leaves unauthenticated parameters without metadata unchanged", () => {
+  const params = { name: "tool", arguments: {} };
+  injectRequestAuthMetadata(params);
+  expect(params).toEqual({ name: "tool", arguments: {} });
+  expect(params).not.toHaveProperty("_meta");
+});
+
+test("keeps existing metadata unchanged when no auth metadata needs removal", () => {
+  const metadata = { trace: "trace" };
+  const params = { _meta: metadata };
+  injectRequestAuthMetadata(params);
+  expect(params._meta).toBe(metadata);
+});

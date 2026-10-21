@@ -20,6 +20,7 @@ test("creates an authorization URL and returns its PKCE verifier", () => {
   expect(url.searchParams.get("redirect_uri")).toBe("https://app.example/callback");
   expect(url.searchParams.get("scope")).toBe("read write");
   expect(url.searchParams.get("state")).toBe("state-value");
+  expect(result.state).toBe("state-value");
   expect(result.codeVerifier).toBe(codeVerifier);
 });
 

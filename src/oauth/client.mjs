@@ -1,7 +1,13 @@
 import { createOAuthClientSetup } from "./client-setup.mjs";
 import { createOAuthAuthorizationFlow } from "./authorization/flow.mjs";
 
-export async function createOAuthClient({ issuer, client, store, fetchFn = fetch } = {}) {
+export async function createOAuthClient({
+  issuer,
+  client,
+  store,
+  pkceStore,
+  fetchFn = fetch,
+} = {}) {
   const { provider, credentials } = await createOAuthClientSetup({
     issuer,
     client,
@@ -11,6 +17,6 @@ export async function createOAuthClient({ issuer, client, store, fetchFn = fetch
   return {
     provider,
     credentials,
-    ...createOAuthAuthorizationFlow({ provider, credentials, fetchFn }),
+    ...createOAuthAuthorizationFlow({ provider, credentials, fetchFn, pkceStore }),
   };
 }

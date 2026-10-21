@@ -15,14 +15,38 @@ test("connects authorization URL creation to code exchange", async () => {
     credentials: { clientId: "id" },
     fetchFn,
   });
-  const auth = flow.authorizationUrl({ redirectUri: "https://app/cb", state: "state" });
+  const auth = await flow.authorizationUrl({ redirectUri: "https://app/cb", state: "state" });
   await flow.exchangeCode({
     code: "code",
     redirectUri: "https://app/cb",
-    codeVerifier: auth.codeVerifier,
+    state: auth.state,
+    expectedState: "state",
   });
   const requestBody = new URLSearchParams(fetchFn.mock.calls[0][1].body);
-  expect(requestBody.get("code_verifier")).toBe(auth.codeVerifier);
+  expect(requestBody.get("code_verifier")).toBeTruthy();
+});
+
+test("rejects a callback with state that does not match the user session", async () => {
+  const fetchFn = jest.fn();
+  const flow = createOAuthAuthorizationFlow({
+    provider: {
+      authorization_endpoint: "https://auth/authorize",
+      token_endpoint: "https://auth/token",
+    },
+    credentials: { client_id: "id" },
+    fetchFn,
+  });
+  const auth = await flow.authorizationUrl({ redirectUri: "https://app/cb" });
+
+  await expect(
+    flow.exchangeCode({
+      code: "code",
+      redirectUri: "https://app/cb",
+      state: auth.state,
+      expectedState: "attacker-state",
+    }),
+  ).rejects.toThrow("Invalid OAuth state");
+  expect(fetchFn).not.toHaveBeenCalled();
 });
 
 test("uses global fetch when no fetch function is set", async () => {
@@ -34,14 +58,19 @@ test("uses global fetch when no fetch function is set", async () => {
   global.fetch = fetchMock;
   try {
     const flow = createOAuthAuthorizationFlow({
-      provider: { token_endpoint: "https://auth/token" },
+      provider: {
+        authorization_endpoint: "https://auth/authorize",
+        token_endpoint: "https://auth/token",
+      },
       credentials: { client_id: "id" },
     });
+    const auth = await flow.authorizationUrl();
     await expect(
       flow.exchangeCode({
         code: "code",
         redirectUri: "https://app/cb",
-        codeVerifier: "verifier",
+        state: auth.state,
+        expectedState: auth.state,
       }),
     ).resolves.toEqual({ access_token: "token" });
     expect(fetchMock).toHaveBeenCalledWith(

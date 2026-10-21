@@ -1,5 +1,9 @@
 import { jest, test, expect } from "@jest/globals";
-import { consumePkceState, createPkceStore } from "../../src/pkce/store.mjs";
+import {
+  consumePkceState,
+  createInMemoryPkceStore,
+  createPkceStore,
+} from "../../src/pkce/store.mjs";
 
 test("creates stores and consumes valid state once", async () => {
   const save = jest.fn();
@@ -19,6 +23,17 @@ test("rejects invalid store setup", () => {
   expect(() => createPkceStore({ save: jest.fn() })).toThrow("PKCE store");
   expect(() => createPkceStore({ save: jest.fn(), load: jest.fn() })).toThrow(
     "save, load, and remove",
+  );
+});
+
+test("stores and consumes pending PKCE data in memory", async () => {
+  const store = createInMemoryPkceStore();
+  await store.save("state", { verifier: "verifier" });
+  await expect(
+    consumePkceState({ store, state: "state", expectedState: "state" }),
+  ).resolves.toEqual({ verifier: "verifier" });
+  await expect(consumePkceState({ store, state: "state", expectedState: "state" })).rejects.toThrow(
+    "expired or unknown",
   );
 });
 

@@ -11,6 +11,10 @@ export function createAuthorizationUrlOperation({ provider, credentials }) {
       scopes: options.scopes,
       authorizationParams,
     });
-    return { url, codeVerifier: authorizationParams.codeVerifier };
+    return {
+      url,
+      state: authorizationParams.state,
+      codeVerifier: authorizationParams.codeVerifier,
+    };
   };
 }

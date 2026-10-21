@@ -9,6 +9,12 @@ directives:
       - Apply authentication before the MCP endpoint processes each request.
       - Keep authorization rules separate from MCP protocol rules.
       - Pass validated authentication data to each tool context.
+      - Preserve request metadata when a request has no validated authentication data.
+      - Remove caller-supplied authentication metadata before the MCP handler uses it.
+      - Return OAuth state so consumers can associate callbacks with user sessions.
+      - Require matching callback state before exchanging an authorization code.
+      - Store each PKCE verifier with its state and consume it once.
+      - Allow consumers to supply PKCE storage that works across processes.
       - Return authentication errors without exposing tokens or private claims.
       - Require HTTPS for OAuth issuer and introspection endpoints.
       - Require HTTPS for authorization, registration, and token endpoints.
