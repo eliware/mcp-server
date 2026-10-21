@@ -7,13 +7,29 @@
 - Set the package version to 15.0.0 and the maintained specification versions to 15.0.
 - Upgrade `@eliware/log`, `@eliware/path`, and `@eliware/test` to version 15.
 - Update the lock file after the dependency updates.
-- Rename and update the migration guide with current package setup and OAuth state guidance.
+- Move the migration guide to version 15 and update its OAuth guidance.
 - Align repository documentation and indexes with Eliware Test 15 conventions.
+- Move tool directory normalization into a focused module with a matching test.
+- Remove repeated OAuth client validation assertions and keep response tests focused.
+
+### Security
+
+- Require a random session value before the client creates an OAuth authorization URL.
+- Store the session value with each PKCE verifier and check it before a token request.
+- Preserve a PKCE verifier when a callback has a mismatched session value.
+- Consume a verifier once after the callback session value matches.
+- Require applications to trust and allowlist OAuth issuers before client setup.
+
+### Breaking changes
+
+- Add required `sessionState` input to `authorizationUrl`.
+- Change custom PKCE stores to validate `expectedState` in `consume(state, expectedState)`.
 
 ### Migration
 
+- Save a random session value before calling `authorizationUrl` and pass it as `sessionState`.
+- Update custom stores to preserve records on mismatches and remove matching records atomically.
 - Keep the current `mcpServer` options and tool registration modules.
-- Use the OAuth client state and atomic PKCE store contract described in the authentication guide.
 
 ## 14.0.0 — 2026-10-21
 
