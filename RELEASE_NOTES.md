@@ -2,12 +2,38 @@
 
 ## 14.0.0 — 2026-10-21
 
+### Added
+
+- Require the OAuth callback state to match the state saved in the user session before a token request.
+- Store each PKCE verifier with its state and remove it after one use.
+- Add an in-memory PKCE store by default and allow consumers to provide a store for shared process state.
+- Add deployment, Fastify customization, and testing guides.
+
 ### Changed
 
+- Set the package version to 14.0.0 and the specification versions to 14.0.
 - Upgrade `@eliware/log`, `@eliware/path`, and `@eliware/test` to version 14.
-- Update package and specification versions to 14.0.0 and 14.0.
-- Refresh the lock file with the latest available dependency releases.
-- Complete the required `AGENTS.md` sections for Eliware Test 14 conventions.
+- Refresh the lock file with the latest dependency releases.
+- Split server authentication, OAuth flows, token checks, and BigInt conversion into focused modules with focused tests.
+- Share bearer parsing between server authentication and tool context helpers.
+- Preserve provider query parameters when the client builds an OAuth authorization URL.
+- Normalize string file URLs and Windows entrypoint paths.
+- Read verified authentication data from the MCP request context supplied by the SDK.
+- Preserve request metadata when no validated authentication data exists.
+- Align specifications, repository guidance, and user documentation with Eliware Test 14 conventions.
+- Rewrite and expand user documentation with setup, deployment, Fastify, authentication, API, and testing guidance.
+- Remove duplicate BigInt conversion test cases while retaining cycle and conversion coverage.
+
+### Security
+
+- Reject OAuth callbacks when the returned state does not match the user session.
+- Keep PKCE verifiers in one-use storage and remove them after the client starts the token request.
+
+### Breaking changes
+
+- Return a promise with the authorization URL and state from `authorizationUrl`.
+- Remove caller-supplied PKCE verifiers from `exchangeCode`. Require `state` and `expectedState`.
+- Add the optional `pkceStore` client option. Use a shared store when requests can run in multiple processes.
 
 ## 13.0.0 — 2026-10-19
 
