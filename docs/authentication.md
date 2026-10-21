@@ -30,6 +30,11 @@ Use HTTPS for the issuer, introspection, authorization, registration, and token 
 The OAuth helpers reject other schemes before they send tokens, codes, or client data.
 
 Set `issuer` and `resource`.
+Validate each issuer against an application allowlist before you create the OAuth client.
+Do not use an issuer value directly from an untrusted request.
+Provider metadata sets the authorization, registration, and token request destinations.
+Create OAuth clients only for issuers that your application trusts.
+
 Pass an `introspect` function or set `introspection.endpoint`.
 The `introspection` option also accepts `clientId`, `clientSecret`, and `fetchFn` values.
 Use `createOAuthIntrospector()` to build the function.
@@ -76,6 +81,9 @@ Pass that value to `authorizationUrl` before you redirect the user.
 Pass the callback state and the saved session state to `exchangeCode`.
 The client checks the saved session value against the value stored with the PKCE verifier.
 The client rejects a missing or mismatched session value before it sends a token request.
+
+The client preserves the verifier when the session value does not match.
+The client consumes the verifier after a matching callback.
 
 The client stores each PKCE verifier in memory by default.
 Use a shared `pkceStore` across processes, with a `consume(state, expectedState)` method.

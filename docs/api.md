@@ -51,6 +51,9 @@ Pass the callback state and the saved session value to `exchangeCode`.
 The client checks the saved value against the value stored with the PKCE verifier.
 The client rejects a missing or mismatched value before it sends a token request.
 
+The client preserves the verifier when the saved value does not match.
+The client consumes the verifier after a matching callback.
+
 Pass a shared `pkceStore` to `createOAuthClient` when requests can run in multiple processes.
 A shared store must save the session value with each verifier.
 A shared store must validate the saved session value and remove each matching record in one atomic `consume(state, expectedState)` call.

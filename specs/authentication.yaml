@@ -15,9 +15,11 @@ directives:
       - Associate callback state with a session value before redirecting the user.
       - Compare callback state with the saved session value before exchanging a code.
       - Store each PKCE verifier and session value with its state.
-      - Consume each PKCE record once through one atomic operation.
+      - Consume each PKCE record once after its session value matches.
+      - Preserve each PKCE record when its session value does not match.
       - Require custom stores to validate the session and remove matching records atomically.
       - Allow consumers to supply custom PKCE storage for requests across processes.
+      - Require OAuth issuer values to come from trusted application configuration.
       - Return authentication errors without exposing tokens or private claims.
       - Require HTTPS for OAuth issuer and introspection endpoints.
       - Require HTTPS for authorization, registration, and token endpoints.
