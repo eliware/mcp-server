@@ -1,17 +1,13 @@
-import {
-  createMcpFastifyApp,
-  hostHeaderValidation,
-  originValidation,
-} from "@modelcontextprotocol/fastify";
+import { createMcpFastifyApp } from "@modelcontextprotocol/fastify";
 import { buildServer } from "./tools.mjs";
 import { loadPackageMeta } from "./meta.mjs";
 import { resolveServerOptions } from "./server/options.mjs";
 import { createMcpHandler } from "./server/mcp-handler.mjs";
 import { mountMcpHandler } from "./server/fastify-route.mjs";
-import { authenticateRequest } from "./server/authenticate.mjs";
 import { createStdioResult } from "./server/stdio.mjs";
 import { resolveRuntimeAuth } from "./oauth/runtime-auth.mjs";
-import { mountOAuthResourceMetadata } from "./oauth/resource-metadata.mjs";
+import { registerSecurityHooks } from "./server/security-hooks.mjs";
+import { mountOAuthRoutes } from "./server/oauth-routes.mjs";
 
 export async function mcpServer(options = {}) {
   const { config, toolsDir, packagePath, activeLog } = resolveServerOptions(options);
@@ -32,19 +28,17 @@ export async function mcpServer(options = {}) {
       allowedHosts: config.allowedHosts,
       allowedOrigins: config.allowedOrigins,
     });
-  if (config.fastify && config.allowedHosts) {
-    app.addHook("onRequest", hostHeaderValidation(config.allowedHosts));
-  }
-  if (config.fastify && config.allowedOrigins) {
-    app.addHook("onRequest", originValidation(config.allowedOrigins));
-  }
   if (config.configureFastify) await config.configureFastify(app);
   const auth = resolveRuntimeAuth(config.auth);
-  if (auth?.mode === "oauth2") mountOAuthResourceMetadata(app, auth);
+  mountOAuthRoutes({ app, auth });
   app.addHook("onClose", () => handler.close());
-  app.addHook("preHandler", async (request, reply) => {
-    if (request.routeOptions.url !== config.endpointPath) return;
-    if (!(await authenticateRequest(request, reply, auth))) return reply;
+  registerSecurityHooks({
+    app,
+    suppliedApp: Boolean(config.fastify),
+    allowedHosts: config.allowedHosts,
+    allowedOrigins: config.allowedOrigins,
+    endpointPath: config.endpointPath,
+    auth,
   });
   mountMcpHandler({ app, handler, endpointPath: config.endpointPath });
   if (config.port !== null) await app.listen({ host: config.host, port: Number(config.port) });

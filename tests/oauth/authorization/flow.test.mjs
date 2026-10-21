@@ -25,11 +25,30 @@ test("connects authorization URL creation to code exchange", async () => {
   expect(requestBody.get("code_verifier")).toBe(auth.codeVerifier);
 });
 
-test("creates a default authorization URL", () => {
-  const flow = createOAuthAuthorizationFlow({
-    provider: { authorization_endpoint: "https://auth/authorize" },
-    credentials: { client_id: "id" },
+test("uses global fetch when no fetch function is set", async () => {
+  const originalFetch = global.fetch;
+  const fetchMock = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ access_token: "token" }),
   });
-  const auth = flow.authorizationUrl();
-  expect(new URL(auth.url).searchParams.get("response_type")).toBe("code");
+  global.fetch = fetchMock;
+  try {
+    const flow = createOAuthAuthorizationFlow({
+      provider: { token_endpoint: "https://auth/token" },
+      credentials: { client_id: "id" },
+    });
+    await expect(
+      flow.exchangeCode({
+        code: "code",
+        redirectUri: "https://app/cb",
+        codeVerifier: "verifier",
+      }),
+    ).resolves.toEqual({ access_token: "token" });
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://auth/token",
+      expect.objectContaining({ method: "POST" }),
+    );
+  } finally {
+    global.fetch = originalFetch;
+  }
 });

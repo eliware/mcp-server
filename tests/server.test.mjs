@@ -17,9 +17,8 @@ const mocks = {
   authenticateRequest: jest.fn(async () => true),
   createStdioResult: jest.fn(() => ({ close: jest.fn() })),
   resolveRuntimeAuth: jest.fn((auth) => auth),
-  mountOAuthResourceMetadata: jest.fn(),
-  hostHeaderValidation: jest.fn((hosts) => ({ hosts })),
-  originValidation: jest.fn((origins) => ({ origins })),
+  registerSecurityHooks: jest.fn(),
+  mountOAuthRoutes: jest.fn(),
   loadPackageMeta: jest.fn(() => ({ name: "test-package", version: "1.0.0" })),
   resolveServerOptions: jest.fn((options = {}) => {
     const config = {
@@ -42,8 +41,6 @@ const mocks = {
 
 await jest.unstable_mockModule("@modelcontextprotocol/fastify", () => ({
   createMcpFastifyApp: mocks.createMcpFastifyApp,
-  hostHeaderValidation: mocks.hostHeaderValidation,
-  originValidation: mocks.originValidation,
 }));
 await jest.unstable_mockModule("../src/tools.mjs", () => ({ buildServer: mocks.buildServer }));
 await jest.unstable_mockModule("../src/meta.mjs", () => ({
@@ -67,8 +64,11 @@ await jest.unstable_mockModule("../src/server/stdio.mjs", () => ({
 await jest.unstable_mockModule("../src/oauth/runtime-auth.mjs", () => ({
   resolveRuntimeAuth: mocks.resolveRuntimeAuth,
 }));
-await jest.unstable_mockModule("../src/oauth/resource-metadata.mjs", () => ({
-  mountOAuthResourceMetadata: mocks.mountOAuthResourceMetadata,
+await jest.unstable_mockModule("../src/server/security-hooks.mjs", () => ({
+  registerSecurityHooks: mocks.registerSecurityHooks,
+}));
+await jest.unstable_mockModule("../src/server/oauth-routes.mjs", () => ({
+  mountOAuthRoutes: mocks.mountOAuthRoutes,
 }));
 
 const { mcpServer } = await import("../src/server.mjs");
@@ -101,16 +101,14 @@ test("builds a default HTTP server without listening when port is null", async (
   await handlerOptions.buildServer();
   expect(mocks.buildServer).toHaveBeenCalledWith(handlerOptions.serverOptions);
 
-  const preHandler = app.addHook.mock.calls.find(([name]) => name === "preHandler")[1];
-  const request = { routeOptions: { url: "/health" } };
-  await preHandler(request, {});
-  expect(mocks.authenticateRequest).not.toHaveBeenCalled();
-  const mcpRequest = { routeOptions: { url: "/mcp" } };
-  await preHandler(mcpRequest, {});
-  expect(mocks.authenticateRequest).toHaveBeenCalledWith(mcpRequest, {}, { mode: "none" });
-  const deniedReply = {};
-  mocks.authenticateRequest.mockResolvedValueOnce(false);
-  expect(await preHandler(mcpRequest, deniedReply)).toBe(deniedReply);
+  expect(mocks.registerSecurityHooks).toHaveBeenCalledWith({
+    app,
+    suppliedApp: false,
+    allowedHosts: undefined,
+    allowedOrigins: undefined,
+    endpointPath: "/mcp",
+    auth: { mode: "none" },
+  });
 
   const onClose = app.addHook.mock.calls.find(([name]) => name === "onClose")[1];
   await onClose();
@@ -146,11 +144,15 @@ test("configures a supplied Fastify app and OAuth metadata", async () => {
   expect((await mcpServer(options)).app).toBe(app);
   expect(mocks.createMcpFastifyApp).not.toHaveBeenCalled();
   expect(configureFastify).toHaveBeenCalledWith(app);
-  expect(mocks.hostHeaderValidation).toHaveBeenCalledWith(options.allowedHosts);
-  expect(mocks.originValidation).toHaveBeenCalledWith(options.allowedOrigins);
-  expect(app.addHook).toHaveBeenCalledWith("onRequest", { hosts: options.allowedHosts });
-  expect(app.addHook).toHaveBeenCalledWith("onRequest", { origins: options.allowedOrigins });
-  expect(mocks.mountOAuthResourceMetadata).toHaveBeenCalledWith(app, auth);
+  expect(mocks.registerSecurityHooks).toHaveBeenCalledWith({
+    app,
+    suppliedApp: true,
+    allowedHosts: options.allowedHosts,
+    allowedOrigins: options.allowedOrigins,
+    endpointPath: "/mcp",
+    auth,
+  });
+  expect(mocks.mountOAuthRoutes).toHaveBeenCalledWith({ app, auth });
   expect(app.listen).toHaveBeenCalledWith({ host: "127.0.0.1", port: 4000 });
 });
 

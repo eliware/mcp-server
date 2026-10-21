@@ -72,17 +72,3 @@ test("rejects a failed code exchange", async () => {
     "token request",
   );
 });
-
-test("uses global fetch when no fetch function is set", async () => {
-  const original = global.fetch;
-  global.fetch = jest
-    .fn()
-    .mockResolvedValue({ ok: true, json: async () => ({ access_token: "token" }) });
-  try {
-    await expect(exchangeOAuthCode({ provider, credentials, code: "code" })).resolves.toEqual({
-      access_token: "token",
-    });
-  } finally {
-    global.fetch = original;
-  }
-});

@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { discoverTools } from "./tool/discovery.mjs";
 import { registerTools } from "./tool/registration.mjs";
+import { createToolServer } from "./tool/server.mjs";
 
 export async function buildServer({
   toolsDir,
@@ -12,12 +12,7 @@ export async function buildServer({
   loadModule,
   toolCache = new Map(),
 }) {
-  const server = new McpServer(
-    { name, version },
-    { capabilities: { tools: {}, resources: {}, prompts: {} } },
-  );
-  server.options = { name, version };
-  server.context = context;
+  const server = createToolServer({ name, version, context });
   const { resolvedToolsDir, tools } = discoverTools({ toolsDir, readDir, toolCache });
   await registerTools({
     server,
