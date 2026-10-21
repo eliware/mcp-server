@@ -1,7 +1,7 @@
-import { requireAuth } from "./context.mjs";
+import { getAuthContext, requireAuth } from "./context.mjs";
 
 export function getAccessToken(extra = {}) {
-  return (extra.mcpAuth || extra._meta?.mcpAuth)?.accessToken || null;
+  return getAuthContext(extra)?.accessToken || null;
 }
 
 export function requireBearer(extra = {}) {

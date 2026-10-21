@@ -5,6 +5,7 @@ test("reads bearer tokens from the request context", () => {
   const auth = { mode: "oauth2", accessToken: "token" };
   expect(getAccessToken({ mcpAuth: auth })).toBe("token");
   expect(getAccessToken({ _meta: { mcpAuth: auth } })).toBe("token");
+  expect(getAccessToken({ mcpReq: { _meta: { mcpAuth: auth } } })).toBe("token");
   expect(requireBearer({ mcpAuth: auth })).toBe("token");
 });
 

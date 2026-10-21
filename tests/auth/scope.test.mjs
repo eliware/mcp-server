@@ -4,6 +4,7 @@ import { hasScope, requireScope } from "../../src/auth/scope.mjs";
 test("checks scopes in request and metadata contexts", () => {
   expect(hasScope({ mcpAuth: { scopes: ["read"] } }, "read")).toBe(true);
   expect(hasScope({ _meta: { mcpAuth: { scopes: ["read"] } } }, "read")).toBe(true);
+  expect(hasScope({ mcpReq: { _meta: { mcpAuth: { scopes: ["read"] } } } }, "read")).toBe(true);
   expect(hasScope()).toBe(false);
   expect(requireScope({ mcpAuth: { scopes: ["read"] } }, "read")).toBeUndefined();
   expect(() => requireScope()).toThrow("Missing scope");

@@ -1,7 +1,7 @@
+import { getAuthContext } from "./context.mjs";
+
 export function hasScope(extra = {}, scope) {
-  return Boolean(
-    extra.mcpAuth?.scopes?.includes(scope) || extra._meta?.mcpAuth?.scopes?.includes(scope),
-  );
+  return Boolean(getAuthContext(extra)?.scopes?.includes(scope));
 }
 
 export function requireScope(extra = {}, scope) {

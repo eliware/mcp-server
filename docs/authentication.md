@@ -71,7 +71,7 @@ The package does not provide a user login flow or an authorization server.
 ## Tool auth helpers
 
 Use `requireAuth`, `requireBearer`, `getAccessToken`, `getUser`, `hasScope`, and `requireScope` in tools.
-The helpers read verified auth data from `extra.mcpAuth` or `extra._meta.mcpAuth`.
+The helpers read verified auth data from `extra.mcpAuth`, `extra._meta.mcpAuth`, or `extra.mcpReq._meta.mcpAuth`.
 The `getUser` helper returns the subject, client ID, issuer, and scopes when those values exist.
 The `requireScope` helper throws an error with status 403 when the caller lacks the scope.
 
