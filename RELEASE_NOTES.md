@@ -27,13 +27,15 @@
 ### Security
 
 - Reject OAuth callbacks when the returned state does not match the user session.
-- Keep PKCE verifiers in one-use storage and remove them after the client starts the token request.
+- Consume each PKCE verifier through one atomic store operation before the client sends a token request.
+- Require custom PKCE stores to return and remove a verifier atomically across processes.
 
 ### Breaking changes
 
 - Return a promise with the authorization URL and state from `authorizationUrl`.
 - Remove caller-supplied PKCE verifiers from `exchangeCode`. Require `state` and `expectedState`.
 - Add the optional `pkceStore` client option. Use a shared store when requests can run in multiple processes.
+- Replace custom PKCE store `load` and `remove` functions with atomic `consume(state)`.
 
 ## 13.0.0 — 2026-10-19
 

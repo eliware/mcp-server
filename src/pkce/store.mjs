@@ -1,22 +1,24 @@
-export function createPkceStore({ save, load, remove } = {}) {
-  if (typeof save !== "function" || typeof load !== "function" || typeof remove !== "function")
-    throw new Error("PKCE store requires save, load, and remove functions");
-  return { save, load, remove };
+export function createPkceStore({ save, consume } = {}) {
+  if (typeof save !== "function" || typeof consume !== "function")
+    throw new Error("PKCE store requires save and consume functions");
+  return { save, consume };
 }
 
 export function createInMemoryPkceStore() {
   const records = new Map();
   return createPkceStore({
     save: async (state, record) => records.set(state, record),
-    load: async (state) => records.get(state),
-    remove: async (state) => records.delete(state),
+    consume: (state) => {
+      const record = records.get(state);
+      records.delete(state);
+      return record;
+    },
   });
 }
 
 export async function consumePkceState({ store, state, expectedState } = {}) {
   if (!state || !expectedState || state !== expectedState) throw new Error("Invalid OAuth state");
-  const record = await store.load(state);
+  const record = await store.consume(state);
   if (!record?.verifier) throw new Error("OAuth state expired or unknown");
-  await store.remove(state);
   return record;
 }

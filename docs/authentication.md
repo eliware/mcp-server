@@ -75,7 +75,7 @@ Save its `state` value in the user session before you redirect the user.
 Pass the callback state and the saved session state to `exchangeCode`.
 The client rejects the callback when these values do not match.
 The client stores each PKCE verifier in memory by default.
-Pass a shared `pkceStore` when requests can run in multiple processes.
+Use a shared `pkceStore` across processes, with a `consume(state)` method that returns and removes each record atomically.
 
 ```js
 const authorization = await client.authorizationUrl({ redirectUri, scopes });

@@ -5,25 +5,21 @@ import {
   createPkceStore,
 } from "../../src/pkce/store.mjs";
 
-test("creates stores and consumes valid state once", async () => {
+test("creates stores with an atomic consume operation", async () => {
   const save = jest.fn();
-  const load = jest.fn().mockResolvedValue({ verifier: "v" });
-  const remove = jest.fn();
-  const store = createPkceStore({ save, load, remove });
-  expect(store.remove).toBe(remove);
+  const consume = jest.fn().mockResolvedValue({ verifier: "v" });
+  const store = createPkceStore({ save, consume });
+  expect(store.consume).toBe(consume);
   await expect(consumePkceState({ store, state: "s", expectedState: "s" })).resolves.toEqual({
     verifier: "v",
   });
-  expect(load).toHaveBeenCalledWith("s");
-  expect(remove).toHaveBeenCalledWith("s");
+  expect(consume).toHaveBeenCalledWith("s");
 });
 
 test("rejects invalid store setup", () => {
   expect(() => createPkceStore()).toThrow("PKCE store");
   expect(() => createPkceStore({ save: jest.fn() })).toThrow("PKCE store");
-  expect(() => createPkceStore({ save: jest.fn(), load: jest.fn() })).toThrow(
-    "save, load, and remove",
-  );
+  expect(() => createPkceStore({ save: jest.fn(), load: jest.fn() })).toThrow("save and consume");
 });
 
 test("stores and consumes pending PKCE data in memory", async () => {
@@ -37,6 +33,39 @@ test("stores and consumes pending PKCE data in memory", async () => {
   );
 });
 
+test("allows only one concurrent consume to receive a verifier", async () => {
+  const store = createInMemoryPkceStore();
+  await store.save("state", { verifier: "verifier" });
+
+  const results = await Promise.allSettled([
+    consumePkceState({ store, state: "state", expectedState: "state" }),
+    consumePkceState({ store, state: "state", expectedState: "state" }),
+  ]);
+
+  expect(results.filter(({ status }) => status === "fulfilled")).toHaveLength(1);
+  expect(results.filter(({ status }) => status === "rejected")).toHaveLength(1);
+});
+
+test("delegates one-time consumption to the custom store", async () => {
+  const records = new Map([["state", { verifier: "verifier" }]]);
+  const store = createPkceStore({
+    save: async (state, record) => records.set(state, record),
+    consume: (state) => {
+      const record = records.get(state);
+      records.delete(state);
+      return record;
+    },
+  });
+
+  const results = await Promise.allSettled([
+    consumePkceState({ store, state: "state", expectedState: "state" }),
+    consumePkceState({ store, state: "state", expectedState: "state" }),
+  ]);
+
+  expect(results.filter(({ status }) => status === "fulfilled")).toHaveLength(1);
+  expect(results.filter(({ status }) => status === "rejected")).toHaveLength(1);
+});
+
 test.each([
   ["missing state", undefined, "Invalid"],
   ["mismatched state", { state: "a", expectedState: "b" }, "Invalid"],
@@ -45,7 +74,7 @@ test.each([
   [
     "expired state",
     {
-      store: { load: jest.fn().mockResolvedValue(null), remove: jest.fn() },
+      store: { consume: jest.fn().mockResolvedValue(null) },
       state: "s",
       expectedState: "s",
     },
@@ -54,7 +83,7 @@ test.each([
   [
     "state without a verifier",
     {
-      store: { load: jest.fn().mockResolvedValue({}), remove: jest.fn() },
+      store: { consume: jest.fn().mockResolvedValue({}) },
       state: "s",
       expectedState: "s",
     },

@@ -1,12 +1,10 @@
-export function createPkceStore(options: { save: Function; load: Function; remove: Function }): {
+export function createPkceStore(options: { save: Function; consume: Function }): {
   save: Function;
-  load: Function;
-  remove: Function;
+  consume: Function;
 };
 export function createInMemoryPkceStore(): {
   save: (state: string, record: Record<string, unknown>) => Promise<void>;
-  load: (state: string) => Promise<Record<string, unknown> | undefined>;
-  remove: (state: string) => Promise<boolean>;
+  consume: (state: string) => Record<string, unknown> | undefined;
 };
 export function consumePkceState(options: {
   store: Record<string, Function>;

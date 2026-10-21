@@ -13,8 +13,9 @@ directives:
       - Remove caller-supplied authentication metadata before the MCP handler uses it.
       - Return OAuth state so consumers can associate callbacks with user sessions.
       - Require matching callback state before exchanging an authorization code.
-      - Store each PKCE verifier with its state and consume it once.
-      - Allow consumers to supply PKCE storage that works across processes.
+      - Store each PKCE verifier with its state and consume it once through one atomic operation.
+      - Require custom PKCE stores to return and remove each record in one atomic operation.
+      - Allow consumers to supply custom PKCE storage for requests across processes.
       - Return authentication errors without exposing tokens or private claims.
       - Require HTTPS for OAuth issuer and introspection endpoints.
       - Require HTTPS for authorization, registration, and token endpoints.

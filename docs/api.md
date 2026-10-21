@@ -39,8 +39,8 @@ Use this subpath for advanced authentication and client workflows.
 | `createClientStore(options)`               | Create storage for OAuth client data.                     |
 | `resolveOAuthClient(options)`              | Find or add an OAuth client through a store.              |
 | `createPkceState(options)`                 | Create a PKCE verifier, state, and challenge.             |
-| `createPkceStore(options)`                 | Create storage for one-time PKCE state.                   |
-| `consumePkceState(options)`                | Read and validate a PKCE state value.                     |
+| `createPkceStore(options)`                 | Create storage with atomic PKCE state consumption.        |
+| `consumePkceState(options)`                | Validate and atomically consume a PKCE state value.       |
 | `setOAuthChallenge(response, options)`     | Set the OAuth resource challenge header.                  |
 | `mountOAuthResourceMetadata(app, options)` | Add OAuth protected resource metadata routes to Fastify.  |
 
@@ -49,6 +49,7 @@ Save the returned state in the user session before you redirect the user.
 Pass the callback state and the saved session state to `exchangeCode`.
 The client rejects a missing or mismatched state before it sends a token request.
 Pass a shared `pkceStore` to `createOAuthClient` when requests can run in multiple processes.
+A shared store must return and remove each record in one atomic `consume(state)` call.
 
 ## Utility exports
 

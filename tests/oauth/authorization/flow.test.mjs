@@ -49,6 +49,35 @@ test("rejects a callback with state that does not match the user session", async
   expect(fetchFn).not.toHaveBeenCalled();
 });
 
+test("sends only one token request for concurrent exchanges with the same state", async () => {
+  const fetchFn = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ access_token: "token" }),
+  });
+  const flow = createOAuthAuthorizationFlow({
+    provider: {
+      authorization_endpoint: "https://auth/authorize",
+      token_endpoint: "https://auth/token",
+    },
+    credentials: { client_id: "id" },
+    fetchFn,
+  });
+  const auth = await flow.authorizationUrl({ redirectUri: "https://app/cb", state: "state" });
+  const exchange = () =>
+    flow.exchangeCode({
+      code: "code",
+      redirectUri: "https://app/cb",
+      state: auth.state,
+      expectedState: auth.state,
+    });
+
+  const results = await Promise.allSettled([exchange(), exchange()]);
+
+  expect(results.filter(({ status }) => status === "fulfilled")).toHaveLength(1);
+  expect(results.filter(({ status }) => status === "rejected")).toHaveLength(1);
+  expect(fetchFn).toHaveBeenCalledTimes(1);
+});
+
 test("uses global fetch when no fetch function is set", async () => {
   const originalFetch = global.fetch;
   const fetchMock = jest.fn().mockResolvedValue({

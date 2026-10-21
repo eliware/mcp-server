@@ -4,10 +4,9 @@ export function createOAuthClient(options: {
   store?: Record<string, Function>;
   pkceStore?: {
     save(state: string, record: { verifier: string }): void | Promise<void>;
-    load(
+    consume(
       state: string,
     ): { verifier: string } | undefined | Promise<{ verifier: string } | undefined>;
-    remove(state: string): unknown | Promise<unknown>;
   };
   fetchFn?: typeof fetch;
 }): Promise<{
