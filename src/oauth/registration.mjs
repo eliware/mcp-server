@@ -9,6 +9,7 @@ export async function registerOAuthClient({
   assertHttpsOAuthEndpoint(registrationEndpoint, "OAuth registration endpoint");
   const response = await fetchFn(registrationEndpoint, {
     method: "POST",
+    redirect: "error",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(metadata),
   });

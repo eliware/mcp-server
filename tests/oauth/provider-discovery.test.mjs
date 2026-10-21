@@ -8,7 +8,9 @@ test("discovers provider metadata", async () => {
   expect(await discoverOAuthProvider({ issuer: "https://auth/", fetchFn })).toEqual({
     authorization_endpoint: "a",
   });
-  expect(fetchFn).toHaveBeenCalledWith("https://auth/.well-known/openid-configuration");
+  expect(fetchFn).toHaveBeenCalledWith("https://auth/.well-known/openid-configuration", {
+    redirect: "error",
+  });
 });
 
 test("rejects discovery failures and missing issuer", async () => {

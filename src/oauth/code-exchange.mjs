@@ -18,6 +18,7 @@ export async function exchangeOAuthCode({
   }
   const response = await fetchFn(provider.token_endpoint, {
     method: "POST",
+    redirect: "error",
     headers,
     body: new URLSearchParams({
       grant_type: "authorization_code",

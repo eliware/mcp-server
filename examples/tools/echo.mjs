@@ -32,7 +32,7 @@ export default async function registerEchoTool({ mcpServer, toolName, log, conte
     toolName,
     { description: "Echo text back to the caller.", inputSchema },
     async ({ echoText }) => {
-      log.debug(`${toolName} request`, { echoText });
+      log.debug(`${toolName} request`);
 
       // Custom context is injected by the entrypoint and available here.
       // Example: await context.db.query('SELECT 1') when a database is configured.
@@ -47,7 +47,7 @@ export default async function registerEchoTool({ mcpServer, toolName, log, conte
         data: { text: echoText },
       });
 
-      log.debug(`${toolName} response`, { result });
+      log.debug(`${toolName} response`);
       return result;
     },
   );

@@ -13,6 +13,7 @@ test("registers a client and sends its metadata", async () => {
   expect(result).toEqual({ client_id: "x" });
   expect(fetchFn.mock.calls[0][1]).toMatchObject({
     method: "POST",
+    redirect: "error",
     body: JSON.stringify({ client_name: "app" }),
   });
 });

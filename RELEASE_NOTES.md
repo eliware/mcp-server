@@ -19,6 +19,8 @@
 - Preserve a PKCE verifier when a callback has a mismatched session value.
 - Consume a verifier once after the callback session value matches.
 - Require applications to trust and allowlist OAuth issuers before client setup.
+- Reject redirects from OAuth requests before they can forward credentials or client data.
+- Stop the shipped echo tool from logging caller input or response content.
 
 ### Breaking changes
 

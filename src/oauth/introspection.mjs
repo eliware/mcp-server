@@ -11,10 +11,10 @@ export function createOAuthIntrospector({
   if (!introspectionEndpoint) throw new Error("OAuth introspection endpoint is required");
   assertHttpsOAuthEndpoint(introspectionEndpoint, "OAuth introspection endpoint");
   return async (token) => {
-    const response = await fetchFn(
-      introspectionEndpoint,
-      createOAuthIntrospectionRequest({ resource, clientId, clientSecret, token }),
-    );
+    const response = await fetchFn(introspectionEndpoint, {
+      ...createOAuthIntrospectionRequest({ resource, clientId, clientSecret, token }),
+      redirect: "error",
+    });
     if (!response.ok) return null;
     return response.json();
   };

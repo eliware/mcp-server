@@ -28,6 +28,8 @@ The server rejects a missing token with status 401.
 Set `auth.mode` to `oauth2`.
 Use HTTPS for the issuer, introspection, authorization, registration, and token endpoints.
 The OAuth helpers reject other schemes before they send tokens, codes, or client data.
+The OAuth helpers reject redirects before they forward request data.
+Require custom `fetchFn` functions to honor `redirect: "error"` for OAuth requests.
 
 Set `issuer` and `resource`.
 Validate each issuer against an application allowlist before you create the OAuth client.

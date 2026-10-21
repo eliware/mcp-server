@@ -15,7 +15,9 @@ test("discovers provider metadata and resolves stored credentials", async () => 
     store,
     fetchFn,
   });
-  expect(fetchFn).toHaveBeenCalledWith("https://auth/.well-known/openid-configuration");
+  expect(fetchFn).toHaveBeenCalledWith("https://auth/.well-known/openid-configuration", {
+    redirect: "error",
+  });
   expect(setup).toEqual({ provider, credentials });
   expect(store.load).toHaveBeenCalled();
 });

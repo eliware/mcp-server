@@ -17,15 +17,18 @@ for (const file of ["echo.mjs"]) {
   });
 }
 
-test("echo tool returns its input", async () => {
+test("echo tool returns caller input without logging it or its response", async () => {
   const registerTool = jest.fn();
   const log = { debug: jest.fn() };
   await echo({ mcpServer: { registerTool }, toolName: "echo", log, context: {} });
   const handler = registerTool.mock.calls[0][2];
-  const result = await handler({ echoText: "hello" }, {});
+  const privateValue = "credential-like-value";
+  const result = await handler({ echoText: privateValue }, {});
   expect(JSON.parse(result.content[0].text)).toEqual({
     message: "echo-reply",
-    data: { text: "hello" },
+    data: { text: privateValue },
   });
-  expect(log.debug).toHaveBeenCalledTimes(2);
+  expect(log.debug.mock.calls).toEqual([["echo request"], ["echo response"]]);
+  expect(JSON.stringify(log.debug.mock.calls)).not.toContain(privateValue);
+  expect(JSON.stringify(log.debug.mock.calls)).not.toContain(result.content[0].text);
 });
