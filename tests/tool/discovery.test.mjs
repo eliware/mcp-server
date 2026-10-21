@@ -1,11 +1,6 @@
 import { jest, test, expect } from "@jest/globals";
 import { path } from "@eliware/path";
-import { discoverTools, normalizeToolsDir } from "../../src/tool/discovery.mjs";
-
-test("normalizes Windows tool folders", () => {
-  expect(normalizeToolsDir("C:\\C:\\tools")).toBe("C:\\tools");
-  expect(normalizeToolsDir("/C:/tools")).toBe("C:/tools");
-});
+import { discoverTools } from "../../src/tool/discovery.mjs";
 
 test("refreshes the discovered tools between builds", () => {
   const readDir = jest

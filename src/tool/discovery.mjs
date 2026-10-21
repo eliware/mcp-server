@@ -1,9 +1,5 @@
 import fs from "node:fs";
-
-export function normalizeToolsDir(toolsDir) {
-  const drivePath = toolsDir.replaceAll("C:\\C:\\", "C:\\");
-  return drivePath.replace(/^[\\/](?=[A-Za-z]:)/, "");
-}
+import { normalizeToolsDir } from "./directory-path.mjs";
 
 export function discoverTools({ toolsDir, readDir = fs.readdirSync, toolCache = new Map() }) {
   const resolvedToolsDir = normalizeToolsDir(toolsDir);

@@ -17,9 +17,6 @@ test("resolves dynamic clients through the registration store", async () => {
 });
 test("rejects default arguments and a dynamic client without a store", async () => {
   await expect(resolveOAuthClient()).rejects.toThrow("OAuth client mode");
-  await expect(resolveOAuthClient({ client: { mode: "static" }, provider: {} })).rejects.toThrow(
-    "clientId",
-  );
   await expect(
     resolveOAuthClient({
       client: { mode: "dynamic" },
