@@ -1,5 +1,14 @@
 # Release Notes
 
+## 14.0.0 — 2026-10-21
+
+### Changed
+
+- Upgrade `@eliware/log`, `@eliware/path`, and `@eliware/test` to version 14.
+- Update package and specification versions to 14.0.0 and 14.0.
+- Refresh the lock file with the latest available dependency releases.
+- Complete the required `AGENTS.md` sections for Eliware Test 14 conventions.
+
 ## 13.0.0 — 2026-10-19
 
 ### Added

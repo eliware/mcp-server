@@ -1,4 +1,4 @@
-version: "13.0"
+version: "14.0"
 description: Defines requirements for server authentication and authorization.
 directives:
   - id: E-210.2
