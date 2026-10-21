@@ -40,7 +40,10 @@ test("requires a session value before it creates an authorization request", asyn
 });
 
 test("rejects a callback with state that does not match the user session", async () => {
-  const fetchFn = jest.fn();
+  const fetchFn = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ access_token: "token" }),
+  });
   const flow = createOAuthAuthorizationFlow({
     provider: {
       authorization_endpoint: "https://auth/authorize",
@@ -63,6 +66,16 @@ test("rejects a callback with state that does not match the user session", async
     }),
   ).rejects.toThrow("Invalid OAuth state");
   expect(fetchFn).not.toHaveBeenCalled();
+
+  await expect(
+    flow.exchangeCode({
+      code: "code",
+      redirectUri: "https://app/cb",
+      state: auth.state,
+      expectedState: "session-state",
+    }),
+  ).resolves.toEqual({ access_token: "token" });
+  expect(fetchFn).toHaveBeenCalledTimes(1);
 });
 
 test("sends only one token request for concurrent exchanges with the same state", async () => {

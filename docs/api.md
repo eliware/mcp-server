@@ -53,7 +53,7 @@ The client rejects a missing or mismatched value before it sends a token request
 
 Pass a shared `pkceStore` to `createOAuthClient` when requests can run in multiple processes.
 A shared store must save the session value with each verifier.
-A shared store must return and remove each record in one atomic `consume(state)` call.
+A shared store must validate the saved session value and remove each matching record in one atomic `consume(state, expectedState)` call.
 
 ## Utility exports
 

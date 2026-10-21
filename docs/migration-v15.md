@@ -42,7 +42,7 @@ const tokens = await client.exchangeCode({
 
 Provide `save` and `consume` methods when you set `pkceStore`.
 Save the `sessionState` value with the PKCE verifier.
-Make `consume(state)` return and remove the matching record as one atomic action.
+Make `consume(state, expectedState)` validate the session value and remove a matching record atomically.
 Use shared storage with atomic consumption when requests can run in multiple processes.
 Do not use separate calls to read and delete a record.
 

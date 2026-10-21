@@ -6,10 +6,12 @@ export function createOAuthClient(options: {
     save(state: string, record: { verifier: string; sessionState: string }): void | Promise<void>;
     consume(
       state: string,
+      expectedState: string,
     ):
       | { verifier: string; sessionState: string }
+      | null
       | undefined
-      | Promise<{ verifier: string; sessionState: string } | undefined>;
+      | Promise<{ verifier: string; sessionState: string } | null | undefined>;
   };
   fetchFn?: typeof fetch;
 }): Promise<{

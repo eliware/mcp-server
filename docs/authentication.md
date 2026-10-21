@@ -78,7 +78,8 @@ The client checks the saved session value against the value stored with the PKCE
 The client rejects a missing or mismatched session value before it sends a token request.
 
 The client stores each PKCE verifier in memory by default.
-Use a shared `pkceStore` across processes, with a `consume(state)` method that returns and removes each record atomically.
+Use a shared `pkceStore` across processes, with a `consume(state, expectedState)` method.
+The method must validate the session value and remove a matching record atomically.
 Each stored record must include the PKCE verifier and the session state.
 
 ```js

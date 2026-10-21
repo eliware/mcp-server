@@ -14,7 +14,7 @@ test("creates stores with an atomic consume operation", async () => {
     verifier: "v",
     sessionState: "s",
   });
-  expect(consume).toHaveBeenCalledWith("s");
+  expect(consume).toHaveBeenCalledWith("s", "s");
 });
 
 test("rejects invalid store setup", () => {
@@ -34,6 +34,18 @@ test("stores and consumes pending PKCE data in memory", async () => {
   );
 });
 
+test("preserves a PKCE record when the session value does not match", async () => {
+  const store = createInMemoryPkceStore();
+  await store.save("state", { verifier: "verifier", sessionState: "saved-session" });
+
+  await expect(
+    consumePkceState({ store, state: "state", expectedState: "wrong-session" }),
+  ).rejects.toThrow("Invalid OAuth state");
+  await expect(
+    consumePkceState({ store, state: "state", expectedState: "saved-session" }),
+  ).resolves.toEqual({ verifier: "verifier", sessionState: "saved-session" });
+});
+
 test("allows only one concurrent consume to receive a verifier", async () => {
   const store = createInMemoryPkceStore();
   await store.save("state", { verifier: "verifier", sessionState: "state" });
@@ -51,8 +63,10 @@ test("delegates one-time consumption to the custom store", async () => {
   const records = new Map([["state", { verifier: "verifier", sessionState: "state" }]]);
   const store = createPkceStore({
     save: async (state, record) => records.set(state, record),
-    consume: (state) => {
+    consume: (state, expectedState) => {
       const record = records.get(state);
+      if (!record) return undefined;
+      if (record.sessionState !== expectedState) return null;
       records.delete(state);
       return record;
     },
@@ -74,7 +88,7 @@ test.each([
   [
     "expired state",
     {
-      store: { consume: jest.fn().mockResolvedValue(null) },
+      store: { consume: jest.fn().mockResolvedValue(undefined) },
       state: "s",
       expectedState: "s",
     },
@@ -93,10 +107,14 @@ test.each([
   await expect(consumePkceState(options)).rejects.toThrow(message);
 });
 
-test("rejects a session value that differs from the value saved with the PKCE verifier", async () => {
+test("passes the expected session value to the atomic store operation", async () => {
   const consume = jest.fn().mockResolvedValue({ verifier: "v", sessionState: "saved-session" });
   await expect(
-    consumePkceState({ store: { consume }, state: "callback-state", expectedState: "other" }),
-  ).rejects.toThrow("Invalid OAuth state");
-  expect(consume).toHaveBeenCalledWith("callback-state");
+    consumePkceState({
+      store: { consume },
+      state: "callback-state",
+      expectedState: "saved-session",
+    }),
+  ).resolves.toEqual({ verifier: "v", sessionState: "saved-session" });
+  expect(consume).toHaveBeenCalledWith("callback-state", "saved-session");
 });
