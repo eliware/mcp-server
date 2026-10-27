@@ -1,5 +1,19 @@
 # Release Notes
 
+## 15.0.1 — 2026-10-26
+
+### Fixed
+
+- Preserve configured OAuth subject claims when their values are empty strings or zero.
+- Keep OAuth authorization setup and callback token requests in focused modules with matching tests.
+- Keep package manifest reading and parsing in a focused module with matching tests.
+
+### Changed
+
+- Upgrade `@eliware/log`, `@eliware/path`, and `@eliware/test` to 15.0.1.
+- Upgrade `@modelcontextprotocol/node` to 2.1.2 and `@modelcontextprotocol/server` to 2.4.0.
+- Update the package version and lock file to 15.0.1.
+
 ## 15.0.0 — 2026-10-21
 
 ### Changed

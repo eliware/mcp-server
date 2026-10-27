@@ -1,6 +1,8 @@
 import { createAuthorizationUrlOperation } from "./url-operation.mjs";
 import { createCodeExchangeOperation } from "./exchange-code.mjs";
-import { consumePkceState, createInMemoryPkceStore } from "../../pkce/store.mjs";
+import { createAuthorizationStartOperation } from "./start-authorization.mjs";
+import { createCallbackExchangeOperation } from "./callback-exchange.mjs";
+import { createInMemoryPkceStore } from "../../pkce/store.mjs";
 
 export function createOAuthAuthorizationFlow({
   provider,
@@ -8,23 +10,17 @@ export function createOAuthAuthorizationFlow({
   fetchFn = fetch,
   pkceStore = createInMemoryPkceStore(),
 }) {
-  const createAuthorizationUrl = createAuthorizationUrlOperation({ provider, credentials });
-  const exchangeAuthorizationCode = createCodeExchangeOperation({ provider, credentials, fetchFn });
+  const authorizationStart = createAuthorizationStartOperation({
+    createAuthorizationUrl: createAuthorizationUrlOperation({ provider, credentials }),
+    pkceStore,
+  });
+  const callbackExchange = createCallbackExchangeOperation({
+    exchangeAuthorizationCode: createCodeExchangeOperation({ provider, credentials, fetchFn }),
+    pkceStore,
+  });
 
   return {
-    async authorizationUrl(options = {}) {
-      if (typeof options.sessionState !== "string" || !options.sessionState)
-        throw new Error("OAuth session state is required");
-      const authorization = createAuthorizationUrl(options);
-      await pkceStore.save(authorization.state, {
-        verifier: authorization.codeVerifier,
-        sessionState: options.sessionState,
-      });
-      return { url: authorization.url, state: authorization.state };
-    },
-    async exchangeCode({ code, redirectUri, state, expectedState }) {
-      const { verifier } = await consumePkceState({ store: pkceStore, state, expectedState });
-      return exchangeAuthorizationCode({ code, redirectUri, codeVerifier: verifier });
-    },
+    authorizationUrl: authorizationStart,
+    exchangeCode: callbackExchange,
   };
 }

@@ -1,5 +1,6 @@
 import fs from "fs";
 import { resolve } from "node:path";
+import { readPackageMeta } from "./meta/reader.mjs";
 
 export function loadPackageMeta({
   name,
@@ -9,7 +10,7 @@ export function loadPackageMeta({
   packagePath = resolve(process.cwd(), "package.json"),
 }) {
   try {
-    const pkg = JSON.parse(readFile(packagePath, "utf8"));
+    const pkg = readPackageMeta({ readFile, packagePath });
     const result = { name: name || pkg.name, version: version || pkg.version };
     if (!result.name || !result.version) throw new Error("Package name and version are required");
     return result;

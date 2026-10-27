@@ -31,4 +31,16 @@ test("builds OAuth context and selects configured and fallback subjects", () => 
       config: { ...config, subjectClaim: "missing" },
     }).subject,
   ).toBe("fallback");
+  expect(
+    createOAuthAuthContext({
+      ...options,
+      info: { username: "", sub: "fallback" },
+    }).subject,
+  ).toBe("");
+  expect(
+    createOAuthAuthContext({
+      ...options,
+      info: { username: 0, sub: "fallback" },
+    }).subject,
+  ).toBe(0);
 });
